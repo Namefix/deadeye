@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "deadeye",
+  "version": "${version}",
+  "name": "Dead Eye",
+  "description": "A mod that implements Dead Eye Targeting from the Red Dead Redemption series.",
+  "authors": [
+    "Namefix"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/deadeye",
+    "sources": "https://github.com/Namefix/deadeye",
+    "issues": "https://github.com/Namefix/deadeye/issues"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/deadeye/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.namefix.fabric.DeadeyeFabric"
+    ],
+    "client": [
+      "com.namefix.fabric.client.DeadeyeFabricClient"
+    ]
+  },
+  "mixins": [
+    "deadeye.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "architectury": ">=13.0.8",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

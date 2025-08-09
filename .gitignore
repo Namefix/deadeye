@@ -1,0 +1,13 @@
+build/
+.idea/
+fabric/build
+neoforge/build
+
+.gradle/
+fabric/.gradle/
+neoforge/.gradle/
+
+fabric/run*
+neoforge/run*
+
+common/src/main/generated

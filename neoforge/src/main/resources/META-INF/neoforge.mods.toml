@@ -1,0 +1,38 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+issueTrackerURL = "https://github.com/Namefix/deadeye/issues"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "deadeye"
+version = "${version}"
+displayName = "Dead Eye"
+authors = "Namefix"
+description = '''
+A mod that implements Dead Eye Targeting from the Red Dead Redemption series.
+'''
+logoFile = "assets/deadeye/icon.png"
+
+[[dependencies.deadeye]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.deadeye]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.deadeye]]
+modId = "architectury"
+type = "required"
+versionRange = "[13.0.8,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[mixins]]
+config = "deadeye.mixins.json"

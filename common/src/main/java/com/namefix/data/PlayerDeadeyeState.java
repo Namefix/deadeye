@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerDeadeyeData {
+public class PlayerDeadeyeState {
 	public enum State {
 		IDLE,
 		MARKED,

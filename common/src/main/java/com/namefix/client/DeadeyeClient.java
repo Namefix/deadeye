@@ -3,6 +3,7 @@ package com.namefix.client;
 import com.namefix.network.payload.DeadeyeStatePayload;
 import com.namefix.network.payload.RequestDeadeyePayload;
 import com.namefix.registry.KeybindRegistry;
+import com.namefix.shader.ShaderManager;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.client.Minecraft;
@@ -32,8 +33,13 @@ public class DeadeyeClient {
 			requestDeadeye();
 			return EventResult.interruptDefault();
 		}
-		return EventResult.pass();
 
+		if (keyCode == 296 && action == 1) { // F7 key pressed
+			ShaderManager.toggleShader("test_tint");
+		}
+
+
+		return EventResult.pass();
 	}
 
 	// Request Dead Eye toggle from the server

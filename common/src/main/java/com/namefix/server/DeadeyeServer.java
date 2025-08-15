@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,29 +27,30 @@ public class DeadeyeServer {
 	}
 
 	public static void toggleDeadeye(Player player) {
-		Level level = player.level();
 		if(DeadeyeStates.containsKey(player)) {
-			DeadeyeStates.remove(player);
-
-			if(DeadeyeStates.isEmpty()) {
-				level.tickRateManager().setTickRate(20.0f);
-			}
-
-			NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false));
+			disableDeadeye(player);
 		} else {
-			DeadeyeStates.put(player, new PlayerDeadeyeState());
-			level.tickRateManager().setTickRate(5.0f);
-
-			NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true));
+			enableDeadeye(player);
 		}
 	}
 
 	public static void disableDeadeye(Player player) {
+		var level = player.level();
 		DeadeyeStates.remove(player);
 
 		if(DeadeyeStates.isEmpty()) {
-			player.level().tickRateManager().setTickRate(20.0f);
+			level.tickRateManager().setTickRate(20.0f);
 		}
+
+		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false));
+	}
+
+	public static void enableDeadeye(Player player) {
+		var level = player.level();
+		DeadeyeStates.put(player, new PlayerDeadeyeState());
+		level.tickRateManager().setTickRate(5.0f);
+
+		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true));
 	}
 
 	public static void handleDeadeyeRequest(RequestDeadeyePayload payload, NetworkManager.PacketContext packetContext) {

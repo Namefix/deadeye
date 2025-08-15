@@ -34,12 +34,17 @@ public class DeadeyeClient {
 			return EventResult.interruptDefault();
 		}
 
-		if (keyCode == 296 && action == 1) { // F7 key pressed
-			ShaderManager.toggleShader("test_tint");
-		}
-
-
 		return EventResult.pass();
+	}
+
+	private static void setDeadeyeState(boolean enabled) {
+		DEADEYE_ENABLED = enabled;
+
+		if(enabled) {
+			ShaderManager.activateShader("rdr2_deadeye");
+		} else {
+			ShaderManager.deactivateShader("rdr2_deadeye");
+		}
 	}
 
 	// Request Dead Eye toggle from the server
@@ -49,6 +54,6 @@ public class DeadeyeClient {
 
 	// Handle server Dead Eye state
 	public static void handleDeadeyeState(DeadeyeStatePayload payload, NetworkManager.PacketContext packetContext) {
-		DEADEYE_ENABLED = payload.state();
+		setDeadeyeState(payload.state());
 	}
 }

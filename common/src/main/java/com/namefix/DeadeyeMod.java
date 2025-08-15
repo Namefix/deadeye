@@ -5,7 +5,6 @@ import com.namefix.network.DeadeyeNetwork;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.shader.ShaderManager;
-import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.event.events.common.EntityEvent;
@@ -19,6 +18,8 @@ public final class DeadeyeMod {
 
     // COMMON INIT
     public static void init() {
+        DeadeyeMod.LOGGER.info("Initializing Dead Eye. People don't forget, nothing gets forgiven.");
+
         DeadeyeNetwork.initialize();
 
         PlayerEvent.PLAYER_QUIT.register(DeadeyeServer::onPlayerQuit);

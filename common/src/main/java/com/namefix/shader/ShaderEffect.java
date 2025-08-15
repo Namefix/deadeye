@@ -15,6 +15,10 @@ public class ShaderEffect {
 		this.name = name;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public boolean load() {
 		try {
 			Minecraft mc = Minecraft.getInstance();
@@ -44,8 +48,15 @@ public class ShaderEffect {
 			RenderSystem.disableBlend();
 			RenderSystem.disableDepthTest();
 			RenderSystem.resetTextureMatrix();
+
+			Minecraft mc = Minecraft.getInstance();
+			mc.getMainRenderTarget().unbindWrite();
+
 			postChain.process(partialTicks);
-			Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+
+			mc.getMainRenderTarget().bindWrite(false);
+			RenderSystem.enableBlend();
+			RenderSystem.enableDepthTest();
 		}
 	}
 

@@ -2,7 +2,7 @@
   "targets": [ "swap" ],
   "passes": [
     {
-      "name": "minecraft:test_tint",
+      "name": "minecraft:rdr2_deadeye",
       "intarget": "minecraft:main",
       "outtarget": "swap"
     },

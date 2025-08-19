@@ -1,4 +1,11 @@
 {
+  "config.deadeye.title": "Dead Eye Yapılandırması",
+  "config.deadeye.description": "Dead Eye'ın sunduğu ayarları yapılandır.",
+  "config.deadeye.deadeyeTickRate.name": "Dead Eye Tick Oranı",
+  "config.deadeye.deadeyeTickRate.desc": "Dead Eye aktif iken tick oranını (oyun hızını) ayarlar.",
+  "config.deadeye.forceTickRate.name": "Çok Oyunculu'da Tick Oranını Zorla",
+  "config.deadeye.forceTickRate.desc": "Birden fazla oyuncu bulurken Tick oranının uygulanmasını zorlar.",
+
   "key.deadeye.toggle_deadeye": "Dead Eye'ı Açma/Kapatma",
   "key.categories.deadeye": "Dead Eye"
 }

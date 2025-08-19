@@ -1,4 +1,11 @@
 {
+  "config.deadeye.title": "Dead Eye Configuration",
+  "config.deadeye.description": "Configure options Dead Eye provides.",
+  "config.deadeye.deadeyeTickRate.name": "Dead Eye Tick Rate",
+  "config.deadeye.deadeyeTickRate.desc": "Sets the tick rate (game speed) while Dead Eye is enabled.",
+  "config.deadeye.forceTickRate.name": "Force Tick Rate in Multiplayer",
+  "config.deadeye.forceTickRate.desc": "Force tick rate to be applied while there are multiple players.",
+
   "key.deadeye.toggle_deadeye": "Toggle Dead Eye",
   "key.categories.deadeye": "Dead Eye"
 }

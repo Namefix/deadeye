@@ -1,10 +1,12 @@
 package com.namefix;
 
 import com.namefix.client.DeadeyeClient;
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.network.DeadeyeNetwork;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.shader.ShaderManager;
+import com.teamresourceful.resourcefulconfig.api.loader.Configurator;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.event.events.common.EntityEvent;
@@ -15,10 +17,12 @@ import org.slf4j.LoggerFactory;
 public final class DeadeyeMod {
     public static final String MOD_ID = "deadeye";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Configurator CONFIGURATOR = new Configurator(MOD_ID);
 
     // COMMON INIT
     public static void init() {
         DeadeyeMod.LOGGER.info("Initializing Dead Eye. People don't forget, nothing gets forgiven.");
+        CONFIGURATOR.register(DeadeyeConfig.class);
 
         DeadeyeNetwork.initialize();
 

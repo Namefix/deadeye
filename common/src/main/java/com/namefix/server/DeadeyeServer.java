@@ -1,8 +1,10 @@
 package com.namefix.server;
 
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.network.payload.DeadeyeStatePayload;
 import com.namefix.network.payload.RequestDeadeyePayload;
+import com.namefix.util.ServerUtils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +17,7 @@ import java.util.Map;
 
 public class DeadeyeServer {
 	public static Map<Player, PlayerDeadeyeState> DeadeyeStates = new HashMap<>();
+	public static float PREVIOUS_TICK_RATE = -1.0f;
 
 	public static void onPlayerQuit(ServerPlayer serverPlayer) {
 		disableDeadeye(serverPlayer);
@@ -38,8 +41,9 @@ public class DeadeyeServer {
 		var level = player.level();
 		DeadeyeStates.remove(player);
 
-		if(DeadeyeStates.isEmpty()) {
-			level.tickRateManager().setTickRate(20.0f);
+		if(DeadeyeStates.isEmpty() && PREVIOUS_TICK_RATE >= 0) {
+			level.tickRateManager().setTickRate(PREVIOUS_TICK_RATE);
+			PREVIOUS_TICK_RATE = -1f;
 		}
 
 		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false));
@@ -48,7 +52,11 @@ public class DeadeyeServer {
 	public static void enableDeadeye(Player player) {
 		var level = player.level();
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
-		level.tickRateManager().setTickRate(5.0f);
+
+		if(ServerUtils.canModifyTickRate(level.getServer())) {
+			PREVIOUS_TICK_RATE = level.tickRateManager().tickrate();
+			level.tickRateManager().setTickRate(DeadeyeConfig.Server.deadeyeTickRate);
+		}
 
 		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true));
 	}

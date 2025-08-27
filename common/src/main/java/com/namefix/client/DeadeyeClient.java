@@ -6,13 +6,21 @@ import com.namefix.registry.KeybindRegistry;
 import com.namefix.shader.ShaderManager;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.registry.item.ItemPropertiesRegistry;
 import net.minecraft.client.Minecraft;
 import com.namefix.data.PlayerDeadeyeState.State;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 
 public class DeadeyeClient {
 	public static boolean DEADEYE_ENABLED = false;
 	public static State DEADEYE_STATE = State.IDLE;
+	public static float PREVIOUS_TICK_RATE = -1.0f;
+
+	public static void initialize() {
+		modifyBowAnimations();
+	}
 
 	public static void onQuit(LocalPlayer localPlayer) {
 		DEADEYE_ENABLED = false;
@@ -55,5 +63,33 @@ public class DeadeyeClient {
 	// Handle server Dead Eye state
 	public static void handleDeadeyeState(DeadeyeStatePayload payload, NetworkManager.PacketContext packetContext) {
 		setDeadeyeState(payload.state());
+		PREVIOUS_TICK_RATE = payload.previousTickrate();
+	}
+
+	// Modify bow pulling animations
+	public static void modifyBowAnimations() {
+		ItemPropertiesRegistry.register(Items.BOW, ResourceLocation.parse("pull"), (itemStack, world, entity, seed) -> {
+			if (entity == null) {
+				return 0.0F;
+			}
+			if (entity.isUsingItem() && entity.getUseItem() == itemStack) {
+				int useTicks = entity.getTicksUsingItem();
+
+				return Math.min(useTicks / 20.0f, 1.0f);
+			}
+			return 0.0F;
+		});
+
+		ItemPropertiesRegistry.register(Items.CROSSBOW, ResourceLocation.parse("pull"), (itemStack, world, entity, seed) -> {
+			if (entity == null) {
+				return 0.0F;
+			}
+			if (entity.isUsingItem() && entity.getUseItem() == itemStack) {
+				int useTicks = entity.getTicksUsingItem();
+
+				return Math.min(useTicks / 20.0f, 1.0f);
+			}
+			return 0.0F;
+		});
 	}
 }

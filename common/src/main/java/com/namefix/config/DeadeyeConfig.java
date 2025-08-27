@@ -28,5 +28,12 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "forceTickRateDesc", translation = "config.deadeye.forceTickRate.desc")
 		public static boolean forceTickRate = false;
+
+		@ConfigEntry(
+				id = "bowPullCompensation",
+				translation = "config.deadeye.bowPullCompensation.name"
+		)
+		@Comment(value = "bowPullCompensationDesc", translation = "config.deadeye.bowPullCompensation.desc")
+		public static boolean bowPullCompensation = true;
 	}
 }

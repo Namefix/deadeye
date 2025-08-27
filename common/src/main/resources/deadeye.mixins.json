@@ -6,6 +6,9 @@
   "client": [
   ],
   "mixins": [
+    "BowItemMixin",
+    "CrossbowItemMixin",
+    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

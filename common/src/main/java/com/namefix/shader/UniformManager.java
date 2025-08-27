@@ -1,6 +1,5 @@
 package com.namefix.shader;
 
-import com.mojang.blaze3d.shaders.Uniform;
 import com.namefix.DeadeyeMod;
 import org.lwjgl.opengl.GL20;
 

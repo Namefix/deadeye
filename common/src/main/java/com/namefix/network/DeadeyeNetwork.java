@@ -2,6 +2,8 @@ package com.namefix.network;
 
 import com.namefix.DeadeyeMod;
 import com.namefix.client.DeadeyeClient;
+import com.namefix.config.SyncedConfigCache;
+import com.namefix.network.payload.ConfigSyncPayload;
 import com.namefix.network.payload.DeadeyeStatePayload;
 import com.namefix.network.payload.RequestDeadeyePayload;
 import com.namefix.server.DeadeyeServer;
@@ -12,9 +14,11 @@ import net.minecraft.resources.ResourceLocation;
 public class DeadeyeNetwork {
 	public static final CustomPacketPayload.Type<RequestDeadeyePayload> REQUEST_DEADEYE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "request_deadeye"));
 	public static final CustomPacketPayload.Type<DeadeyeStatePayload> DEADEYE_STATE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "deadeye_state"));
+	public static final CustomPacketPayload.Type<ConfigSyncPayload> CONFIG_SYNC = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "config_sync"));
 
 	public static void initialize() {
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_STATE, DeadeyeStatePayload.CODEC, DeadeyeClient::handleDeadeyeState);
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, CONFIG_SYNC, ConfigSyncPayload.CODEC, SyncedConfigCache::receiveConfigData);
 	}
 
 	public static void initializeClient() {

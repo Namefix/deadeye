@@ -26,6 +26,7 @@ public final class DeadeyeMod {
 
         DeadeyeNetwork.initialize();
 
+        PlayerEvent.PLAYER_JOIN.register(DeadeyeServer::onPlayerJoin);
         PlayerEvent.PLAYER_QUIT.register(DeadeyeServer::onPlayerQuit);
         EntityEvent.LIVING_DEATH.register(DeadeyeServer::onPlayerDeath);
     }
@@ -34,6 +35,7 @@ public final class DeadeyeMod {
     public static void initClient() {
         KeybindRegistry.register();
         DeadeyeNetwork.initializeClient();
+        DeadeyeClient.initialize();
 
         ClientRawInputEvent.KEY_PRESSED.register(DeadeyeClient::onKeyPressed);
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(DeadeyeClient::onQuit);

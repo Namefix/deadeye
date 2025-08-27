@@ -1,6 +1,7 @@
 package com.namefix.server;
 
 import com.namefix.config.DeadeyeConfig;
+import com.namefix.config.SyncedConfigCache;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.network.payload.DeadeyeStatePayload;
 import com.namefix.network.payload.RequestDeadeyePayload;
@@ -19,8 +20,15 @@ public class DeadeyeServer {
 	public static Map<Player, PlayerDeadeyeState> DeadeyeStates = new HashMap<>();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 
+	public static void onPlayerJoin(ServerPlayer serverPlayer) {
+		serverPlayer.server.execute(() -> {
+			SyncedConfigCache.sendConfigData(serverPlayer);
+		});
+	}
+
 	public static void onPlayerQuit(ServerPlayer serverPlayer) {
-		disableDeadeye(serverPlayer);
+		DeadeyeStates.remove(serverPlayer);
+		if(DeadeyeStates.isEmpty()) disableDeadeye(serverPlayer);
 	}
 
 	public static EventResult onPlayerDeath(LivingEntity livingEntity, DamageSource damageSource) {
@@ -46,7 +54,7 @@ public class DeadeyeServer {
 			PREVIOUS_TICK_RATE = -1f;
 		}
 
-		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false));
+		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false, PREVIOUS_TICK_RATE));
 	}
 
 	public static void enableDeadeye(Player player) {
@@ -54,11 +62,11 @@ public class DeadeyeServer {
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
 
 		if(ServerUtils.canModifyTickRate(level.getServer())) {
-			PREVIOUS_TICK_RATE = level.tickRateManager().tickrate();
+			if(DeadeyeStates.size() == 1) PREVIOUS_TICK_RATE = level.tickRateManager().tickrate();
 			level.tickRateManager().setTickRate(DeadeyeConfig.Server.deadeyeTickRate);
 		}
 
-		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true));
+		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE));
 	}
 
 	public static void handleDeadeyeRequest(RequestDeadeyePayload payload, NetworkManager.PacketContext packetContext) {

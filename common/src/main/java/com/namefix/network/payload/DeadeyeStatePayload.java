@@ -6,8 +6,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record DeadeyeStatePayload(boolean state) implements CustomPacketPayload {
-	public static final StreamCodec<RegistryFriendlyByteBuf, DeadeyeStatePayload> CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, DeadeyeStatePayload::state, DeadeyeStatePayload::new);
+public record DeadeyeStatePayload(boolean state, float previousTickrate) implements CustomPacketPayload {
+	public static final StreamCodec<RegistryFriendlyByteBuf, DeadeyeStatePayload> CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, DeadeyeStatePayload::state, ByteBufCodecs.FLOAT, DeadeyeStatePayload::previousTickrate, DeadeyeStatePayload::new);
 
 	@Override
 	public Type<? extends CustomPacketPayload> type() {

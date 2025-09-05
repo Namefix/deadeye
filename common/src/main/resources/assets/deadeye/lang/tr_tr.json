@@ -7,6 +7,8 @@
   "config.deadeye.forceTickRate.desc": "Birden fazla oyuncu bulurken Tick oranının uygulanmasını zorlar.",
   "config.deadeye.bowPullCompensation.name": "Yay Çekme Hızı Dengeleme",
   "config.deadeye.bowPullCompensation.desc": "Dead Eye aktif iken yay/arbalet çekme hızını dengeler.",
+  "config.deadeye.pitchShift.name": "Ses Perde Kaydırma",
+  "config.deadeye.pitchShift.desc": "Tüm seslerin perdesini Dead Eye tick oranına (oyun hızına) kaydırır.",
 
   "key.deadeye.toggle_deadeye": "Dead Eye'ı Açma/Kapatma",
   "key.categories.deadeye": "Dead Eye"

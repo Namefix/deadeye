@@ -5,7 +5,8 @@ import com.teamresourceful.resourcefulconfig.api.annotations.*;
 @Config(
 		value = "deadeye",
 		categories = {
-				DeadeyeConfig.Server.class
+				DeadeyeConfig.Server.class,
+				DeadeyeConfig.Client.class
 		}
 )
 @ConfigInfo(
@@ -35,5 +36,15 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "bowPullCompensationDesc", translation = "config.deadeye.bowPullCompensation.desc")
 		public static boolean bowPullCompensation = true;
+	}
+
+	@Category(value = "Client")
+	public static class Client {
+		@ConfigEntry(
+				id = "pitchShift",
+				translation = "config.deadeye.pitchShift.name"
+		)
+		@Comment(value = "pitchShiftDesc", translation = "config.deadeye.pitchShift.desc")
+		public static boolean pitchShift = false;
 	}
 }

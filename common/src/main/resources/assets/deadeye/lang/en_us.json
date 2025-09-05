@@ -7,6 +7,8 @@
   "config.deadeye.forceTickRate.desc": "Force tick rate to be applied while there are multiple players.",
   "config.deadeye.bowPullCompensation.name": "Bow Pull Speed Compensation",
   "config.deadeye.bowPullCompensation.desc": "Compensates bows/crossbows pull speed while Dead Eye is activated.",
+  "config.deadeye.pitchShift.name": "Sound Pitch Shift",
+  "config.deadeye.pitchShift.desc": "Shifts pitches of all sounds to the Dead Eye tick rate. (game speed)",
 
   "key.deadeye.toggle_deadeye": "Toggle Dead Eye",
   "key.categories.deadeye": "Dead Eye"

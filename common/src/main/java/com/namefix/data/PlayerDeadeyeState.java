@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerDeadeyeState {
-	public enum State {
+	public enum Phase {
 		IDLE,
 		MARKED,
 		SHOOTING
 	}
 
-	public State state = State.IDLE;
+	public Phase phase = Phase.IDLE;
 	public List<DeadeyeTargetData> targets = new ArrayList<>();
 	public ItemStack markItem;
 }

@@ -2,16 +2,24 @@ package com.namefix.server;
 
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.config.SyncedConfigCache;
+import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
+import com.namefix.data.PlayerDeadeyeState.Phase;
+import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.network.payload.DeadeyeStatePayload;
 import com.namefix.network.payload.RequestDeadeyePayload;
+import com.namefix.network.payload.RequestMarkPayload;
 import com.namefix.util.ServerUtils;
+import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +62,7 @@ public class DeadeyeServer {
 			PREVIOUS_TICK_RATE = -1f;
 		}
 
-		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false, PREVIOUS_TICK_RATE));
+		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal()));
 	}
 
 	public static void enableDeadeye(Player player) {
@@ -66,11 +74,43 @@ public class DeadeyeServer {
 			level.tickRateManager().setTickRate(DeadeyeConfig.Server.deadeyeTickRate);
 		}
 
-		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE));
+		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal()));
+	}
+
+	public static void updatePlayerPhase(ServerPlayer player, Phase phase) {
+		if(!DeadeyeStates.containsKey(player)) return;
+		PlayerDeadeyeState state = DeadeyeStates.get(player);
+		state.phase = phase;
+		NetworkManager.sendToPlayer(player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, phase.ordinal()));
 	}
 
 	public static void handleDeadeyeRequest(RequestDeadeyePayload payload, NetworkManager.PacketContext packetContext) {
 		Player player = packetContext.getPlayer();
 		toggleDeadeye(player);
+	}
+
+	public static void handleMarkRequest(RequestMarkPayload payload, NetworkManager.PacketContext packetContext) {
+		ServerPlayer player = (ServerPlayer) packetContext.getPlayer();
+		if(!DeadeyeStates.containsKey(player)) return;
+		PlayerDeadeyeState state = DeadeyeStates.get(player);
+		if(state.targets.size() > 50) return;
+
+		ItemStack markItem = player.getMainHandItem();
+		if(markItem.isEmpty()) return;
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, markItem);
+		if(interaction == null) return;
+		if(!interaction.preMark()) return;
+
+		Entity entity = player.level().getEntity(payload.entityId());
+		if(entity == null) return;
+		if(!(entity instanceof LivingEntity target)) return;
+
+		updatePlayerPhase(player, Phase.MARKED);
+		Vec3 pos = new Vec3(payload.markPos());
+		state.targets.add(new DeadeyeTargetData(entity, pos));
+		state.markItem = player.getMainHandItem().copy();
+		NetworkManager.sendToPlayer(player, RequestMarkPayload.forServerToClient(payload.markPos(), payload.entityId()));
+
+		interaction.postMark();
 	}
 }

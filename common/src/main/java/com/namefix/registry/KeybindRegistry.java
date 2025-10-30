@@ -6,8 +6,10 @@ import net.minecraft.client.KeyMapping;
 
 public class KeybindRegistry {
 	public static final KeyMapping DEADEYE_TOGGLE = new KeyMapping("key.deadeye.toggle_deadeye", InputConstants.KEY_CAPSLOCK, "key.categories.deadeye");
+	public static final KeyMapping DEADEYE_MARK = new KeyMapping("key.deadeye.mark", InputConstants.KEY_GRAVE, "key.categories.deadeye");
 
 	public static void register() {
 		KeyMappingRegistry.register(DEADEYE_TOGGLE);
+		KeyMappingRegistry.register(DEADEYE_MARK);
 	}
 }

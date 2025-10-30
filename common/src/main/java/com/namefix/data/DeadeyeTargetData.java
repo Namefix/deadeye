@@ -15,20 +15,26 @@ public class DeadeyeTargetData {
 	private Vec3 initialPos;
 	// Offset of the mark relative to the position
 	private Vec3 markOffset;
+	// Render ticks
+	private int renderTicks = 0;
 
 	public DeadeyeTargetData(Entity target, Vec3 initialPos) {
 		this.target = target;
 		this.initialPos = initialPos;
-		this.markOffset = getMarkOffset();
+		this.markOffset = target.position().subtract(initialPos);
 	}
 
 	// Returns the current position of the mark
-	public Vec3 getMarkOffset() {
-		return target.position().subtract(markOffset);
+	public Vec3 getMarkPosition(float partialTick) {
+		if(target == null || target.isRemoved()) return initialPos;
+		return target.getPosition(partialTick).subtract(markOffset);
 	}
 
 	@Environment(EnvType.CLIENT)
 	public Vec2 getMarkHeading() {
-		return Utils.getHeadingFromTarget(target, EntityAnchorArgument.Anchor.EYES, getMarkOffset());
+		return Utils.getHeadingFromTarget(target, EntityAnchorArgument.Anchor.EYES, getMarkPosition(0.0f));
 	}
+
+	public int getRenderTicks() { return renderTicks; }
+	public int incrementRenderTicks() { return ++renderTicks; }
 }

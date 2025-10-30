@@ -1,12 +1,14 @@
 package com.namefix;
 
 import com.namefix.client.DeadeyeClient;
+import com.namefix.client.DeadeyeHud;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.network.DeadeyeNetwork;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.shader.ShaderManager;
 import com.teamresourceful.resourcefulconfig.api.loader.Configurator;
+import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.event.events.common.EntityEvent;
@@ -39,6 +41,7 @@ public final class DeadeyeMod {
 
         ClientRawInputEvent.KEY_PRESSED.register(DeadeyeClient::onKeyPressed);
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(DeadeyeClient::onQuit);
+        ClientGuiEvent.RENDER_HUD.register(DeadeyeHud::render);
 
         ShaderManager.initialize();
     }

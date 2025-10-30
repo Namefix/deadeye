@@ -46,5 +46,12 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "pitchShiftDesc", translation = "config.deadeye.pitchShift.desc")
 		public static boolean pitchShift = false;
+
+		@ConfigEntry(
+				id = "targetMarkSize",
+				translation = "config.deadeye.targetMarkSize.name"
+		)
+		@Comment(value = "targetMarkSizeDesc", translation = "config.deadeye.targetMarkSize.desc")
+		public static float targetMarkSize = 1f;
 	}
 }

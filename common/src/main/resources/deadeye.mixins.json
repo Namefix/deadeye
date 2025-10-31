@@ -9,7 +9,8 @@
   "mixins": [
     "BowItemMixin",
     "CrossbowItemMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "ProjectileWeaponItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

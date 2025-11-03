@@ -3,10 +3,7 @@ package com.namefix.network;
 import com.namefix.DeadeyeMod;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.SyncedConfigCache;
-import com.namefix.network.payload.ConfigSyncPayload;
-import com.namefix.network.payload.DeadeyeStatePayload;
-import com.namefix.network.payload.RequestDeadeyePayload;
-import com.namefix.network.payload.RequestMarkPayload;
+import com.namefix.network.payload.*;
 import com.namefix.server.DeadeyeServer;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -18,6 +15,8 @@ public class DeadeyeNetwork {
 	public static final CustomPacketPayload.Type<ConfigSyncPayload> CONFIG_SYNC = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "config_sync"));
 	public static final CustomPacketPayload.Type<RequestMarkPayload> REQUEST_MARK_C2S = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "request_mark_c2s"));
 	public static final CustomPacketPayload.Type<RequestMarkPayload> REQUEST_MARK_S2C = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "request_mark_s2c"));
+	public static final CustomPacketPayload.Type<InformShotPayload> INFORM_SHOT = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "inform_shot"));
+	public static final CustomPacketPayload.Type<InformShootingPhasePayload> INFORM_SHOOTING_PHASE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "inform_shooting_phase"));
 
 	public static void initialize() {
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_STATE, DeadeyeStatePayload.CODEC, DeadeyeClient::handleDeadeyeState);
@@ -28,5 +27,7 @@ public class DeadeyeNetwork {
 	public static void initializeClient() {
 		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_DEADEYE, RequestDeadeyePayload.CODEC, DeadeyeServer::handleDeadeyeRequest);
 		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_MARK_C2S, RequestMarkPayload.CODEC, DeadeyeServer::handleMarkRequest);
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOT, InformShotPayload.CODEC, DeadeyeServer::handleShotInfo);
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOOTING_PHASE, InformShootingPhasePayload.CODEC, DeadeyeServer::handleShootingPhase);
 	}
 }

@@ -6,9 +6,7 @@ import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.data.PlayerDeadeyeState.Phase;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
-import com.namefix.network.payload.DeadeyeStatePayload;
-import com.namefix.network.payload.RequestDeadeyePayload;
-import com.namefix.network.payload.RequestMarkPayload;
+import com.namefix.network.payload.*;
 import com.namefix.util.ServerUtils;
 import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
@@ -112,5 +110,28 @@ public class DeadeyeServer {
 		NetworkManager.sendToPlayer(player, RequestMarkPayload.forServerToClient(payload.markPos(), payload.entityId()));
 
 		interaction.postMark();
+	}
+
+	public static void handleShotInfo(InformShotPayload payload, NetworkManager.PacketContext packetContext) {
+		PlayerDeadeyeState state = DeadeyeStates.get(packetContext.getPlayer());
+		if(state == null || state.phase != Phase.SHOOTING) {
+			disableDeadeye(packetContext.getPlayer()); // Failsafe. Player probably went out of sync.
+			return;
+		}
+
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
+		interaction.shoot();
+
+		state.targets.removeFirst();
+		if(state.targets.isEmpty()) {
+			disableDeadeye(packetContext.getPlayer());
+		}
+	}
+
+	public static void handleShootingPhase(InformShootingPhasePayload payload, NetworkManager.PacketContext packetContext) {
+		if(!DeadeyeStates.containsKey(packetContext.getPlayer())) return;
+		PlayerDeadeyeState state = DeadeyeStates.get(packetContext.getPlayer());
+		if(state.phase != Phase.MARKED) return;
+		state.phase = Phase.SHOOTING;
 	}
 }

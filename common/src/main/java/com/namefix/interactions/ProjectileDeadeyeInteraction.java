@@ -24,12 +24,17 @@ public class ProjectileDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	}
 
 	@Override
-	public boolean preShoot() {
+	public boolean preShot() {
 		return true;
 	}
 
 	@Override
-	public void postShoot() {
+	public void shoot() {
+
+	}
+
+	@Override
+	public void postShot() {
 
 	}
 }

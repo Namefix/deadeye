@@ -1,5 +1,6 @@
 package com.namefix.platform.neoforge;
 
+import com.namefix.client.DeadeyeClient;
 import com.namefix.platform.RenderEvents;
 import com.namefix.shader.ShaderManager;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,6 +16,7 @@ public class RenderEventsImpl implements RenderEvents {
 	@SubscribeEvent
 	public void onRenderLevelLast(RenderLevelStageEvent event) {
 		if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+			DeadeyeClient.render(event.getPartialTick().getRealtimeDeltaTicks());
 			ShaderManager.renderActiveShaders(event.getPartialTick().getRealtimeDeltaTicks());
 		}
 	}

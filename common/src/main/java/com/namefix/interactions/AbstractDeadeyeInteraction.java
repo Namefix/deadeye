@@ -28,7 +28,9 @@ public abstract class AbstractDeadeyeInteraction {
 	public abstract void postMark();
 
 	// Before the shooting request is processed. Cancellable.
-	public abstract boolean preShoot();
+	public abstract boolean preShot();
+	// Process interaction shot
+	public abstract void shoot();
 	// After the shooting request.
-	public abstract void postShoot();
+	public abstract void postShot();
 }

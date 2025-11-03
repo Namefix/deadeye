@@ -3,9 +3,7 @@ package com.namefix.client;
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
-import com.namefix.network.payload.DeadeyeStatePayload;
-import com.namefix.network.payload.RequestDeadeyePayload;
-import com.namefix.network.payload.RequestMarkPayload;
+import com.namefix.network.payload.*;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.shader.ShaderManager;
 import com.namefix.util.Utils;
@@ -15,8 +13,9 @@ import dev.architectury.registry.item.ItemPropertiesRegistry;
 import net.minecraft.client.Minecraft;
 import com.namefix.data.PlayerDeadeyeState.Phase;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public class DeadeyeClient {
@@ -31,14 +31,89 @@ public class DeadeyeClient {
 	public static PlayerDeadeyeState DEADEYE_STATE = new PlayerDeadeyeState();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 
-	public static long LAST_DEADEYE_MARK = 0;
+	private static long LAST_DEADEYE_MARK = 0;
+	private static long LAST_DEADEYE_LERP = 0;
+	private static long DEADEYE_LERP_START = 0;
+	private static long LAST_DEADEYE_SHOT = 0;
+	private static AbstractDeadeyeInteraction CURRENT_PHASE_INTERACTION = null;
 
 	public static void initialize() {
 		modifyBowAnimations();
 	}
 
+	public static void render(float deltaTicks) {
+		shootingTick(deltaTicks);
+	}
+
+	public static void shootingTick(float deltaTicks) {
+		Minecraft mc = Minecraft.getInstance();
+		if(		mc.isPaused() || !DEADEYE_ENABLED ||
+				DEADEYE_STATE.targets.isEmpty() || DEADEYE_STATE.phase != Phase.SHOOTING ||
+				mc.player == null || System.currentTimeMillis() - LAST_DEADEYE_LERP < 100
+		) return;
+
+		if(CURRENT_PHASE_INTERACTION == null) return;
+
+		if(!mc.player.getMainHandItem().getItem().equals(DEADEYE_STATE.markItem.getItem())) {
+			requestDeadeye();
+			return;
+		}
+
+		DeadeyeTargetData target = DEADEYE_STATE.targets.getFirst();
+
+		float pPitch = mc.player.getXRot();
+		float pYaw = mc.player.getYRot();
+
+		float interpolationFactor = mc.getTimer().getGameTimeDeltaTicks();
+		if(System.currentTimeMillis() - DEADEYE_LERP_START > 3_000) interpolationFactor *= 4;
+
+		Vec2 targetHeading = Utils.getHeadingFromTarget(mc.player, EntityAnchorArgument.Anchor.EYES, target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)));
+		float targetPitch = targetHeading.x;
+		float targetYaw = targetHeading.y;
+		float shortestPitch = pPitch + Mth.wrapDegrees(targetPitch - pPitch);
+		float shortestYaw = pYaw + Mth.wrapDegrees(targetYaw - pYaw);
+		float finalPitch =  Mth.lerp(interpolationFactor, pPitch, shortestPitch);
+		float finalYaw = Mth.lerp(interpolationFactor, pYaw, shortestYaw);
+
+		if(System.currentTimeMillis() - DEADEYE_LERP_START > 10_000) {
+			finalPitch = targetPitch;
+			finalYaw = targetYaw;
+		}
+
+		mc.player.setXRot(finalPitch);
+		mc.player.setYRot(finalYaw);
+
+		float wrappedFinalPitch = Mth.wrapDegrees(finalPitch);
+		float wrappedFinalYaw = Mth.wrapDegrees(finalYaw);
+		float wrappedTargetPitch = Mth.wrapDegrees(targetPitch);
+		float wrappedTargetYaw = Mth.wrapDegrees(targetYaw);
+
+		if(Mth.abs(wrappedTargetPitch - wrappedFinalPitch) < 1f && Math.abs(wrappedTargetYaw - wrappedFinalYaw) < 1f) {
+			if(System.currentTimeMillis() - LAST_DEADEYE_SHOT < 250) return;
+
+			if(!CURRENT_PHASE_INTERACTION.preShot()) return;
+
+			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
+			DEADEYE_STATE.targets.removeFirst();
+			LAST_DEADEYE_LERP = System.currentTimeMillis();
+			LAST_DEADEYE_SHOT = System.currentTimeMillis();
+			DEADEYE_LERP_START = System.currentTimeMillis();
+		}
+	}
+
+	public static void initShootingPhase() {
+		if(DEADEYE_STATE.targets.isEmpty()) return;
+		CURRENT_PHASE_INTERACTION = Utils.getDeadeyeInteraction(DEADEYE_STATE, Minecraft.getInstance().player, DEADEYE_STATE.markItem);
+		LAST_DEADEYE_LERP = System.currentTimeMillis();
+		DEADEYE_LERP_START = System.currentTimeMillis();
+
+		DEADEYE_STATE.phase = Phase.SHOOTING;
+		NetworkManager.sendToServer(new InformShootingPhasePayload());
+	}
+
 	public static void onQuit(LocalPlayer localPlayer) {
 		DEADEYE_ENABLED = false;
+		DEADEYE_STATE = new PlayerDeadeyeState();
 	}
 
 	public static EventResult onKeyPressed(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers) {
@@ -62,6 +137,11 @@ public class DeadeyeClient {
 			return EventResult.interruptDefault();
 		}
 
+		if(KeybindRegistry.DEADEYE_SHOOT_TARGETS.matches(keyCode, scanCode) && action == 1 && DEADEYE_ENABLED && DEADEYE_STATE.phase == Phase.MARKED) {
+			initShootingPhase();
+			return EventResult.interruptDefault();
+		}
+
 		return EventResult.pass();
 	}
 
@@ -72,7 +152,9 @@ public class DeadeyeClient {
 			ShaderManager.activateShader("rdr2_deadeye");
 		} else {
 			ShaderManager.deactivateShader("rdr2_deadeye");
+			DEADEYE_STATE.phase = Phase.IDLE;
 			DEADEYE_STATE.targets.clear();
+			DEADEYE_STATE.markItem = null;
 		}
 	}
 
@@ -106,6 +188,8 @@ public class DeadeyeClient {
 		setDeadeyeState(payload.state());
 		PREVIOUS_TICK_RATE = payload.previousTickrate();
 		DEADEYE_STATE.phase = Phase.values()[payload.phase()];
+
+		if(DEADEYE_STATE.phase == Phase.SHOOTING) initShootingPhase();
 	}
 
 	public static void handleDeadeyeMark(RequestMarkPayload payload, NetworkManager.PacketContext packetContext) {
@@ -116,6 +200,7 @@ public class DeadeyeClient {
 		if(target == null) return;
 		LAST_DEADEYE_MARK = System.currentTimeMillis();
 		DEADEYE_STATE.targets.add(new DeadeyeTargetData(target, new Vec3(payload.markPos())));
+		DEADEYE_STATE.markItem = mc.player.getMainHandItem();
 		// TODO: Add deadeye mark sound
 
 		interaction.postMark();

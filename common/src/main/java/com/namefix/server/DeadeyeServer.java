@@ -122,8 +122,10 @@ public class DeadeyeServer {
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
 		interaction.shoot();
 
+		boolean hasMoreTargets = state.targets.size() > 1;
 		state.targets.removeFirst();
-		if(state.targets.isEmpty()) {
+		interaction.postShot(hasMoreTargets);
+		if(!hasMoreTargets) {
 			disableDeadeye(packetContext.getPlayer());
 		}
 	}

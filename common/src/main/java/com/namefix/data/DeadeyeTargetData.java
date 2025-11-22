@@ -37,4 +37,7 @@ public class DeadeyeTargetData {
 
 	public int getRenderTicks() { return renderTicks; }
 	public int incrementRenderTicks() { return ++renderTicks; }
+	public Vec3 getMarkOffset() {
+		return markOffset;
+	}
 }

@@ -38,6 +38,91 @@ public class Utils {
 		return new Vec2(pitch, yaw);
 	}
 
+	// entity movement prediction stuff
+	public static Vec3 predictLeadPosition(Entity target, Vec3 shooterPos, double projectileSpeed) {
+		if(target == null) return null;
+		if(projectileSpeed <= 0.0d || shooterPos == null) return resolveAimBase(target);
+
+		Vec3 aimBase = resolveAimBase(target);
+		Vec3 velocity = target.getDeltaMovement();
+		Vec3 delta = aimBase.subtract(shooterPos);
+
+		double a = velocity.lengthSqr() - projectileSpeed * projectileSpeed;
+		double b = 2.0d * delta.dot(velocity);
+		double c = delta.lengthSqr();
+
+		double time;
+		if(Math.abs(a) < 1.0e-6d) {
+			double denom = b;
+			if(Math.abs(denom) < 1.0e-6d) time = 0.0d;
+			else time = -c / denom;
+		} else {
+			double discriminant = b * b - 4.0d * a * c;
+			if(discriminant < 0.0d) {
+				time = -1.0d;
+			} else {
+				double sqrt = Math.sqrt(discriminant);
+				double t1 = (-b - sqrt) / (2.0d * a);
+				double t2 = (-b + sqrt) / (2.0d * a);
+				time = Double.MAX_VALUE;
+				if(t1 > 0.0d) time = Math.min(time, t1);
+				if(t2 > 0.0d) time = Math.min(time, t2);
+				if(time == Double.MAX_VALUE) time = -1.0d;
+			}
+		}
+
+		if(time <= 0.0d) return aimBase;
+		return aimBase.add(velocity.scale(time));
+	}
+
+	public static float solveBallisticPitch(Vec3 shooterPos, Vec3 aimPos, double projectileSpeed, double gravity) {
+		if(shooterPos == null || aimPos == null) return 0.0f;
+		Vec3 delta = aimPos.subtract(shooterPos);
+		double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+		if(horizontal < 1.0e-6d) {
+			return (float) Mth.wrapDegrees(-Math.toDegrees(Math.atan2(delta.y, horizontal <= 0.0d ? 1.0e-6d : horizontal)));
+		}
+		if(projectileSpeed <= 0.0d || gravity <= 0.0d) {
+			return (float)(-Math.toDegrees(Math.atan2(delta.y, horizontal)));
+		}
+		double speedSq = projectileSpeed * projectileSpeed;
+		double speedFourth = speedSq * speedSq;
+		double y = delta.y;
+		double gh2 = gravity * horizontal * horizontal;
+		double discriminant = speedFourth - gravity * (gh2 + 2.0d * y * speedSq);
+		if(discriminant < 0.0d) {
+			discriminant = 0.0d;
+		}
+		double sqrt = Math.sqrt(discriminant);
+		double denom = gravity * horizontal;
+		if(Math.abs(denom) < 1.0e-6d) {
+			return (float)(-Math.toDegrees(Math.atan2(delta.y, horizontal)));
+		}
+		double angleLow = Math.atan((speedSq - sqrt) / denom);
+		double angleHigh = Math.atan((speedSq + sqrt) / denom);
+		double direct = Math.atan2(delta.y, horizontal);
+		double chosen = angleLow;
+		if(!Double.isFinite(angleLow)) {
+			chosen = angleHigh;
+		} else if(Double.isFinite(angleHigh)) {
+			double pitchLow = Math.abs(Math.toDegrees(angleLow - direct));
+			double pitchHigh = Math.abs(Math.toDegrees(angleHigh - direct));
+			chosen = pitchLow <= pitchHigh ? angleLow : angleHigh;
+		}
+		float pitch = (float)(-Math.toDegrees(chosen));
+		if(!Float.isFinite(pitch)) {
+			pitch = (float)(-Math.toDegrees(direct));
+		}
+		return pitch;
+	}
+
+	private static Vec3 resolveAimBase(Entity target) {
+		if(target instanceof LivingEntity living) {
+			return new Vec3(living.getX(), living.getEyeY() - 0.1d, living.getZ());
+		}
+		return target.position();
+	}
+
 	public static AbstractDeadeyeInteraction getDeadeyeInteraction(PlayerDeadeyeState state, Player player, ItemStack itemStack) {
 		Item item = itemStack.getItem();
 

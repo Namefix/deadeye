@@ -34,7 +34,7 @@ public class ProjectileDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	}
 
 	@Override
-	public void postShot() {
+	public void postShot(boolean hasMoreTargets) {
 
 	}
 }

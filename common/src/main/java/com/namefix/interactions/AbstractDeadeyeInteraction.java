@@ -31,6 +31,6 @@ public abstract class AbstractDeadeyeInteraction {
 	public abstract boolean preShot();
 	// Process interaction shot
 	public abstract void shoot();
-	// After the shooting request.
-	public abstract void postShot();
+	// After the shooting request, flag indicates whether more targets remain client-side.
+	public abstract void postShot(boolean hasMoreTargets);
 }

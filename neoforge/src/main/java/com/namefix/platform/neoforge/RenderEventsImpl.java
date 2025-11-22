@@ -16,7 +16,7 @@ public class RenderEventsImpl implements RenderEvents {
 	@SubscribeEvent
 	public void onRenderLevelLast(RenderLevelStageEvent event) {
 		if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
-			DeadeyeClient.render(event.getPartialTick().getRealtimeDeltaTicks());
+			DeadeyeClient.render();
 			ShaderManager.renderActiveShaders(event.getPartialTick().getRealtimeDeltaTicks());
 		}
 	}

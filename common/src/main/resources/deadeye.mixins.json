@@ -4,7 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "client.SoundEngineMixin"
+    "client.SoundEngineMixin",
+    "client.LocalPlayerMixin",
+    "client.ItemInHandRendererMixin",
+    "client.PlayerMixin"
   ],
   "mixins": [
     "BowItemMixin",

@@ -9,18 +9,15 @@ import com.namefix.shader.ShaderManager;
 import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
-import dev.architectury.registry.item.ItemPropertiesRegistry;
 import net.minecraft.client.Minecraft;
 import com.namefix.data.PlayerDeadeyeState.Phase;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
@@ -38,14 +35,14 @@ public class DeadeyeClient {
 	private static AbstractDeadeyeInteraction CURRENT_PHASE_INTERACTION = null;
 
 	public static void initialize() {
-		modifyBowAnimations();
+		DeadeyeBowVisuals.registerItemProperties();
 	}
 
-	public static void render(float deltaTicks) {
-		shootingTick(deltaTicks);
+	public static void render() {
+		shootingTick();
 	}
 
-	public static void shootingTick(float deltaTicks) {
+	public static void shootingTick() {
 		Minecraft mc = Minecraft.getInstance();
 		if(		mc.isPaused() || !DEADEYE_ENABLED ||
 				DEADEYE_STATE.targets.isEmpty() || DEADEYE_STATE.phase != Phase.SHOOTING ||
@@ -94,6 +91,8 @@ public class DeadeyeClient {
 			if(!CURRENT_PHASE_INTERACTION.preShot()) return;
 
 			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
+			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
+			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
 			DEADEYE_STATE.targets.removeFirst();
 			LAST_DEADEYE_LERP = System.currentTimeMillis();
 			LAST_DEADEYE_SHOT = System.currentTimeMillis();
@@ -114,6 +113,7 @@ public class DeadeyeClient {
 	public static void onQuit(LocalPlayer localPlayer) {
 		DEADEYE_ENABLED = false;
 		DEADEYE_STATE = new PlayerDeadeyeState();
+		DeadeyeBowVisuals.reset(); // reset fake bow animation thingy
 	}
 
 	public static EventResult onKeyPressed(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers) {
@@ -155,6 +155,7 @@ public class DeadeyeClient {
 			DEADEYE_STATE.phase = Phase.IDLE;
 			DEADEYE_STATE.targets.clear();
 			DEADEYE_STATE.markItem = null;
+			DeadeyeBowVisuals.reset(); // reset fake bow thingy
 		}
 	}
 
@@ -206,30 +207,4 @@ public class DeadeyeClient {
 		interaction.postMark();
 	}
 
-	// Modify bow pulling animations
-	public static void modifyBowAnimations() {
-		ItemPropertiesRegistry.register(Items.BOW, ResourceLocation.parse("pull"), (itemStack, world, entity, seed) -> {
-			if (entity == null) {
-				return 0.0F;
-			}
-			if (entity.isUsingItem() && entity.getUseItem() == itemStack) {
-				int useTicks = entity.getTicksUsingItem();
-
-				return Math.min(useTicks / 20.0f, 1.0f);
-			}
-			return 0.0F;
-		});
-
-		ItemPropertiesRegistry.register(Items.CROSSBOW, ResourceLocation.parse("pull"), (itemStack, world, entity, seed) -> {
-			if (entity == null) {
-				return 0.0F;
-			}
-			if (entity.isUsingItem() && entity.getUseItem() == itemStack) {
-				int useTicks = entity.getTicksUsingItem();
-
-				return Math.min(useTicks / 20.0f, 1.0f);
-			}
-			return 0.0F;
-		});
-	}
 }

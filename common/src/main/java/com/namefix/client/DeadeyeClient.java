@@ -56,12 +56,16 @@ public class DeadeyeClient {
 			return;
 		}
 
-		DeadeyeTargetData target = DEADEYE_STATE.targets.getFirst();
+		DeadeyeTargetData target = getNextValidTarget();
+		if(target == null) {
+			requestDeadeye();
+			return;
+		}
 
 		float pPitch = mc.player.getXRot();
 		float pYaw = mc.player.getYRot();
 
-		float interpolationFactor = mc.getTimer().getGameTimeDeltaTicks();
+		float interpolationFactor = (mc.getTimer().getRealtimeDeltaTicks() / 2.0f);
 		if(System.currentTimeMillis() - DEADEYE_LERP_START > 3_000) interpolationFactor *= 4;
 
 		Vec2 targetHeading = Utils.getHeadingFromTarget(mc.player, EntityAnchorArgument.Anchor.EYES, target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)));
@@ -205,6 +209,15 @@ public class DeadeyeClient {
 		// TODO: Add deadeye mark sound
 
 		interaction.postMark();
+	}
+
+	private static DeadeyeTargetData getNextValidTarget() {
+		while(!DEADEYE_STATE.targets.isEmpty()) {
+			DeadeyeTargetData candidate = DEADEYE_STATE.targets.getFirst();
+			if(candidate != null && !candidate.isInvalid()) return candidate;
+			DEADEYE_STATE.targets.removeFirst();
+		}
+		return null;
 	}
 
 }

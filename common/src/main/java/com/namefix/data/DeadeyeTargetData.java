@@ -24,6 +24,10 @@ public class DeadeyeTargetData {
 		this.markOffset = target.position().subtract(initialPos);
 	}
 
+	public boolean isInvalid() {
+		return target == null || !target.isAlive() || target.isRemoved();
+	}
+
 	// Returns the current position of the mark
 	public Vec3 getMarkPosition(float partialTick) {
 		if(target == null || target.isRemoved()) return initialPos;

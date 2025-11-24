@@ -23,16 +23,17 @@ public class DeadeyeHud {
 		final float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
 		DeadeyeClient.DEADEYE_STATE.targets.forEach((mark) -> {
 			mark.incrementRenderTicks();
+			float deltaRenderTicks = mark.getRenderTicks() * deltaTracker.getRealtimeDeltaTicks()*2f;
 
 			float markSize = 5f*DeadeyeConfig.Client.targetMarkSize;
 			Vec2 markPos = Utils.worldToScreen(mark.getMarkPosition(partialTick), partialTick);
 			if(!Utils.isOnScreen(markPos)) return;
 
-			float t = Math.min(mark.getRenderTicks() / 10f, 1f);
+			float t = Math.min(deltaRenderTicks / 10f, 1f);
 			guiGraphics.setColor(1f - 0.22f * t, 1f - 0.91f * t, 1f - 0.91f * t, 1.0f);
 
 			float sizeModifier = 1;
-			if(mark.getRenderTicks() < 5) sizeModifier = 1.5f-(mark.getRenderTicks() / 10f);
+			if(deltaRenderTicks < 5f) sizeModifier = 1.5f-(deltaRenderTicks / 10f);
 			float scaledSize = markSize * sizeModifier;
 			float drawX = markPos.x - scaledSize / 2f;
 			float drawY = markPos.y - scaledSize / 2f;

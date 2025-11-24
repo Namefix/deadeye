@@ -119,11 +119,19 @@ public class DeadeyeServer {
 			return;
 		}
 
+		state.targets.removeIf(target -> target == null || target.isInvalid());
+		if(state.targets.isEmpty()) {
+			disableDeadeye(packetContext.getPlayer());
+			return;
+		}
+
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
 		interaction.shoot();
 
-		boolean hasMoreTargets = state.targets.size() > 1;
 		state.targets.removeFirst();
+		state.targets.removeIf(target -> target == null || target.isInvalid());
+		boolean hasMoreTargets = !state.targets.isEmpty();
+
 		interaction.postShot(hasMoreTargets);
 		if(!hasMoreTargets) {
 			disableDeadeye(packetContext.getPlayer());

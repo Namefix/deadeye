@@ -41,6 +41,20 @@ public class DeadeyeConfig {
 	@Category(value = "Client")
 	public static class Client {
 		@ConfigEntry(
+				id = "enableShaders",
+				translation = "config.deadeye.enableShaders"
+		)
+		@Comment(value = "enableShadersDesc", translation = "config.deadeye.enableShaders.desc")
+		public static boolean enableShaders = true;
+
+		@ConfigEntry(
+				id = "enableLightLeak",
+				translation = "config.deadeye.enableLightLeak"
+		)
+		@Comment(value = "enableLightLeakDesc", translation = "config.deadeye.enableLightLeak.desc")
+		public static boolean enableLightLeak = true;
+
+		@ConfigEntry(
 				id = "pitchShift",
 				translation = "config.deadeye.pitchShift.name"
 		)

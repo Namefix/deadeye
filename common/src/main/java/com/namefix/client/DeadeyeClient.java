@@ -1,5 +1,6 @@
 package com.namefix.client;
 
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
@@ -150,10 +151,13 @@ public class DeadeyeClient {
 	}
 
 	private static void setDeadeyeState(boolean enabled) {
+		if(DEADEYE_ENABLED == enabled) return;
 		DEADEYE_ENABLED = enabled;
 
 		if(enabled) {
-			ShaderManager.activateShader("rdr2_deadeye");
+			// TODO: update shader logic with the profile system
+			if(DeadeyeConfig.Client.enableShaders) ShaderManager.activateShader("rdr2_deadeye");
+			if(DeadeyeConfig.Client.enableLightLeak) DeadeyeHud.playLightLeak();
 		} else {
 			ShaderManager.deactivateShader("rdr2_deadeye");
 			DEADEYE_STATE.phase = Phase.IDLE;

@@ -2,6 +2,7 @@ package com.namefix;
 
 import com.namefix.client.DeadeyeClient;
 import com.namefix.client.DeadeyeHud;
+import com.namefix.command.DeadeyeCommandRegistry;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.network.DeadeyeNetwork;
 import com.namefix.registry.KeybindRegistry;
@@ -25,6 +26,7 @@ public final class DeadeyeMod {
     public static void init() {
         DeadeyeMod.LOGGER.info("Initializing Dead Eye. People don't forget, nothing gets forgiven.");
         CONFIGURATOR.register(DeadeyeConfig.class);
+        DeadeyeCommandRegistry.initialize();
 
         DeadeyeNetwork.initialize();
 

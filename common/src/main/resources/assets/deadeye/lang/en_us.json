@@ -1,4 +1,14 @@
 {
+  "command.deadeye.toggle.enabled": "Enabled Dead Eye for %s.",
+  "command.deadeye.toggle.disabled": "Disabled Dead Eye for %s.",
+  "command.deadeye.data.set": "Set %s to %s for %s.",
+  "command.deadeye.data.get": "%s is %s for %s.",
+  "command.deadeye.data.skill": "Dead Eye skill",
+  "command.deadeye.data.level": "Dead Eye level",
+  "command.deadeye.data.xp": "Dead Eye experience",
+  "command.deadeye.data.meter": "Dead Eye meter",
+  "command.deadeye.data.core": "Dead Eye core",
+
   "config.deadeye.title": "Dead Eye Configuration",
   "config.deadeye.description": "Configure options Dead Eye provides.",
   "config.deadeye.deadeyeTickRate.name": "Dead Eye Tick Rate",

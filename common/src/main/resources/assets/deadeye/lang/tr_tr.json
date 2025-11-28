@@ -1,4 +1,14 @@
 {
+  "command.deadeye.toggle.enabled": "%s için Dead Eye etkinleştirildi.",
+  "command.deadeye.toggle.disabled": "%s için Dead Eye devre dışı bırakıldı.",
+  "command.deadeye.data.set": "%3$s için %1$s değeri %2$s olarak ayarlandı.",
+  "command.deadeye.data.get": "%3$s için %1$s değeri %2$s.",
+  "command.deadeye.data.skill": "Dead Eye becerisi",
+  "command.deadeye.data.level": "Dead Eye seviyesi",
+  "command.deadeye.data.xp": "Dead Eye deneyimi",
+  "command.deadeye.data.meter": "Dead Eye ölçer",
+  "command.deadeye.data.core": "Dead Eye çekirdeği",
+
   "config.deadeye.title": "Dead Eye Yapılandırması",
   "config.deadeye.description": "Dead Eye'ın sunduğu ayarları yapılandır.",
   "config.deadeye.deadeyeTickRate.name": "Dead Eye Tick Oranı",

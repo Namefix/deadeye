@@ -3,10 +3,12 @@ package com.namefix.client;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
+import com.namefix.data.PlayerSavedData;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.network.payload.*;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.shader.ShaderManager;
+import com.namefix.util.ClientUtils;
 import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
@@ -27,8 +29,10 @@ import net.minecraft.world.phys.Vec3;
 public class DeadeyeClient {
 	public static boolean DEADEYE_ENABLED = false;
 	public static PlayerDeadeyeState DEADEYE_STATE = new PlayerDeadeyeState();
+	public static PlayerSavedData DEADEYE_DATA = new PlayerSavedData();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 
+	// SHOOTING
 	private static long LAST_DEADEYE_MARK = 0;
 	private static long LAST_DEADEYE_LERP = 0;
 	private static long DEADEYE_LERP_START = 0;
@@ -57,7 +61,7 @@ public class DeadeyeClient {
 			return;
 		}
 
-		DeadeyeTargetData target = getNextValidTarget();
+		DeadeyeTargetData target = ClientUtils.getNextValidTarget();
 		if(target == null) {
 			requestDeadeye();
 			return;
@@ -215,13 +219,15 @@ public class DeadeyeClient {
 		interaction.postMark();
 	}
 
-	private static DeadeyeTargetData getNextValidTarget() {
-		while(!DEADEYE_STATE.targets.isEmpty()) {
-			DeadeyeTargetData candidate = DEADEYE_STATE.targets.getFirst();
-			if(candidate != null && !candidate.isInvalid()) return candidate;
-			DEADEYE_STATE.targets.removeFirst();
-		}
-		return null;
+	public static void handleLevelData(LevelDataPayload payload, NetworkManager.PacketContext packetContext) {
+		DEADEYE_DATA.deadeyeSkill = payload.deadeyeSkill();
+		DEADEYE_DATA.deadeyeLevel = payload.deadeyeLevel();
+		DEADEYE_DATA.deadeyeXp = payload.deadeyeXp();
+	}
+
+	public static void handleMeterData(MeterDataPayload payload, NetworkManager.PacketContext packetContext) {
+		DEADEYE_DATA.deadeyeMeter = payload.deadeyeMeter();
+		DEADEYE_DATA.deadeyeCore = payload.deadeyeCore();
 	}
 
 }

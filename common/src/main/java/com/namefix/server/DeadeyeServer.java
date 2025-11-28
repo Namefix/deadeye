@@ -5,6 +5,8 @@ import com.namefix.config.SyncedConfigCache;
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.data.PlayerDeadeyeState.Phase;
+import com.namefix.data.PlayerSavedData;
+import com.namefix.data.StateManager;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.network.payload.*;
 import com.namefix.util.ServerUtils;
@@ -27,8 +29,12 @@ public class DeadeyeServer {
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 
 	public static void onPlayerJoin(ServerPlayer serverPlayer) {
+		PlayerSavedData data = StateManager.getPlayerState(serverPlayer);
+
 		serverPlayer.server.execute(() -> {
 			SyncedConfigCache.sendConfigData(serverPlayer);
+			updatePlayerLevelData(serverPlayer, data);
+			updatePlayerMeterData(serverPlayer, data);
 		});
 	}
 
@@ -80,6 +86,14 @@ public class DeadeyeServer {
 		PlayerDeadeyeState state = DeadeyeStates.get(player);
 		state.phase = phase;
 		NetworkManager.sendToPlayer(player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, phase.ordinal()));
+	}
+
+	public static void updatePlayerLevelData(ServerPlayer player, PlayerSavedData data) {
+		NetworkManager.sendToPlayer(player, new LevelDataPayload(data.deadeyeSkill, data.deadeyeLevel, data.deadeyeXp));
+	}
+
+	public static void updatePlayerMeterData(ServerPlayer player, PlayerSavedData data) {
+		NetworkManager.sendToPlayer(player, new MeterDataPayload(data.deadeyeMeter, data.deadeyeCore));
 	}
 
 	public static void handleDeadeyeRequest(RequestDeadeyePayload payload, NetworkManager.PacketContext packetContext) {

@@ -25,11 +25,11 @@ public class StateManager extends SavedData {
 		players.forEach(((uuid, playerSavedData) -> {
 			CompoundTag playerTag = new CompoundTag();
 
-			playersTag.putInt("deadeyeSkill", playerSavedData.deadeyeSkill);
-			playersTag.putInt("deadeyeLevel", playerSavedData.deadeyeLevel);
-			playersTag.putInt("deadeyeXp", playerSavedData.deadeyeXp);
-			playersTag.putFloat("deadeyeMeter", playerSavedData.deadeyeMeter);
-			playersTag.putFloat("deadeyeCore", playerSavedData.deadeyeCore);
+			playerTag.putInt("deadeyeSkill", playerSavedData.deadeyeSkill);
+			playerTag.putInt("deadeyeLevel", playerSavedData.deadeyeLevel);
+			playerTag.putInt("deadeyeXp", playerSavedData.deadeyeXp);
+			playerTag.putFloat("deadeyeMeter", playerSavedData.deadeyeMeter);
+			playerTag.putFloat("deadeyeCore", playerSavedData.deadeyeCore);
 
 			playersTag.put(uuid.toString(), playerTag);
 		}));

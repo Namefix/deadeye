@@ -1,10 +1,13 @@
 package com.namefix.data;
 
+import com.google.common.collect.Lists;
 import com.namefix.server.DeadeyeServer;
-import com.namefix.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+
+import java.util.List;
 
 public class PlayerSavedData {
 	public int deadeyeSkill = 3;
@@ -12,6 +15,12 @@ public class PlayerSavedData {
 	public int deadeyeXp = 0;
 	public float deadeyeMeter = 30.0f;
 	public float deadeyeCore = 20.0f;
+
+	private static final List<Vector3f> HUD_FORTIFICATION_COLORS = Lists.newArrayList(
+			new Vector3f(1f, 0.969f, 0.776f),
+			new Vector3f(1f, 0.969f, 0.659f),
+			new Vector3f(0.976f, 0.925f, 0.412f)
+	);
 
 	public static void setDeadeyeSkill(ServerPlayer player, int skill) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
@@ -95,5 +104,27 @@ public class PlayerSavedData {
 	// Maximum Dead Eye level achievable with the given level. Adds max meter value to max core value.
 	public static float getMaxTotalDeadeye(int level) {
 		return (level*10f)+80f;
+	}
+
+	public static float getMaxMeter(PlayerSavedData data, int tonicLevel) {
+		return (data.deadeyeLevel*10)+(tonicLevel*20);
+	}
+
+	public static boolean usingDeadeyeCore(PlayerSavedData data) {
+		return data.deadeyeMeter <= 0f && data.deadeyeCore > 0f && data.deadeyeCore <= 20f;
+	}
+
+	public static Vector3f getMeterColor(PlayerSavedData data) {
+		if(data.deadeyeMeter > getMaxMeter(data, 2)) return HUD_FORTIFICATION_COLORS.get(2);
+		else if(data.deadeyeMeter > getMaxMeter(data, 1)) return HUD_FORTIFICATION_COLORS.get(1);
+		else if(data.deadeyeMeter > getMaxMeter(data, 0)) return HUD_FORTIFICATION_COLORS.get(0);
+		else return new Vector3f(1.0f, 1.0f, 1.0f);
+	}
+
+	public static Vector3f getCoreColor(float core) {
+		if(core> 60) return HUD_FORTIFICATION_COLORS.get(2);
+		else if(core > 40) return HUD_FORTIFICATION_COLORS.get(1);
+		else if(core > 20) return HUD_FORTIFICATION_COLORS.get(0);
+		else return new Vector3f(1.0f, 1.0f, 1.0f);
 	}
 }

@@ -6,7 +6,8 @@ import com.teamresourceful.resourcefulconfig.api.annotations.*;
 		value = "deadeye",
 		categories = {
 				DeadeyeConfig.Server.class,
-				DeadeyeConfig.Client.class
+				DeadeyeConfig.Client.class,
+				DeadeyeConfig.HUD.class
 		}
 )
 @ConfigInfo(
@@ -67,5 +68,44 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "targetMarkSizeDesc", translation = "config.deadeye.targetMarkSize.desc")
 		public static float targetMarkSize = 1f;
+	}
+
+	@Category(value = "HUD")
+	public static class HUD {
+		public enum HudPosition {
+			TOP_LEFT,
+			TOP_RIGHT,
+			BOTTOM_LEFT,
+			BOTTOM_RIGHT,
+			NEAR_HOTBAR,
+			CUSTOM,
+			DISABLED
+		}
+
+		@ConfigEntry(
+				id = "hudPosition",
+				translation = "config.deadeye.hudPosition.name"
+		)
+		public static HudPosition hudPosition = HudPosition.NEAR_HOTBAR;
+
+		@ConfigEntry(
+				id = "hudScale",
+				translation = "config.deadeye.hudScale.name"
+		)
+		public static float hudScale = 1f;
+
+		@ConfigEntry(
+				id = "hudCustomX",
+				translation = "config.deadeye.hudCustomX.name"
+		)
+		@Comment(value = "hudCustomXDesc", translation = "config.deadeye.hudCustom.desc")
+		public static int hudCustomX = 100;
+
+		@ConfigEntry(
+				id = "hudCustomY",
+				translation = "config.deadeye.hudCustomY.name"
+		)
+		@Comment(value = "hudCustomXDesc", translation = "config.deadeye.hudCustom.desc")
+		public static int hudCustomY = 100;
 	}
 }

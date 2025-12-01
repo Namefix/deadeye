@@ -25,6 +25,11 @@
   "config.deadeye.pitchShift.desc": "Tüm seslerin perdesini Dead Eye tick oranına (oyun hızına) kaydırır.",
   "config.deadeye.targetMarkSize.name": "Hedef İşaret Boyutu",
   "config.deadeye.targetMarkSize.desc": "Dead Eye'daki hedef işaretlerinin boyutu",
+  "config.deadeye.hudPosition.name": "Arayüz Pozisyonu",
+  "config.deadeye.hudScale.name": "Arayüz Ölçeği",
+  "config.deadeye.hudCustomX.name": "Özel Arayüz X",
+  "config.deadeye.hudCustomY.name": "Özel Arayüz Y",
+  "config.deadeye.hudCustom.desc": "Arayüz pozisyonunun \"Özel\" olması gerekir.",
 
   "key.deadeye.toggle_deadeye": "Dead Eye'ı Açma/Kapatma",
   "key.deadeye.mark": "Hedef İşaretleme",

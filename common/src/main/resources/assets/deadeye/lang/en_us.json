@@ -25,6 +25,11 @@
   "config.deadeye.pitchShift.desc": "Shifts pitches of all sounds to the Dead Eye tick rate. (game speed)",
   "config.deadeye.targetMarkSize.name": "Target Mark Size",
   "config.deadeye.targetMarkSize.desc": "Size of the target marks in Dead Eye",
+  "config.deadeye.hudPosition.name": "Hud Position",
+  "config.deadeye.hudScale.name": "Hud Scale",
+  "config.deadeye.hudCustomX.name": "Custom Hud X",
+  "config.deadeye.hudCustomY.name": "Custom Hud Y",
+  "config.deadeye.hudCustom.desc": "Requires \"Custom\" hud position.",
 
   "key.deadeye.toggle_deadeye": "Toggle Dead Eye",
   "key.deadeye.mark": "Mark Targets",

@@ -32,6 +32,14 @@ public class DeadeyeHud {
 			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/core/core%02d.png", i)))
 			.toList();
 
+	private static final List<ResourceLocation> DEADEYE_METER_TRACK_SPRITES = IntStream.rangeClosed(1, 10)
+			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/metertrack/track%02d.png", i)))
+			.toList();
+
+	private static final List<ResourceLocation> DEADEYE_METER_SPRITES = IntStream.rangeClosed(1, 100)
+			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/meter/meter%02d.png", i)))
+			.toList();
+
 	// Lightleak effect
 	private static int LIGHTLEAK_FRAME = 15;
 	private static float LIGHTLEAK_TIME = 0;
@@ -49,7 +57,11 @@ public class DeadeyeHud {
 	private static float LAST_FADE_FRAME_DELTA = 0f;
 
 	public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		if(!DeadeyeConfig.HUD.hudPosition.equals(DeadeyeConfig.HUD.HudPosition.DISABLED)) renderDeadeyeHUD(guiGraphics, deltaTracker);
+		Minecraft mc = Minecraft.getInstance();
+		
+		if(!DeadeyeConfig.HUD.hudPosition.equals(DeadeyeConfig.HUD.HudPosition.DISABLED) && DeadeyeClient.DEADEYE_DATA.deadeyeSkill > 0 && !mc.options.hideGui && !mc.player.isSpectator()) {
+			renderDeadeyeHUD(guiGraphics, deltaTracker);
+		}
 		if(DeadeyeClient.DEADEYE_ENABLED) {
 			renderTargetMarks(guiGraphics, deltaTracker);
 			if(LIGHTLEAK_FRAME < 15) renderLightLeak(guiGraphics, deltaTracker);
@@ -132,6 +144,7 @@ public class DeadeyeHud {
 		updateDeadeyeAnimations(deltaTracker);
 		renderDeadeyeBackground(guiGraphics);
 		renderDeadeyeCore(guiGraphics, deltaTracker);
+		renderDeadeyeMeter(guiGraphics, deltaTracker);
 	}
 
 	public static void renderDeadeyeBackground(GuiGraphics guiGraphics) {
@@ -146,7 +159,7 @@ public class DeadeyeHud {
 		if (DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeMeter(DeadeyeClient.DEADEYE_DATA) && DEADEYE_FADE_PULSE_TIME >= 0f) {
 			float fadeTime = Math.max(0f, DEADEYE_FADE_PULSE_TIME - LAST_FADE_FRAME_DELTA);
 			if (fadeTime < 0.2f) {
-				float alpha = 0.4f;
+				float alpha = 0.35f;
 				float alphaFactor = alpha * (1f - (fadeTime / 0.2f));
 				if (alphaFactor > 0f) {
 					ClientUtils.drawDeadeyeCoreFadePulse(guiGraphics, hudPosition, hudScale, alphaFactor);
@@ -268,6 +281,61 @@ public class DeadeyeHud {
 		guiGraphics.pose().popPose();
 
 		guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.enableDepthTest();
+		RenderSystem.disableBlend();
+	}
+
+	public static void renderDeadeyeMeter(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+		float currentMeter = DeadeyeClient.DEADEYE_DATA.deadeyeMeter;
+		PlayerSavedData data = DeadeyeClient.DEADEYE_DATA;
+
+		boolean tonic = false;
+		if(LAST_DEADEYE_METER > PlayerSavedData.getMaxMeter(data, 0)) {
+			tonic = true;
+			if(
+				LAST_DEADEYE_METER > PlayerSavedData.getMaxMeter(data, 2) && currentMeter <= PlayerSavedData.getMaxMeter(data, 2) ||
+				LAST_DEADEYE_METER > PlayerSavedData.getMaxMeter(data, 1) && currentMeter <= PlayerSavedData.getMaxMeter(data, 1) ||
+				currentMeter <= 20f ||
+				currentMeter > PlayerSavedData.getMaxMeter(data) && currentMeter > LAST_DEADEYE_METER
+			) {
+				DEADEYE_METER_BLINK = 1f;
+			}
+		}
+
+		LAST_DEADEYE_METER = currentMeter;
+
+		boolean hideMeterThisFrame = false;
+		if (DEADEYE_METER_BLINK > 0f) {
+			DEADEYE_METER_BLINK = Mth.clamp(DEADEYE_METER_BLINK - deltaTracker.getRealtimeDeltaTicks() / 16f, 0f, 1f);
+			int phase = (int)(DEADEYE_METER_BLINK * 4f);
+			if((phase & 1) == 1) hideMeterThisFrame = true;
+		}
+
+		if(hideMeterThisFrame) return;
+
+		Vector2i hudPosition = ClientUtils.getHudCoordinates(guiGraphics, DeadeyeConfig.HUD.hudPosition);
+		int hudScale = Math.round(16f * DeadeyeConfig.HUD.hudScale);
+		Vector3f meterColor = PlayerSavedData.getMeterColor(data);
+
+		int meterIndex = tonic ? 99 : Mth.clamp(Math.round(currentMeter), 0, 99);
+		int trackIndex = Mth.clamp(data.deadeyeLevel-1, 0, 9);
+
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.disableDepthTest();
+
+		if(data.deadeyeLevel > 0) {
+			guiGraphics.setColor(0.33f, 0.31f, 0.31f, 1.0f);
+			guiGraphics.blit(DEADEYE_METER_TRACK_SPRITES.get(trackIndex), hudPosition.x, hudPosition.y, hudScale, hudScale, 0, 0, hudScale, hudScale, hudScale, hudScale);
+		}
+
+		if(Math.round(data.deadeyeMeter) > 0) {
+			guiGraphics.setColor(meterColor.x, meterColor.y, meterColor.z, 1.0f);
+			guiGraphics.blit(DEADEYE_METER_SPRITES.get(meterIndex), hudPosition.x, hudPosition.y, hudScale, hudScale, 0, 0, hudScale, hudScale, hudScale, hudScale);
+		}
+
+		guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();
 	}

@@ -55,7 +55,7 @@ public class ClientUtils {
 	public static void drawDeadeyeCoreBackground(GuiGraphics guiGraphics, Vector2i hudPosition, int hudScale) {
 		if (hudScale <= 0) return;
 
-		float radius = hudScale * 0.425f;
+		float radius = hudScale * 0.375f;
 		if (radius <= 0f) return;
 
 		float centerX = hudPosition.x + hudScale / 2.0f + 0.25f;
@@ -67,19 +67,19 @@ public class ClientUtils {
 	public static void drawDeadeyeCorePulse(GuiGraphics guiGraphics, Vector2i hudPosition, int hudScale, float scale) {
 		if (hudScale <= 0 || scale <= 0f) return;
 
-		float radius = hudScale * 0.425f * scale;
+		float radius = hudScale * 0.375f * scale;
 		if (radius <= 0f) return;
 
 		float centerX = hudPosition.x + hudScale / 2.0f + 0.25f;
 		float centerY = hudPosition.y + hudScale / 2.0f;
 		guiGraphics.flush();
-		drawHudCircle(guiGraphics, centerX, centerY, radius, 156, 9, 13, 242);
+		drawHudCircle(guiGraphics, centerX, centerY, radius, 156, 9, 13, 200);
 	}
 
 	public static void drawDeadeyeCoreFadePulse(GuiGraphics guiGraphics, Vector2i hudPosition, int hudScale, float alphaFactor) {
 		if (hudScale <= 0 || alphaFactor <= 0f) return;
 
-		float radius = hudScale * 0.425f;
+		float radius = hudScale * 0.375f;
 		if (radius <= 0f) return;
 
 		float centerX = hudPosition.x + hudScale / 2.0f + 0.25f;

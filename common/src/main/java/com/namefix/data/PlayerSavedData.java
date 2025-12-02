@@ -76,15 +76,16 @@ public class PlayerSavedData {
 		DeadeyeServer.updatePlayerLevelData(player, data);
 	}
 
-	public static void addDeadeyeMeter(ServerPlayer player, float amount) {
+	public static void addDeadeyeMeter(ServerPlayer player, float amount, boolean meterCap) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
-		data.deadeyeMeter = Mth.clamp(data.deadeyeMeter + amount, 0f, data.deadeyeLevel*10f);
+		if(meterCap && data.deadeyeMeter + amount > data.deadeyeLevel*10f) data.deadeyeMeter = data.deadeyeLevel*10f;
+		else data.deadeyeMeter = Mth.clamp(data.deadeyeMeter + amount, 0f, getMaxMeter(data, 3));
 		DeadeyeServer.updatePlayerMeterData(player, data);
 	}
 
-	public static void addDeadeyeCore(ServerPlayer player, float amount, boolean meterCap) {
+	public static void addDeadeyeCore(ServerPlayer player, float amount, boolean coreCap) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
-		if(meterCap && data.deadeyeCore + amount > 20f) data.deadeyeCore = 20f;
+		if(coreCap && data.deadeyeCore + amount > 20f) data.deadeyeCore = 20f;
 		else data.deadeyeCore = Mth.clamp(data.deadeyeCore + amount, 0f, 80f);
 		DeadeyeServer.updatePlayerMeterData(player, data);
 	}
@@ -103,11 +104,14 @@ public class PlayerSavedData {
 
 	// Maximum Dead Eye level achievable with the given level. Adds max meter value to max core value.
 	public static float getMaxTotalDeadeye(int level) {
-		return (level*10f)+80f;
+		return (level*10f)+60f;
 	}
 
 	public static float getMaxMeter(PlayerSavedData data, int tonicLevel) {
 		return (data.deadeyeLevel*10)+(tonicLevel*20);
+	}
+	public static float getMaxMeter(PlayerSavedData data) {
+		return getMaxMeter(data, 0);
 	}
 
 	// Player uses dead eye core without fortification

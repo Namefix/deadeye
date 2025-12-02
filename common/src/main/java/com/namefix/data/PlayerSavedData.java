@@ -110,8 +110,14 @@ public class PlayerSavedData {
 		return (data.deadeyeLevel*10)+(tonicLevel*20);
 	}
 
+	// Player uses dead eye core without fortification
 	public static boolean usingDeadeyeCore(PlayerSavedData data) {
 		return data.deadeyeMeter <= 0f && data.deadeyeCore > 0f && data.deadeyeCore <= 20f;
+	}
+
+	// Player uses dead eye meter without fortification
+	public static boolean usingDeadeyeMeter(PlayerSavedData data) {
+		return data.deadeyeMeter > 0f && data.deadeyeMeter <= data.deadeyeLevel*10f;
 	}
 
 	public static Vector3f getMeterColor(PlayerSavedData data) {

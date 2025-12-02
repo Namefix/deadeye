@@ -2,7 +2,6 @@ package com.namefix.client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.namefix.DeadeyeMod;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.data.PlayerSavedData;
@@ -39,12 +38,15 @@ public class DeadeyeHud {
 	private static boolean LIGHTLEAK_DIRECTION = false;
 
 	// DEADEYE HUD
-	private static final Tesselator HUD_TESSELATOR = new Tesselator();
 	private static float LAST_DEADEYE_CORE = 0f;
 	private static float DEADEYE_CORE_BLINK = 0f;
 	private static float DEADEYE_CORE_SIZE_EFFECT = 0f;
 	private static float LAST_DEADEYE_METER = 0f;
 	private static float DEADEYE_METER_BLINK = 0f;
+	private static float DEADEYE_CORE_PULSE_TIME = -1f;
+	private static float LAST_PULSE_FRAME_DELTA = 0f;
+	private static float DEADEYE_FADE_PULSE_TIME = -1f;
+	private static float LAST_FADE_FRAME_DELTA = 0f;
 
 	public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		if(!DeadeyeConfig.HUD.hudPosition.equals(DeadeyeConfig.HUD.HudPosition.DISABLED)) renderDeadeyeHUD(guiGraphics, deltaTracker);
@@ -127,8 +129,85 @@ public class DeadeyeHud {
 	}
 
 	public static void renderDeadeyeHUD(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		//renderDeadeyeBackground(guiGraphics);
+		updateDeadeyeAnimations(deltaTracker);
+		renderDeadeyeBackground(guiGraphics);
 		renderDeadeyeCore(guiGraphics, deltaTracker);
+	}
+
+	public static void renderDeadeyeBackground(GuiGraphics guiGraphics) {
+		Vector2i hudPosition = ClientUtils.getHudCoordinates(guiGraphics, DeadeyeConfig.HUD.hudPosition);
+		int hudScale = Math.round(16f * DeadeyeConfig.HUD.hudScale);
+
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.disableDepthTest();
+		ClientUtils.drawDeadeyeCoreBackground(guiGraphics, hudPosition, hudScale);
+
+		if (DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeMeter(DeadeyeClient.DEADEYE_DATA) && DEADEYE_FADE_PULSE_TIME >= 0f) {
+			float fadeTime = Math.max(0f, DEADEYE_FADE_PULSE_TIME - LAST_FADE_FRAME_DELTA);
+			if (fadeTime < 0.2f) {
+				float alpha = 0.4f;
+				float alphaFactor = alpha * (1f - (fadeTime / 0.2f));
+				if (alphaFactor > 0f) {
+					ClientUtils.drawDeadeyeCoreFadePulse(guiGraphics, hudPosition, hudScale, alphaFactor);
+				}
+			}
+		}
+
+		if (DEADEYE_CORE_PULSE_TIME >= 0f) {
+			float visiblePulseTime = Math.max(0f, DEADEYE_CORE_PULSE_TIME - LAST_PULSE_FRAME_DELTA);
+			float pulseScale = Mth.clamp(1f - (visiblePulseTime / 0.3f), 0f, 1f);
+			if (pulseScale > 0f) {
+				ClientUtils.drawDeadeyeCorePulse(guiGraphics, hudPosition, hudScale, pulseScale);
+			}
+		}
+
+		RenderSystem.enableDepthTest();
+		RenderSystem.disableBlend();
+	}
+
+	private static void updateDeadeyeAnimations(DeltaTracker deltaTracker) {
+		float realtimeDeltaTicks = deltaTracker.getRealtimeDeltaTicks();
+		float deltaSeconds = realtimeDeltaTicks / 20f;
+		boolean usingDeadeyeCore = DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeCore(DeadeyeClient.DEADEYE_DATA);
+		boolean usingDeadeyeMeter = DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeMeter(DeadeyeClient.DEADEYE_DATA);
+
+		if (usingDeadeyeCore) {
+			float previousEffect = DEADEYE_CORE_SIZE_EFFECT;
+			DEADEYE_CORE_SIZE_EFFECT = Mth.frac(DEADEYE_CORE_SIZE_EFFECT + realtimeDeltaTicks / 16f);
+			if (DEADEYE_CORE_SIZE_EFFECT < previousEffect) {
+				DEADEYE_CORE_PULSE_TIME = 0f;
+				LAST_PULSE_FRAME_DELTA = 0f;
+			}
+		} else {
+			DEADEYE_CORE_SIZE_EFFECT = 0.5f;
+		}
+
+		if (DEADEYE_CORE_PULSE_TIME >= 0f) {
+			DEADEYE_CORE_PULSE_TIME += deltaSeconds;
+			if (DEADEYE_CORE_PULSE_TIME >= 0.3f) {
+				DEADEYE_CORE_PULSE_TIME = -1f;
+			}
+			LAST_PULSE_FRAME_DELTA = deltaSeconds;
+		} else {
+			LAST_PULSE_FRAME_DELTA = 0f;
+		}
+
+		if (usingDeadeyeMeter) {
+			float cooldown = 0.25f;
+			float cycleLength = 0.2f + cooldown;
+			if (DEADEYE_FADE_PULSE_TIME < 0f) {
+				DEADEYE_FADE_PULSE_TIME = 0f;
+			}
+			DEADEYE_FADE_PULSE_TIME += deltaSeconds;
+			while (DEADEYE_FADE_PULSE_TIME >= cycleLength) {
+				DEADEYE_FADE_PULSE_TIME -= cycleLength;
+			}
+			LAST_FADE_FRAME_DELTA = deltaSeconds;
+		} else {
+			DEADEYE_FADE_PULSE_TIME = -1f;
+			LAST_FADE_FRAME_DELTA = 0f;
+		}
 	}
 
 	public static void renderDeadeyeCore(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -136,8 +215,8 @@ public class DeadeyeHud {
 
 		if (LAST_DEADEYE_CORE > 20f) {
 			if (
-					(LAST_DEADEYE_CORE >= 60f && currentCore <= 60f) ||
-					(LAST_DEADEYE_CORE >= 40f && currentCore <= 40f) ||
+					(LAST_DEADEYE_CORE > 60f && currentCore <= 60f) ||
+					(LAST_DEADEYE_CORE > 40f && currentCore <= 40f) ||
 					(currentCore <= 20f)
 			) {
 				DEADEYE_CORE_BLINK = 1f;
@@ -146,10 +225,11 @@ public class DeadeyeHud {
 
 		LAST_DEADEYE_CORE = currentCore;
 
+		boolean hideCoreThisFrame = false;
 		if (DEADEYE_CORE_BLINK > 0f) {
 			DEADEYE_CORE_BLINK = Mth.clamp(DEADEYE_CORE_BLINK - deltaTracker.getRealtimeDeltaTicks() / 16f, 0f, 1f);
 			int phase = (int)(DEADEYE_CORE_BLINK * 4f);
-			if((phase & 1) == 1) return;
+			if((phase & 1) == 1) hideCoreThisFrame = true;
 		}
 
 		int coreSpriteIndex = Mth.clamp(Math.round(currentCore), 0, 15);
@@ -157,12 +237,6 @@ public class DeadeyeHud {
 		else {
 			Vector3f color = PlayerSavedData.getCoreColor(currentCore);
 			guiGraphics.setColor(color.x, color.y, color.z, 1.0f);
-		}
-
-		if (DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeCore(DeadeyeClient.DEADEYE_DATA)) {
-			DEADEYE_CORE_SIZE_EFFECT = Mth.frac(DEADEYE_CORE_SIZE_EFFECT + deltaTracker.getRealtimeDeltaTicks() / 16f);
-		} else {
-			DEADEYE_CORE_SIZE_EFFECT = 0.5f;
 		}
 
 		float triangle =
@@ -177,6 +251,13 @@ public class DeadeyeHud {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.disableDepthTest();
+
+		if (hideCoreThisFrame) {
+			guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+			RenderSystem.enableDepthTest();
+			RenderSystem.disableBlend();
+			return;
+		}
 
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(hudPosition.x + hudScale / 2.0f, hudPosition.y + hudScale /2.0f, 0f);

@@ -8,6 +8,8 @@
   "command.deadeye.data.xp": "Dead Eye experience",
   "command.deadeye.data.meter": "Dead Eye meter",
   "command.deadeye.data.core": "Dead Eye core",
+  "command.deadeye.data.consume_rate": "Dead Eye consume rate",
+  "command.deadeye.data.kill_award": "Meter kill award",
 
   "config.deadeye.title": "Dead Eye Configuration",
   "config.deadeye.description": "Configure options Dead Eye provides.",

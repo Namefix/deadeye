@@ -27,9 +27,12 @@ public class StateManager extends SavedData {
 
 			playerTag.putInt("deadeyeSkill", playerSavedData.deadeyeSkill);
 			playerTag.putInt("deadeyeLevel", playerSavedData.deadeyeLevel);
-			playerTag.putInt("deadeyeXp", playerSavedData.deadeyeXp);
+			playerTag.putFloat("deadeyeXp", playerSavedData.deadeyeXp);
 			playerTag.putFloat("deadeyeMeter", playerSavedData.deadeyeMeter);
 			playerTag.putFloat("deadeyeCore", playerSavedData.deadeyeCore);
+
+			playerTag.putFloat("deadeyeConsumeRate", playerSavedData.deadeyeConsumeRate);
+			playerTag.putFloat("deadeyeKillReward", playerSavedData.deadeyeKillReward);
 
 			playersTag.put(uuid.toString(), playerTag);
 		}));
@@ -46,9 +49,12 @@ public class StateManager extends SavedData {
 
 			playerData.deadeyeSkill = playerTag.getInt("deadeyeSkill");
 			playerData.deadeyeLevel = playerTag.getInt("deadeyeLevel");
-			playerData.deadeyeXp = playerTag.getInt("deadeyeXp");
+			playerData.deadeyeXp = playerTag.getFloat("deadeyeXp");
 			playerData.deadeyeMeter = playerTag.getFloat("deadeyeMeter");
 			playerData.deadeyeCore = playerTag.getFloat("deadeyeCore");
+
+			playerData.deadeyeConsumeRate = playerTag.getFloat("deadeyeConsumeRate");
+			playerData.deadeyeKillReward = playerTag.getFloat("deadeyeKillReward");
 
 			UUID uuid = UUID.fromString(key);
 			state.players.put(uuid, playerData);

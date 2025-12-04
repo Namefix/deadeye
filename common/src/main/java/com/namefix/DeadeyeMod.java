@@ -14,6 +14,7 @@ import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.event.events.common.EntityEvent;
 import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,9 @@ public final class DeadeyeMod {
         PlayerEvent.PLAYER_JOIN.register(DeadeyeServer::onPlayerJoin);
         PlayerEvent.PLAYER_QUIT.register(DeadeyeServer::onPlayerQuit);
         EntityEvent.LIVING_DEATH.register(DeadeyeServer::onPlayerDeath);
+        TickEvent.SERVER_LEVEL_PRE.register(DeadeyeServer::onTick);
+        EntityEvent.LIVING_DEATH.register(DeadeyeServer::onEntityDeath);
+        
     }
 
     // CLIENT INIT

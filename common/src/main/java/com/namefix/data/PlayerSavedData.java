@@ -12,9 +12,13 @@ import java.util.List;
 public class PlayerSavedData {
 	public int deadeyeSkill = 3;
 	public int deadeyeLevel = 3;
-	public int deadeyeXp = 0;
+	public float deadeyeXp = 0;
 	public float deadeyeMeter = 30.0f;
 	public float deadeyeCore = 20.0f;
+
+	// Will be used server side only
+	public float deadeyeConsumeRate = 0.25f;
+	public float deadeyeKillReward = 1f;
 
 	private static final List<Vector3f> HUD_FORTIFICATION_COLORS = Lists.newArrayList(
 			new Vector3f(1f, 0.969f, 0.776f),
@@ -34,7 +38,7 @@ public class PlayerSavedData {
 		DeadeyeServer.updatePlayerLevelData(player, data);
 	}
 
-	public static void setDeadeyeXP(ServerPlayer player, int xp) {
+	public static void setDeadeyeXP(ServerPlayer player, float xp) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
 		data.deadeyeXp = xp;
 		DeadeyeServer.updatePlayerLevelData(player, data);
@@ -52,6 +56,16 @@ public class PlayerSavedData {
 		DeadeyeServer.updatePlayerMeterData(player, data);
 	}
 
+	public static void setDeadeyeConsumeRate(ServerPlayer player, float rate) {
+		PlayerSavedData data = StateManager.getPlayerState(player);
+		data.deadeyeConsumeRate = rate;
+	}
+
+	public static void setDeadeyeKillReward(ServerPlayer player, float reward) {
+		PlayerSavedData data = StateManager.getPlayerState(player);
+		data.deadeyeKillReward = reward;
+	}
+
 	public static void addDeadeyeLevel(ServerPlayer player, int amount) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
 		data.deadeyeLevel = Mth.clamp(data.deadeyeLevel+amount, 0, 10);
@@ -59,15 +73,17 @@ public class PlayerSavedData {
 		DeadeyeServer.updatePlayerLevelData(player, data);
 	}
 
-	public static void addDeadeyeXP(ServerPlayer player, int amount) {
+	public static void addDeadeyeXP(ServerPlayer player, float amount) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
 		if(data.deadeyeLevel >= 10) return;
 		data.deadeyeXp += amount;
 
 		boolean leveledUp = false;
-		while(data.deadeyeXp >= requiredXPToLevelUp(data.deadeyeLevel)) {
-			data.deadeyeXp -= requiredXPToLevelUp(data.deadeyeLevel);
+		float levelup = requiredXPToLevelUp(data.deadeyeLevel);
+		while(data.deadeyeXp >= levelup) {
+			data.deadeyeXp -= levelup;
 			data.deadeyeLevel++;
+			levelup = requiredXPToLevelUp(data.deadeyeLevel);
 			leveledUp = true;
 		}
 		if(leveledUp) //TODO: Remove this message when the level up hud is added
@@ -90,16 +106,23 @@ public class PlayerSavedData {
 		DeadeyeServer.updatePlayerMeterData(player, data);
 	}
 
+	public static void addTotalMeter(ServerPlayer player, float amount, boolean meterCap, boolean coreCap) {
+		PlayerSavedData data = StateManager.getPlayerState(player);
+		if(data.deadeyeMeter < getMaxMeter(data, meterCap ? 0 : 3)) addDeadeyeMeter(player, amount, meterCap);
+		if(data.deadeyeCore < (coreCap ? 20f : 80f)) addDeadeyeCore(player, amount, coreCap);
+	}
+
 	// Subtracts meter first and core second until depletion.
 	public static void subDeadeyeTotal(ServerPlayer player, float amount) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
 
-		if(data.deadeyeMeter > 0f) data.deadeyeMeter = Mth.clamp(data.deadeyeMeter-amount, 0f, data.deadeyeLevel*10f);
+		if(data.deadeyeMeter > 0f) data.deadeyeMeter = Mth.clamp(data.deadeyeMeter-amount, 0f, getMaxMeter(data, 3));
 		else data.deadeyeCore = Mth.clamp(data.deadeyeCore-amount, 0f, 80f);
+		DeadeyeServer.updatePlayerMeterData(player, data);
 	}
 
-	public static int requiredXPToLevelUp(int currentLevel) {
-		return currentLevel * 10;
+	public static float requiredXPToLevelUp(int currentLevel) {
+		return currentLevel * 100f;
 	}
 
 	// Maximum Dead Eye level achievable with the given level. Adds max meter value to max core value.

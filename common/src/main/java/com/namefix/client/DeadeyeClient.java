@@ -173,6 +173,7 @@ public class DeadeyeClient {
 
 	// Request Dead Eye toggle from the server
 	public static void requestDeadeye() {
+		if(DEADEYE_DATA.deadeyeSkill <= 0 || DEADEYE_DATA.deadeyeMeter + DEADEYE_DATA.deadeyeCore <= 0f) return;
 		NetworkManager.sendToServer(new RequestDeadeyePayload());
 	}
 

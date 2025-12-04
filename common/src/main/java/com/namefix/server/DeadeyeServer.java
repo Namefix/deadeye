@@ -13,6 +13,7 @@ import com.namefix.util.ServerUtils;
 import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -21,12 +22,43 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class DeadeyeServer {
 	public static Map<Player, PlayerDeadeyeState> DeadeyeStates = new HashMap<>();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
+
+	public static void onTick(ServerLevel serverLevel) {
+		Iterator<Map.Entry<Player, PlayerDeadeyeState>> iterator = DeadeyeStates.entrySet().iterator();
+		List<Player> toRemove = new ArrayList<>();
+
+		while(iterator.hasNext()) {
+			Map.Entry<Player, PlayerDeadeyeState> entry = iterator.next();
+			ServerPlayer player = (ServerPlayer) entry.getKey();
+			PlayerDeadeyeState state = entry.getValue();
+			PlayerSavedData data = StateManager.getPlayerState(player);
+
+			if(state.phase != Phase.SHOOTING) {
+				PlayerSavedData.addDeadeyeXP(player, 0.01f);
+				PlayerSavedData.subDeadeyeTotal(player, data.deadeyeConsumeRate);
+				if(data.deadeyeMeter == 0 && data.deadeyeCore == 0) {
+					if(state.phase == Phase.MARKED) {
+						updatePlayerPhase(player, Phase.SHOOTING);
+					} else {
+						toRemove.add(player);
+					}
+				}
+			} else {
+				if(state.markItem != null && !state.markItem.getItem().equals(player.getMainHandItem().getItem())) {
+					toRemove.add(player);
+				}
+			}
+		}
+
+		for (Player player : toRemove) {
+			disableDeadeye(player);
+		}
+	}
 
 	public static void onPlayerJoin(ServerPlayer serverPlayer) {
 		PlayerSavedData data = StateManager.getPlayerState(serverPlayer);
@@ -46,6 +78,18 @@ public class DeadeyeServer {
 	public static EventResult onPlayerDeath(LivingEntity livingEntity, DamageSource damageSource) {
 		if(!(livingEntity instanceof Player player)) return EventResult.pass();
 		disableDeadeye(player);
+		return EventResult.interruptDefault();
+	}
+
+	public static EventResult onEntityDeath(LivingEntity livingEntity, DamageSource damageSource) {
+		if(damageSource.getEntity() instanceof ServerPlayer player) {
+			PlayerSavedData data = StateManager.getPlayerState(player);
+			if(DeadeyeStates.containsKey(player)) {
+				PlayerSavedData.addDeadeyeXP(player, 0.5f);
+			} else {
+				PlayerSavedData.addDeadeyeMeter(player, data.deadeyeKillReward, true);
+			}
+		}
 		return EventResult.interruptDefault();
 	}
 
@@ -70,6 +114,9 @@ public class DeadeyeServer {
 	}
 
 	public static void enableDeadeye(Player player) {
+		PlayerSavedData data = StateManager.getPlayerState((ServerPlayer) player);
+		if(data.deadeyeSkill <= 0 || data.deadeyeMeter + data.deadeyeCore <= 0f) return;
+
 		var level = player.level();
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
 

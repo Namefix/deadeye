@@ -26,6 +26,8 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 			root.then(xpNode());
 			root.then(meterNode());
 			root.then(coreNode());
+			root.then(consumeRateNode());
+			root.then(killAwardNode());
 		});
 	}
 
@@ -62,10 +64,10 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 				.then(Commands.argument("target", EntityArgument.player())
 					.executes(ctx -> getXp(ctx, EntityArgument.getPlayer(ctx, "target")))))
 			.then(Commands.literal("set")
-				.then(Commands.argument("value", IntegerArgumentType.integer(0))
-					.executes(ctx -> setXp(ctx, List.of(ctx.getSource().getPlayerOrException()), IntegerArgumentType.getInteger(ctx, "value")))
+				.then(Commands.argument("value", FloatArgumentType.floatArg(0))
+					.executes(ctx -> setXp(ctx, List.of(ctx.getSource().getPlayerOrException()), FloatArgumentType.getFloat(ctx, "value")))
 					.then(Commands.argument("targets", EntityArgument.players())
-						.executes(ctx -> setXp(ctx, EntityArgument.getPlayers(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "value"))))));
+						.executes(ctx -> setXp(ctx, EntityArgument.getPlayers(ctx, "targets"), FloatArgumentType.getFloat(ctx, "value"))))));
 	}
 
 	private LiteralArgumentBuilder<CommandSourceStack> meterNode() {
@@ -94,6 +96,32 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 						.executes(ctx -> setCore(ctx, EntityArgument.getPlayers(ctx, "targets"), FloatArgumentType.getFloat(ctx, "value"))))));
 	}
 
+	private LiteralArgumentBuilder<CommandSourceStack> consumeRateNode() {
+		return Commands.literal("consumeRate")
+				.then(Commands.literal("get")
+						.executes(ctx -> getConsumeRate(ctx, ctx.getSource().getPlayerOrException()))
+						.then(Commands.argument("target", EntityArgument.player())
+								.executes(ctx -> getConsumeRate(ctx, EntityArgument.getPlayer(ctx, "target")))))
+				.then(Commands.literal("set")
+						.then(Commands.argument("value", FloatArgumentType.floatArg(0f))
+								.executes(ctx -> setConsumeRate(ctx, List.of(ctx.getSource().getPlayerOrException()), FloatArgumentType.getFloat(ctx, "value")))
+								.then(Commands.argument("targets", EntityArgument.players())
+										.executes(ctx -> setConsumeRate(ctx, EntityArgument.getPlayers(ctx, "targets"), FloatArgumentType.getFloat(ctx, "value"))))));
+	}
+
+	private LiteralArgumentBuilder<CommandSourceStack> killAwardNode() {
+		return Commands.literal("killAward")
+				.then(Commands.literal("get")
+						.executes(ctx -> getKillAward(ctx, ctx.getSource().getPlayerOrException()))
+						.then(Commands.argument("target", EntityArgument.player())
+								.executes(ctx -> getKillAward(ctx, EntityArgument.getPlayer(ctx, "target")))))
+				.then(Commands.literal("set")
+						.then(Commands.argument("value", FloatArgumentType.floatArg(0f))
+								.executes(ctx -> setKillAward(ctx, List.of(ctx.getSource().getPlayerOrException()), FloatArgumentType.getFloat(ctx, "value")))
+								.then(Commands.argument("targets", EntityArgument.players())
+										.executes(ctx -> setKillAward(ctx, EntityArgument.getPlayers(ctx, "targets"), FloatArgumentType.getFloat(ctx, "value"))))));
+	}
+
 	private int getSkill(CommandContext<CommandSourceStack> context, ServerPlayer target) {
 		int value = StateManager.getPlayerState(target).deadeyeSkill;
 		sendGetFeedback(context, "command.deadeye.data.skill", Component.literal(Integer.toString(value)), target);
@@ -107,9 +135,9 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 	}
 
 	private int getXp(CommandContext<CommandSourceStack> context, ServerPlayer target) {
-		int value = StateManager.getPlayerState(target).deadeyeXp;
-		sendGetFeedback(context, "command.deadeye.data.xp", Component.literal(Integer.toString(value)), target);
-		return value;
+		float value = StateManager.getPlayerState(target).deadeyeXp;
+		sendGetFeedback(context, "command.deadeye.data.xp", Component.literal(Float.toString(value)), target);
+		return 1;
 	}
 
 	private int getMeter(CommandContext<CommandSourceStack> context, ServerPlayer target) {
@@ -121,6 +149,18 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 	private int getCore(CommandContext<CommandSourceStack> context, ServerPlayer target) {
 		float value = StateManager.getPlayerState(target).deadeyeCore;
 		sendGetFeedback(context, "command.deadeye.data.core", Component.literal(Float.toString(value)), target);
+		return 1;
+	}
+
+	private int getConsumeRate(CommandContext<CommandSourceStack> context, ServerPlayer target) {
+		float value = StateManager.getPlayerState(target).deadeyeConsumeRate;
+		sendGetFeedback(context, "command.deadeye.data.consume_rate", Component.literal(Float.toString(value)), target);
+		return 1;
+	}
+
+	private int getKillAward(CommandContext<CommandSourceStack> context, ServerPlayer target) {
+		float value = StateManager.getPlayerState(target).deadeyeKillReward;
+		sendGetFeedback(context, "command.deadeye.data.kill_award", Component.literal(Float.toString(value)), target);
 		return 1;
 	}
 
@@ -140,10 +180,10 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 		return targets.size();
 	}
 
-	private int setXp(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, int value) {
+	private int setXp(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, float value) {
 		targets.forEach(player -> {
 			PlayerSavedData.setDeadeyeXP(player, value);
-			sendSetFeedback(context, "command.deadeye.data.xp", Component.literal(Integer.toString(StateManager.getPlayerState(player).deadeyeXp)), player);
+			sendSetFeedback(context, "command.deadeye.data.xp", Component.literal(Float.toString(StateManager.getPlayerState(player).deadeyeXp)), player);
 		});
 		return targets.size();
 	}
@@ -160,6 +200,22 @@ public class DataDeadeyeCommand implements DeadeyeCommand {
 		targets.forEach(player -> {
 			PlayerSavedData.setDeadeyeCore(player, value);
 			sendSetFeedback(context, "command.deadeye.data.core", Component.literal(Float.toString(StateManager.getPlayerState(player).deadeyeCore)), player);
+		});
+		return targets.size();
+	}
+
+	private int setConsumeRate(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, float value) {
+		targets.forEach(player -> {
+			PlayerSavedData.setDeadeyeConsumeRate(player, value);
+			sendSetFeedback(context, "command.deadeye.data.consume_rate", Component.literal(Float.toString(StateManager.getPlayerState(player).deadeyeConsumeRate)), player);
+		});
+		return targets.size();
+	}
+
+	private int setKillAward(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, float value) {
+		targets.forEach(player -> {
+			PlayerSavedData.setDeadeyeKillReward(player, value);
+			sendSetFeedback(context, "command.deadeye.data.kill_award", Component.literal(Float.toString(StateManager.getPlayerState(player).deadeyeKillReward)), player);
 		});
 		return targets.size();
 	}

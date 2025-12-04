@@ -6,8 +6,10 @@
   "command.deadeye.data.skill": "Dead Eye becerisi",
   "command.deadeye.data.level": "Dead Eye seviyesi",
   "command.deadeye.data.xp": "Dead Eye deneyimi",
-  "command.deadeye.data.meter": "Dead Eye ölçer",
+  "command.deadeye.data.meter": "Dead Eye metresi",
   "command.deadeye.data.core": "Dead Eye çekirdeği",
+  "command.deadeye.data.consume_rate": "Dead Eye tüketim oranı",
+  "command.deadeye.data.kill_award": "Metre öldürme kazancı",
 
   "config.deadeye.title": "Dead Eye Yapılandırması",
   "config.deadeye.description": "Dead Eye'ın sunduğu ayarları yapılandır.",

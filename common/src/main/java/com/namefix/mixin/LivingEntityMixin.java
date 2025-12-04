@@ -3,14 +3,19 @@ package com.namefix.mixin;
 import com.namefix.client.DeadeyeBowVisuals;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.SyncedConfigCache;
+import com.namefix.data.PlayerSavedData;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -49,5 +54,21 @@ public class LivingEntityMixin {
 		if(!entity.level().isClientSide) return;
 		int forced = DeadeyeBowVisuals.getForcedUseRemainingTicks(player);
 		if(forced >= 0) cir.setReturnValue(forced);
+	}
+
+	@Inject(method = "completeUsingItem", at = @At("HEAD"))
+	private void deadeye$deadeyeFoodReward(CallbackInfo ci) {
+		if(((Object) this) instanceof Player player) {
+			if(player.level().isClientSide) return;
+			ItemStack item = player.getUseItem();
+			FoodProperties food = item.get(DataComponents.FOOD);
+			if(food == null) return;
+
+			if(food.nutrition() + food.saturation() >= 10) {
+				PlayerSavedData.addDeadeyeCore((ServerPlayer) player, food.nutrition()+food.saturation()/2f, false);
+			} else {
+				PlayerSavedData.addDeadeyeCore((ServerPlayer) player, (food.nutrition()+food.saturation())/2f, true);
+			}
+		}
 	}
 }

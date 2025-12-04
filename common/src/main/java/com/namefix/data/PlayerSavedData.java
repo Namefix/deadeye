@@ -18,7 +18,7 @@ public class PlayerSavedData {
 
 	// Will be used server side only
 	public float deadeyeConsumeRate = 0.25f;
-	public float deadeyeKillReward = 1f;
+	public float deadeyeKillReward = 4f;
 
 	private static final List<Vector3f> HUD_FORTIFICATION_COLORS = Lists.newArrayList(
 			new Vector3f(1f, 0.969f, 0.776f),
@@ -94,14 +94,16 @@ public class PlayerSavedData {
 
 	public static void addDeadeyeMeter(ServerPlayer player, float amount, boolean meterCap) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
-		if(meterCap && data.deadeyeMeter + amount > data.deadeyeLevel*10f) data.deadeyeMeter = data.deadeyeLevel*10f;
+		if(meterCap && data.deadeyeMeter >= data.deadeyeLevel*10) return;
+		if(meterCap && data.deadeyeMeter <= data.deadeyeLevel*10 && data.deadeyeMeter + amount > data.deadeyeLevel*10f) data.deadeyeMeter = data.deadeyeLevel*10f;
 		else data.deadeyeMeter = Mth.clamp(data.deadeyeMeter + amount, 0f, getMaxMeter(data, 3));
 		DeadeyeServer.updatePlayerMeterData(player, data);
 	}
 
 	public static void addDeadeyeCore(ServerPlayer player, float amount, boolean coreCap) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
-		if(coreCap && data.deadeyeCore + amount > 20f) data.deadeyeCore = 20f;
+		if(coreCap && data.deadeyeCore >= 20f) return;
+		if(coreCap && data.deadeyeCore <= 20f && data.deadeyeCore + amount > 20f) data.deadeyeCore = 20f;
 		else data.deadeyeCore = Mth.clamp(data.deadeyeCore + amount, 0f, 80f);
 		DeadeyeServer.updatePlayerMeterData(player, data);
 	}

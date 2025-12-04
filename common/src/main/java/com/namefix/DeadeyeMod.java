@@ -36,7 +36,6 @@ public final class DeadeyeMod {
         EntityEvent.LIVING_DEATH.register(DeadeyeServer::onPlayerDeath);
         TickEvent.SERVER_LEVEL_PRE.register(DeadeyeServer::onTick);
         EntityEvent.LIVING_DEATH.register(DeadeyeServer::onEntityDeath);
-        
     }
 
     // CLIENT INIT

@@ -16,9 +16,12 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.function.Predicate;
 
 public class BowDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	private static final int BOW_DRAW_TICKS = 20;
@@ -37,13 +40,15 @@ public class BowDeadeyeInteraction extends AbstractDeadeyeInteraction {
 
 	@Override
 	public boolean preMark() {
-		return player.isCreative() || player.getProjectile(itemStack).getCount() > state.targets.size();
+		if(player.isCreative()) return true;
+		return getAvailableProjectileCount() > state.targets.size();
 	}
 
 	@Override
 	public void postMark() {
 		if(player.level().isClientSide) return;
-		if(!player.isCreative() && player.getProjectile(itemStack).getCount() <= state.targets.size()) {
+		if(player.isCreative()) return;
+		if(getAvailableProjectileCount() <= state.targets.size()) {
 			state.markItem = player.getMainHandItem().copy();
 			DeadeyeServer.updatePlayerPhase((ServerPlayer) player, PlayerDeadeyeState.Phase.SHOOTING);
 		}
@@ -105,6 +110,24 @@ public class BowDeadeyeInteraction extends AbstractDeadeyeInteraction {
 			clientAnimationTriggered = false;
 			clientCrossbowWasCharged = false;
 		}
+	}
+
+	private int getAvailableProjectileCount() {
+		if(player.isCreative()) return Integer.MAX_VALUE;
+		if(!(itemStack.getItem() instanceof ProjectileWeaponItem weaponItem)) {
+			ItemStack projectile = player.getProjectile(itemStack);
+			return projectile.isEmpty() ? 0 : projectile.getCount();
+		}
+
+		Predicate<ItemStack> projectilePredicate = weaponItem.getAllSupportedProjectiles();
+		int total = 0;
+		for(ItemStack inventoryStack : player.getInventory().items) {
+			if(projectilePredicate.test(inventoryStack)) total += inventoryStack.getCount();
+		}
+		for(ItemStack inventoryStack : player.getInventory().offhand) {
+			if(projectilePredicate.test(inventoryStack)) total += inventoryStack.getCount();
+		}
+		return total;
 	}
 
 	private void handleBowShot(BowItem bowItem, ItemStack bowStack, DeadeyeTargetData targetData, Entity target) {

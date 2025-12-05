@@ -34,6 +34,11 @@ public class DeadeyeClient {
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 	public static float DEADEYE_ENDING = 0.0f;
 
+	private static final String SHADER_NAME = "rdr2_deadeye";
+	private static float SHADER_FADE_PROGRESS = 0.0f;
+	private static float SHADER_ENDING_VISUAL = 0.0f;
+	private static long LAST_SHADER_UPDATE_NS = System.nanoTime();
+
 	// SHOOTING
 	private static long LAST_DEADEYE_MARK = 0;
 	private static long LAST_DEADEYE_LERP = 0;
@@ -47,6 +52,7 @@ public class DeadeyeClient {
 
 	public static void render() {
 		shootingTick();
+		updateShaderVisuals();
 		DeadeyeSound.tick();
 	}
 
@@ -126,6 +132,7 @@ public class DeadeyeClient {
 		DEADEYE_ENABLED = false;
 		DEADEYE_STATE = new PlayerDeadeyeState();
 		DeadeyeBowVisuals.reset(); // reset fake bow animation thingy
+		hardStopShader();
 	}
 
 	public static EventResult onKeyPressed(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers) {
@@ -190,14 +197,12 @@ public class DeadeyeClient {
 		DEADEYE_ENABLED = enabled;
 
 		if(enabled) {
-			// TODO: update shader logic with the profile system
-			if(DeadeyeConfig.Client.enableShaders) ShaderManager.activateShader("rdr2_deadeye");
+			SHADER_FADE_PROGRESS = 0.0f;
 			if(DeadeyeConfig.Client.enableLightLeak) DeadeyeHud.playLightLeak();
 			DeadeyeSound.playEnterSound();
 			DeadeyeSound.startBackgroundSounds();
 			calculateDeadeyeEnding();
 		} else {
-			ShaderManager.deactivateShader("rdr2_deadeye");
 			DEADEYE_STATE.phase = Phase.IDLE;
 			DEADEYE_STATE.targets.clear();
 			DEADEYE_STATE.markItem = null;
@@ -272,6 +277,49 @@ public class DeadeyeClient {
 		DEADEYE_DATA.deadeyeMeter = payload.deadeyeMeter();
 		DEADEYE_DATA.deadeyeCore = payload.deadeyeCore();
 		calculateDeadeyeEnding();
+	}
+
+	private static void updateShaderVisuals() {
+		boolean shadersAllowed = DeadeyeConfig.Client.enableShaders;
+		float desiredFade = (shadersAllowed && DEADEYE_ENABLED) ? 1.0f : 0.0f;
+		float deltaSeconds = computeShaderDelta();
+		float fadeSpeed = desiredFade > SHADER_FADE_PROGRESS ? 9.75f : 6.6f;
+		SHADER_FADE_PROGRESS = approach(SHADER_FADE_PROGRESS, desiredFade, deltaSeconds * fadeSpeed);
+		SHADER_ENDING_VISUAL = approach(SHADER_ENDING_VISUAL, DEADEYE_ENDING, deltaSeconds * 1.5f);
+
+		boolean shouldKeepAlive = shadersAllowed && (desiredFade > 0.0f || SHADER_FADE_PROGRESS > 0.002f);
+		if(shouldKeepAlive) {
+			if(!ShaderManager.isShaderActive(SHADER_NAME)) {
+				ShaderManager.activateShader(SHADER_NAME);
+			}
+			ShaderManager.setUniform(SHADER_NAME, "Fade", SHADER_FADE_PROGRESS);
+			ShaderManager.setUniform(SHADER_NAME, "Ending", SHADER_ENDING_VISUAL);
+		} else if(ShaderManager.isShaderActive(SHADER_NAME)) {
+			ShaderManager.deactivateShader(SHADER_NAME);
+		}
+	}
+
+	private static float computeShaderDelta() {
+		long now = System.nanoTime();
+		float seconds = (now - LAST_SHADER_UPDATE_NS) / 1_000_000_000f;
+		LAST_SHADER_UPDATE_NS = now;
+		return Mth.clamp(seconds, 0.0f, 0.1f);
+	}
+
+	private static float approach(float current, float target, float delta) {
+		if(current < target) {
+			return Math.min(target, current + delta);
+		}
+		return Math.max(target, current - delta);
+	}
+
+	private static void hardStopShader() {
+		SHADER_FADE_PROGRESS = 0.0f;
+		SHADER_ENDING_VISUAL = 0.0f;
+		LAST_SHADER_UPDATE_NS = System.nanoTime();
+		if(ShaderManager.isShaderActive(SHADER_NAME)) {
+			ShaderManager.deactivateShader(SHADER_NAME);
+		}
 	}
 
 }

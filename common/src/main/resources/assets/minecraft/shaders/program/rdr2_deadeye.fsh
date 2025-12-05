@@ -3,16 +3,15 @@
 uniform sampler2D DiffuseSampler;
 uniform float Time;
 uniform float Ending;
+uniform float Fade;
 
 in vec2 texCoord;
 out vec4 fragColor;
 
-// Noise function
 float noise(vec2 uv) {
     return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Continuous smooth noise
 float smoothRandom(float t) {
     float base = floor(t);
     float f = t - base;
@@ -22,76 +21,92 @@ float smoothRandom(float t) {
     return mix(n0, n1, smoothF);
 }
 
+float rand1(float seed) {
+    return fract(sin(seed * 91.3458) * 43758.5453);
+}
+
+float randomTarget(float index) {
+    return mix(0.45, 0.95, rand1(index * 13.57 + 7.0));
+}
+
+float randomDuration(float index) {
+    return mix(0.33, 1.0, rand1(index * 5.71 + 3.2));
+}
+
+float vignetteEnvelope(float t) {
+    const float AVERAGE_WINDOW = 2.0; // seconds
+    float controlTime = (t * 0.55) / AVERAGE_WINDOW;
+    float segment = floor(controlTime);
+    float local = fract(controlTime);
+
+    float duration = randomDuration(segment);
+    float progress = clamp(local / duration, 0.0, 1.0);
+    float eased = progress * progress * (3.0 - 2.0 * progress);
+
+    float startValue = randomTarget(segment);
+    float endValue = randomTarget(segment + 1.0);
+    float base = mix(startValue, endValue, eased);
+
+    float linger = smoothstep(0.95, 1.0, local) * (rand1(segment * 2.17 + 11.0) - 0.5) * 0.08;
+    float micro = (smoothRandom(t * 0.9 + 31.0) - 0.5) * 0.03;
+
+    return clamp(base + linger + micro, 0.42, 0.96);
+}
+
+vec3 applyEdgeBlur(vec2 uv, vec2 center, float ending) {
+    float dist = length(center);
+    float edgeMask = pow(smoothstep(0.28, 0.98, dist), 1.35) * ending;
+    if(edgeMask <= 0.001) {
+        return texture(DiffuseSampler, uv).rgb;
+    }
+
+    float radius = mix(0.002, 0.0095, clamp(edgeMask * 1.35, 0.0, 1.0));
+    vec3 color = vec3(0.0);
+    float weightSum = 0.0;
+
+    for(int x = -2; x <= 2; x++) {
+        for(int y = -2; y <= 2; y++) {
+            vec2 offset = vec2(float(x), float(y));
+            float weight = exp(-dot(offset, offset) * 0.22);
+            vec2 sampleUV = clamp(uv + offset * radius, 0.0, 1.0);
+            color += texture(DiffuseSampler, sampleUV).rgb * weight;
+            weightSum += weight;
+        }
+    }
+
+    return color / max(weightSum, 0.0001);
+}
+
 void main() {
     vec2 uv = texCoord;
     vec2 center = uv - 0.5;
     float distFromCenter = length(center);
 
-    vec3 orangeTint = vec3(1.5, 1.0, 0.3);
+    vec4 baseSample = texture(DiffuseSampler, uv);
+    vec3 baseColor = baseSample.rgb;
 
-    // Strong smooth random pulse
-    float t = Time * 0.25; // base time speed
-    float r1 = smoothRandom(t);
-    float r2 = smoothRandom(t * 0.5 + 37.0);
-    float r3 = smoothRandom(t * 1.7 + 123.0);
+    float envelope = vignetteEnvelope(Time);
+    float vignetteBase = smoothstep(0.22 - envelope * 0.04, 0.9 - envelope * 0.08, distFromCenter);
+    float vignetteStrength = mix(0.45, 0.82, envelope);
+    float vignette = 1.0 - vignetteBase * vignetteStrength;
 
-    // Combine layers
-    float pulseIntensity = (r1 * 0.5 + r2 * 0.35 + r3 * 0.15);
+    float aberrationIntensity = 0.0015 + distFromCenter * 0.0045 + Ending * 0.0075;
+    vec3 aberratedColor = vec3(
+        texture(DiffuseSampler, uv + center * aberrationIntensity).r,
+        texture(DiffuseSampler, uv + center * aberrationIntensity * 0.3).g,
+        texture(DiffuseSampler, uv - center * aberrationIntensity * 0.55).b
+    );
 
-    pulseIntensity = pow(clamp(pulseIntensity, 0.0, 1.0), 0.8); // lower exponent = stronger variation
+    vec3 blurredColor = applyEdgeBlur(uv, center, Ending);
+    float blurMix = min(1.0, smoothstep(0.32, 0.9, distFromCenter) * Ending * 1.45);
+    vec3 focusColor = mix(aberratedColor, blurredColor, blurMix);
 
-    // vignette
-    float vignetteBase = smoothstep(0.35, 0.95, distFromCenter);
+    vec3 orangeTint = vec3(1.35, 1.0, 0.4);
+    float luminance = dot(focusColor, vec3(0.299, 0.587, 0.114));
+    vec3 tintedColor = mix(focusColor, focusColor * orangeTint, 0.55 + (1.0 - luminance) * 0.25);
+    vec3 vignettedColor = tintedColor * mix(1.0, vignette, 0.9);
+    vec3 gradedColor = pow(vignettedColor, vec3(1.05));
 
-    float vignette = 1.0 - vignetteBase * mix(0.0, 1.0, pulseIntensity);
-
-    // Chromatic aberration
-    float aberrationIntensity = 0.0015 + distFromCenter * 0.004 + Ending * 0.008;
-    vec2 redOffset   = center * aberrationIntensity;
-    vec2 greenOffset = center * aberrationIntensity * 0.3;
-    vec2 blueOffset  = center * aberrationIntensity * -0.7;
-
-    float red   = texture(DiffuseSampler, uv + redOffset).r;
-    float green = texture(DiffuseSampler, uv + greenOffset).g;
-    float blue  = texture(DiffuseSampler, uv + blueOffset).b;
-
-    vec3 aberratedColor = vec3(red, green, blue);
-
-    // Edge blur based on Ending
-    float blurRadius = Ending * 0.002;
-    if (blurRadius > 0.0) {
-        vec3 blurredColor = vec3(0.0);
-        float blurWeight = 0.0;
-
-        for (int x = -2; x <= 2; x++) {
-            for (int y = -2; y <= 2; y++) {
-                vec2 sampleUV = uv + vec2(float(x), float(y)) * blurRadius;
-                if (sampleUV.x >= 0.0 && sampleUV.x <= 1.0 && sampleUV.y >= 0.0 && sampleUV.y <= 1.0) {
-                    blurredColor += texture(DiffuseSampler, sampleUV).rgb;
-                    blurWeight += 1.0;
-                }
-            }
-        }
-
-        if (blurWeight > 0.0) {
-            blurredColor /= blurWeight;
-        }
-
-        float blurFactor = smoothstep(0.3, 0.8, distFromCenter) * Ending;
-        aberratedColor = mix(aberratedColor, blurredColor, blurFactor);
-    }
-
-    // Orange tint
-    float originalLuminance = dot(aberratedColor, vec3(0.299, 0.587, 0.114));
-    float tintStrength = 0.8 + (1.0 - originalLuminance) * 0.3;
-    vec3 tintedColor = mix(aberratedColor, aberratedColor * orangeTint, tintStrength * 0.7);
-
-    // Apply vignette
-    tintedColor *= vignette;
-
-    // Contrast boost
-    tintedColor = pow(tintedColor, vec3(1.05));
-
-    float originalAlpha = texture(DiffuseSampler, uv).a;
-    fragColor = vec4(tintedColor, originalAlpha);
+    vec3 finalColor = mix(baseColor, gradedColor, clamp(Fade, 0.0, 1.0));
+    fragColor = vec4(finalColor, baseSample.a);
 }

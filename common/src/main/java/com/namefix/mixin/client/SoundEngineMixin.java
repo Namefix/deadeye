@@ -1,5 +1,6 @@
 package com.namefix.mixin.client;
 
+import com.namefix.DeadeyeMod;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.DeadeyeConfig;
 import net.minecraft.client.Minecraft;
@@ -21,6 +22,7 @@ public class SoundEngineMixin {
 		Player player = Minecraft.getInstance().player;
 
 		if(DeadeyeClient.DEADEYE_ENABLED) {
+			if(instance.getLocation().getNamespace().equals(DeadeyeMod.MOD_ID)) return;
 			float curTickRate = player.level().tickRateManager().tickrate();
 			float prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
 

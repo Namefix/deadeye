@@ -36,5 +36,11 @@
   "key.deadeye.toggle_deadeye": "Toggle Dead Eye",
   "key.deadeye.mark": "Mark Targets",
   "key.deadeye.shoot_targets": "Shoot Marked Targets",
-  "key.categories.deadeye": "Dead Eye"
+  "key.categories.deadeye": "Dead Eye",
+
+  "sound.deadeye.consume_tonic": "Consumed tonic",
+  "sound.deadeye.mark": "Target painted",
+  "sound.deadeye.enter": "Entered Dead Eye",
+  "sound.deadeye.exit": "Exited Dead Eye",
+  "sound.deadeye.background": "Concentrating"
 }

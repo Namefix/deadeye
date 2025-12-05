@@ -31,6 +31,7 @@ public class DeadeyeClient {
 	public static PlayerDeadeyeState DEADEYE_STATE = new PlayerDeadeyeState();
 	public static PlayerSavedData DEADEYE_DATA = new PlayerSavedData();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
+	public static float DEADEYE_ENDING = 0.0f;
 
 	// SHOOTING
 	private static long LAST_DEADEYE_MARK = 0;
@@ -45,6 +46,7 @@ public class DeadeyeClient {
 
 	public static void render() {
 		shootingTick();
+		DeadeyeSound.tick();
 	}
 
 	public static void shootingTick() {
@@ -162,13 +164,24 @@ public class DeadeyeClient {
 			// TODO: update shader logic with the profile system
 			if(DeadeyeConfig.Client.enableShaders) ShaderManager.activateShader("rdr2_deadeye");
 			if(DeadeyeConfig.Client.enableLightLeak) DeadeyeHud.playLightLeak();
+			DeadeyeSound.playEnterSound();
+			DeadeyeSound.startBackgroundSounds();
+			calculateDeadeyeEnding();
 		} else {
 			ShaderManager.deactivateShader("rdr2_deadeye");
 			DEADEYE_STATE.phase = Phase.IDLE;
 			DEADEYE_STATE.targets.clear();
 			DEADEYE_STATE.markItem = null;
 			DeadeyeBowVisuals.reset(); // reset fake bow thingy
+			DeadeyeSound.playExitSound();
+			DeadeyeSound.stopBackgroundSounds();
+
+			DEADEYE_ENDING = 0.0f;
 		}
+	}
+
+	private static void calculateDeadeyeEnding() {
+		DEADEYE_ENDING = Mth.clamp(1f - ((DEADEYE_DATA.deadeyeCore/20f)+(DEADEYE_DATA.deadeyeMeter/20f)), 0.0f, 1.0f);
 	}
 
 	// Request Dead Eye toggle from the server
@@ -215,7 +228,7 @@ public class DeadeyeClient {
 		LAST_DEADEYE_MARK = System.currentTimeMillis();
 		DEADEYE_STATE.targets.add(new DeadeyeTargetData(target, new Vec3(payload.markPos())));
 		DEADEYE_STATE.markItem = mc.player.getMainHandItem();
-		// TODO: Add deadeye mark sound
+		DeadeyeSound.playMarkSound();
 
 		interaction.postMark();
 	}
@@ -229,6 +242,7 @@ public class DeadeyeClient {
 	public static void handleMeterData(MeterDataPayload payload, NetworkManager.PacketContext packetContext) {
 		DEADEYE_DATA.deadeyeMeter = payload.deadeyeMeter();
 		DEADEYE_DATA.deadeyeCore = payload.deadeyeCore();
+		calculateDeadeyeEnding();
 	}
 
 }

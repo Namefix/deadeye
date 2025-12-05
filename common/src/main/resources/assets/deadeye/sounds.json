@@ -1,0 +1,62 @@
+{
+  "consume_tonic": {
+    "subtitle": "sound.deadeye.consume_tonic",
+    "sounds": [
+      "deadeye:consume_tonic"
+    ]
+  },
+  
+  "deadeye_arthur_mark": {
+    "subtitle": "sound.deadeye.mark",
+    "sounds": [
+      "deadeye:arthur/deadeye_arthur_mark"
+    ]
+  },
+
+  "deadeye_john_enter": {
+    "subtitle": "sound.deadeye.enter",
+    "sounds": [
+      "deadeye:john/deadeye_john_enter"
+    ]
+  },
+
+  "deadeye_john_background": {
+    "subtitle": "sound.deadeye.background",
+    "sounds": [
+      "deadeye:john/deadeye_john_background"
+    ],
+    "stream": true
+  },
+
+  "deadeye_john_background2": {
+    "sounds": [
+      "deadeye:john/deadeye_john_background2"
+    ],
+    "stream": true
+  },
+
+  "deadeye_john_exit": {
+    "subtitle": "sound.deadeye.exit",
+    "sounds": [
+      "deadeye:john/deadeye_john_exit"
+    ]
+  },
+
+  "deadeye_john_background2_exit": {
+    "sounds": [
+      "deadeye:john/deadeye_john_background2_exit"
+    ]
+  },
+
+  "deadeye_john_heartbeat_in": {
+    "sounds": [
+      "deadeye:john/deadeye_john_heartbeat_in"
+    ]
+  },
+
+  "deadeye_john_heartbeat_out": {
+    "sounds": [
+      "deadeye:john/deadeye_john_heartbeat_out"
+    ]
+  }
+}

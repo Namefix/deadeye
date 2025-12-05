@@ -2,10 +2,12 @@ package com.namefix;
 
 import com.namefix.client.DeadeyeClient;
 import com.namefix.client.DeadeyeHud;
+import com.namefix.client.DeadeyeSound;
 import com.namefix.command.DeadeyeCommandRegistry;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.network.DeadeyeNetwork;
 import com.namefix.registry.KeybindRegistry;
+import com.namefix.registry.SoundEventRegistry;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.shader.ShaderManager;
 import com.teamresourceful.resourcefulconfig.api.loader.Configurator;
@@ -28,6 +30,7 @@ public final class DeadeyeMod {
         DeadeyeMod.LOGGER.info("Initializing Dead Eye. People don't forget, nothing gets forgiven.");
         CONFIGURATOR.register(DeadeyeConfig.class);
         DeadeyeCommandRegistry.initialize();
+        SoundEventRegistry.register();
 
         DeadeyeNetwork.initialize();
 
@@ -43,6 +46,7 @@ public final class DeadeyeMod {
         KeybindRegistry.register();
         DeadeyeNetwork.initializeClient();
         DeadeyeClient.initialize();
+        DeadeyeSound.initialize();
 
         ClientRawInputEvent.KEY_PRESSED.register(DeadeyeClient::onKeyPressed);
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(DeadeyeClient::onQuit);

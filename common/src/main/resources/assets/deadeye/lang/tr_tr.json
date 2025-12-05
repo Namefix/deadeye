@@ -36,5 +36,11 @@
   "key.deadeye.toggle_deadeye": "Dead Eye'ı Açma/Kapatma",
   "key.deadeye.mark": "Hedef İşaretleme",
   "key.deadeye.shoot_targets": "İşaretli Hedefleri Vur",
-  "key.categories.deadeye": "Dead Eye"
+  "key.categories.deadeye": "Dead Eye",
+
+  "sound.deadeye.consume_tonic": "Tonik tüketildi",
+  "sound.deadeye.mark": "Hedef boyandı",
+  "sound.deadeye.enter": "Dead Eye'a girildi",
+  "sound.deadeye.exit": "Dead Eye'dan çıkıldı",
+  "sound.deadeye.background": "Odaklanılıyor"
 }

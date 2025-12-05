@@ -25,6 +25,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.lwjgl.glfw.GLFW;
 
 public class DeadeyeClient {
 	public static boolean DEADEYE_ENABLED = false;
@@ -128,27 +129,55 @@ public class DeadeyeClient {
 	}
 
 	public static EventResult onKeyPressed(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers) {
-		if(
-			minecraft.level == null ||
-			minecraft.player == null ||
-			minecraft.player.isSpectator() ||
-			!minecraft.player.isAlive() ||
-			minecraft.screen != null
-		) {
+		if(!canHandleInput(minecraft)) {
 			return EventResult.pass();
 		}
 
-		if (KeybindRegistry.DEADEYE_TOGGLE.matches(keyCode, scanCode) && action == 1) {
+		return handleKeybindActivation(
+			KeybindRegistry.DEADEYE_TOGGLE.matches(keyCode, scanCode),
+			KeybindRegistry.DEADEYE_MARK.matches(keyCode, scanCode),
+			KeybindRegistry.DEADEYE_SHOOT_TARGETS.matches(keyCode, scanCode),
+			action
+		);
+	}
+
+	public static EventResult onMouseClicked(Minecraft minecraft, int button, int action, int modifiers) {
+		if(!canHandleInput(minecraft)) {
+			return EventResult.pass();
+		}
+
+		return handleKeybindActivation(
+			KeybindRegistry.DEADEYE_TOGGLE.matchesMouse(button),
+			KeybindRegistry.DEADEYE_MARK.matchesMouse(button),
+			KeybindRegistry.DEADEYE_SHOOT_TARGETS.matchesMouse(button),
+			action
+		);
+	}
+
+	private static boolean canHandleInput(Minecraft minecraft) {
+		return minecraft.level != null &&
+			minecraft.player != null &&
+			!minecraft.player.isSpectator() &&
+			minecraft.player.isAlive() &&
+			minecraft.screen == null;
+	}
+
+	private static EventResult handleKeybindActivation(boolean toggleMatch, boolean markMatch, boolean shootMatch, int action) {
+		if(action != GLFW.GLFW_PRESS) {
+			return EventResult.pass();
+		}
+
+		if(toggleMatch) {
 			requestDeadeye();
 			return EventResult.interruptDefault();
 		}
 
-		if(KeybindRegistry.DEADEYE_MARK.matches(keyCode, scanCode) && action == 1 && DEADEYE_ENABLED && DEADEYE_STATE.phase != Phase.SHOOTING) {
+		if(markMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase != Phase.SHOOTING) {
 			requestMark();
 			return EventResult.interruptDefault();
 		}
 
-		if(KeybindRegistry.DEADEYE_SHOOT_TARGETS.matches(keyCode, scanCode) && action == 1 && DEADEYE_ENABLED && DEADEYE_STATE.phase == Phase.MARKED) {
+		if(shootMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase == Phase.MARKED) {
 			initShootingPhase();
 			return EventResult.interruptDefault();
 		}

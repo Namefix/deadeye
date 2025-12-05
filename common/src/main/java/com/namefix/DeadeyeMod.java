@@ -49,6 +49,7 @@ public final class DeadeyeMod {
         DeadeyeSound.initialize();
 
         ClientRawInputEvent.KEY_PRESSED.register(DeadeyeClient::onKeyPressed);
+        ClientRawInputEvent.MOUSE_CLICKED_PRE.register(DeadeyeClient::onMouseClicked);
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(DeadeyeClient::onQuit);
         ClientGuiEvent.RENDER_HUD.register(DeadeyeHud::render);
 

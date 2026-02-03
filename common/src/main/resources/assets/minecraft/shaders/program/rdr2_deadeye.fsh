@@ -106,6 +106,7 @@ void main() {
     vec3 tintedColor = mix(focusColor, focusColor * orangeTint, 0.55 + (1.0 - luminance) * 0.25);
     vec3 vignettedColor = tintedColor * mix(1.0, vignette, 0.9);
     vec3 gradedColor = pow(vignettedColor, vec3(1.05));
+    gradedColor *= 1.4;
 
     vec3 finalColor = mix(baseColor, gradedColor, clamp(Fade, 0.0, 1.0));
     fragColor = vec4(finalColor, baseSample.a);

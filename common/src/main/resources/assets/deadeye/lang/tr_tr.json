@@ -19,6 +19,8 @@
   "config.deadeye.forceTickRate.desc": "Birden fazla oyuncu bulurken Tick oranı zorla uygulanır.",
   "config.deadeye.bowPullCompensation.name": "Yay Çekme Hızı Dengeleme",
   "config.deadeye.bowPullCompensation.desc": "Dead Eye aktif iken yay/arbalet çekme hızını dengeler.",
+  "config.deadeye.naturalDeadeyeRegeneration.name": "Doğal Dead Eye Yenileme",
+  "config.deadeye.naturalDeadeyeRegeneration.desc": "Dead Eye metresinin doğal olarak yenileneceği miktarı ayarlar.",
   "config.deadeye.enableShaders": "Shader Efektlerini Etkinleştir",
   "config.deadeye.enableShaders.desc": "Dead Eye için görsel shader efektlerini etkinleştir.",
   "config.deadeye.enableLightLeak": "Işık Süzmesi Efektini Etkinleştir",

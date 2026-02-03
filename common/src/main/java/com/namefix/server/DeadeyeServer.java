@@ -58,6 +58,14 @@ public class DeadeyeServer {
 		for (Player player : toRemove) {
 			disableDeadeye(player);
 		}
+
+		// Natural regeneration
+		if(DeadeyeConfig.Server.naturalDeadeyeRegeneration > 0.0f) {
+			for(ServerPlayer player : serverLevel.players()) {
+				if(DeadeyeStates.containsKey(player)) continue;
+				PlayerSavedData.addDeadeyeMeter(player, DeadeyeConfig.Server.naturalDeadeyeRegeneration, true);
+			}
+		}
 	}
 
 	public static void onPlayerJoin(ServerPlayer serverPlayer) {

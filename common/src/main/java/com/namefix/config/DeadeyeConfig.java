@@ -37,6 +37,13 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "bowPullCompensationDesc", translation = "config.deadeye.bowPullCompensation.desc")
 		public static boolean bowPullCompensation = true;
+
+		@ConfigEntry(
+				id = "naturalDeadeyeRegeneration",
+				translation = "config.deadeye.naturalDeadeyeRegeneration.name"
+		)
+		@Comment(value = "naturalDeadeyeRegenerationDesc", translation = "config.deadeye.naturalDeadeyeRegeneration.desc")
+		public static float naturalDeadeyeRegeneration = 0.0f;
 	}
 
 	@Category(value = "Client")

@@ -29,6 +29,8 @@
   "config.deadeye.pitchShift.desc": "Shifts pitches of all sounds to the Dead Eye tick rate. (game speed)",
   "config.deadeye.targetMarkSize.name": "Target Mark Size",
   "config.deadeye.targetMarkSize.desc": "Size of the target marks in Dead Eye",
+  "config.deadeye.preventMovement.name": "Prevent Movement In Dead Eye",
+  "config.deadeye.preventMovement.desc": "Prevents player movement while Dead Eye is enabled.",
   "config.deadeye.hudPosition.name": "Hud Position",
   "config.deadeye.hudScale.name": "Hud Scale",
   "config.deadeye.hudCustomX.name": "Custom Hud X",

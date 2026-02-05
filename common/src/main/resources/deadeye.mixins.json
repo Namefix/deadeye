@@ -5,6 +5,7 @@
   "minVersion": "0.8",
   "client": [
     "client.AbstractClientPlayerMixin",
+    "client.KeyboardInputMixin",
     "client.ItemInHandRendererMixin",
     "client.LocalPlayerMixin",
     "client.MouseHandlerMixin",

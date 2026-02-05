@@ -75,6 +75,13 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "targetMarkSizeDesc", translation = "config.deadeye.targetMarkSize.desc")
 		public static float targetMarkSize = 1f;
+
+		@ConfigEntry(
+				id = "preventMovement",
+				translation = "config.deadeye.preventMovement.name"
+		)
+		@Comment(value = "preventMovement", translation = "config.deadeye.preventMovement.desc")
+		public static boolean preventMovement = false;
 	}
 
 	@Category(value = "HUD")

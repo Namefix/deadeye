@@ -44,6 +44,13 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "naturalDeadeyeRegenerationDesc", translation = "config.deadeye.naturalDeadeyeRegeneration.desc")
 		public static float naturalDeadeyeRegeneration = 0.0f;
+
+		@ConfigEntry(
+				id = "deadeyeInvulnerability",
+				translation = "config.deadeye.deadeyeInvulnerability.name"
+		)
+		@Comment(value = "deadeyeInvulnerabilityDesc", translation = "config.deadeye.deadeyeInvulnerability.desc")
+		public static boolean deadeyeInvulnerability = false;
 	}
 
 	@Category(value = "Client")

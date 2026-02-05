@@ -5,8 +5,8 @@
   "minVersion": "0.8",
   "client": [
     "client.AbstractClientPlayerMixin",
-    "client.KeyboardInputMixin",
     "client.ItemInHandRendererMixin",
+    "client.KeyboardInputMixin",
     "client.LocalPlayerMixin",
     "client.MouseHandlerMixin",
     "client.PlayerMixin",
@@ -16,7 +16,8 @@
     "BowItemMixin",
     "CrossbowItemMixin",
     "LivingEntityMixin",
-    "ProjectileWeaponItemMixin"
+    "ProjectileWeaponItemMixin",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

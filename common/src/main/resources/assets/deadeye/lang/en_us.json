@@ -21,6 +21,8 @@
   "config.deadeye.bowPullCompensation.desc": "Compensates bows/crossbows pull speed while Dead Eye is activated.",
   "config.deadeye.naturalDeadeyeRegeneration.name": "Natural Dead Eye Regeneration",
   "config.deadeye.naturalDeadeyeRegeneration.desc": "Sets the amount of Dead Eye meter to be regenerated naturally.",
+  "config.deadeye.deadeyeInvulnerability.name": "Dead Eye Invulnerability",
+  "config.deadeye.deadeyeInvulnerability.desc": "Grants invulnerability to certain damage sources in Dead Eye.",
   "config.deadeye.enableShaders": "Enable Shader Effects",
   "config.deadeye.enableShaders.desc": "Enable visual shader effects for Dead Eye.",
   "config.deadeye.enableLightLeak": "Enable Light Leak Effect",

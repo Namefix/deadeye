@@ -41,8 +41,8 @@ public class DeadeyeSound {
 	}
 
 	public static void tick() {
-		if(!DeadeyeClient.DEADEYE_ENABLED) return;
 		Minecraft mc = Minecraft.getInstance();
+		if(!DeadeyeClient.DEADEYE_ENABLED || mc.isPaused()) return;
 		Player player = mc.player;
 		float delta = mc.getTimer().getRealtimeDeltaTicks();
 		if(player == null) return;

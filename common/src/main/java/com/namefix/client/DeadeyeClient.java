@@ -57,6 +57,11 @@ public class DeadeyeClient {
 	}
 
 	public static void shootingTick() {
+		if(DEADEYE_STATE.phase == Phase.SHOOTING && DEADEYE_STATE.targets.isEmpty()) {
+			requestDeadeye();
+			return;
+		}
+
 		Minecraft mc = Minecraft.getInstance();
 		if(		mc.isPaused() || !DEADEYE_ENABLED ||
 				DEADEYE_STATE.targets.isEmpty() || DEADEYE_STATE.phase != Phase.SHOOTING ||

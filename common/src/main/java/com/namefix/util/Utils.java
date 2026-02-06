@@ -127,7 +127,10 @@ public class Utils {
 		Item item = itemStack.getItem();
 
 		if(item instanceof BowItem || item instanceof CrossbowItem) return new BowDeadeyeInteraction(state, player, itemStack);
-		else if(item instanceof ProjectileItem) return new ProjectileDeadeyeInteraction(state, player, itemStack);
+		else if(item instanceof ProjectileItem) {
+			if(item instanceof ArrowItem || item instanceof FireworkRocketItem || item instanceof FireChargeItem) return null;
+			return new ProjectileDeadeyeInteraction(state, player, itemStack);
+		}
 		else return null;
 	}
 

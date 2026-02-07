@@ -95,7 +95,7 @@ public class DeadeyeServer {
 			if(DeadeyeStates.containsKey(player)) {
 				PlayerSavedData.addDeadeyeXP(player, 0.5f);
 			} else {
-				PlayerSavedData.addDeadeyeMeter(player, data.deadeyeKillReward, true);
+				PlayerSavedData.addDeadeyeMeter(player, Math.min(data.deadeyeKillReward*(data.deadeyeCore/10), 0.5f), true);
 			}
 		}
 		return EventResult.interruptDefault();

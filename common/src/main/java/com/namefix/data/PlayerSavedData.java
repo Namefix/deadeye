@@ -18,7 +18,7 @@ public class PlayerSavedData {
 
 	// Will be used server side only
 	public float deadeyeConsumeRate = 0.25f;
-	public float deadeyeKillReward = 4f;
+	public float deadeyeKillReward = 3f;
 
 	private static final List<Vector3f> HUD_FORTIFICATION_COLORS = Lists.newArrayList(
 			new Vector3f(1f, 0.969f, 0.776f),

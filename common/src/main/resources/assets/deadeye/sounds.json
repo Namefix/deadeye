@@ -58,5 +58,11 @@
     "sounds": [
       "deadeye:john/deadeye_john_heartbeat_out"
     ]
+  },
+
+  "ui_appear": {
+    "sounds": [
+      "deadeye:ui_appear"
+    ]
   }
 }

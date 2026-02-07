@@ -39,7 +39,7 @@ public class DeadeyeServer {
 			PlayerSavedData data = StateManager.getPlayerState(player);
 
 			if(state.phase != Phase.SHOOTING) {
-				PlayerSavedData.addDeadeyeXP(player, 0.01f);
+				PlayerSavedData.addDeadeyeXP(player, 0.02f);
 				PlayerSavedData.subDeadeyeTotal(player, data.deadeyeConsumeRate);
 				if(data.deadeyeMeter == 0 && data.deadeyeCore == 0) {
 					if(state.phase == Phase.MARKED) {
@@ -52,6 +52,10 @@ public class DeadeyeServer {
 				if(state.markItem != null && !state.markItem.getItem().equals(player.getMainHandItem().getItem())) {
 					toRemove.add(player);
 				}
+			}
+
+			if(state.phase == Phase.SHOOTING && state.targets.isEmpty()) {
+				toRemove.add(player);
 			}
 		}
 
@@ -95,7 +99,7 @@ public class DeadeyeServer {
 			if(DeadeyeStates.containsKey(player)) {
 				PlayerSavedData.addDeadeyeXP(player, 0.5f);
 			} else {
-				PlayerSavedData.addDeadeyeMeter(player, Math.min(data.deadeyeKillReward*(data.deadeyeCore/10), 0.5f), true);
+				PlayerSavedData.addDeadeyeMeter(player, Math.max(data.deadeyeKillReward*(data.deadeyeCore/10), 0.5f), true);
 			}
 		}
 		return EventResult.interruptDefault();

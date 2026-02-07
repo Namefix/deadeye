@@ -89,10 +89,13 @@ public class DeadeyeSound {
 
 	public static void playExitSound() {
 		Minecraft mc = Minecraft.getInstance();
-
 		mc.player.playSound(SOUND_EXIT, 1.0f, 1.0f);
 
 		if(DeadeyeClient.DEADEYE_DATA.deadeyeCore == 0 && DeadeyeClient.DEADEYE_DATA.deadeyeMeter == 0)
 			mc.player.playSound(SOUND_BACKGROUND2_EXIT, 0.1f, 1.0f);
+	}
+
+	public static void playUIAppear() {
+		Minecraft.getInstance().player.playSound(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.5f, 1.0f);
 	}
 }

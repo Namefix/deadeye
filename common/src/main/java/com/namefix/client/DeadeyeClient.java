@@ -7,6 +7,7 @@ import com.namefix.data.PlayerSavedData;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.network.payload.*;
 import com.namefix.registry.KeybindRegistry;
+import com.namefix.registry.SoundEventRegistry;
 import com.namefix.shader.ShaderManager;
 import com.namefix.util.ClientUtils;
 import com.namefix.util.Utils;
@@ -57,11 +58,6 @@ public class DeadeyeClient {
 	}
 
 	public static void shootingTick() {
-		if(DEADEYE_STATE.phase == Phase.SHOOTING && DEADEYE_STATE.targets.isEmpty()) {
-			requestDeadeye();
-			return;
-		}
-
 		Minecraft mc = Minecraft.getInstance();
 		if(		mc.isPaused() || !DEADEYE_ENABLED ||
 				DEADEYE_STATE.targets.isEmpty() || DEADEYE_STATE.phase != Phase.SHOOTING ||
@@ -149,6 +145,7 @@ public class DeadeyeClient {
 			KeybindRegistry.DEADEYE_TOGGLE.matches(keyCode, scanCode),
 			KeybindRegistry.DEADEYE_MARK.matches(keyCode, scanCode),
 			KeybindRegistry.DEADEYE_SHOOT_TARGETS.matches(keyCode, scanCode),
+			KeybindRegistry.DEADEYE_INFO_SHOW.matches(keyCode, scanCode),
 			action
 		);
 	}
@@ -162,6 +159,7 @@ public class DeadeyeClient {
 			KeybindRegistry.DEADEYE_TOGGLE.matchesMouse(button),
 			KeybindRegistry.DEADEYE_MARK.matchesMouse(button),
 			KeybindRegistry.DEADEYE_SHOOT_TARGETS.matchesMouse(button),
+			KeybindRegistry.DEADEYE_INFO_SHOW.matchesMouse(button),
 			action
 		);
 	}
@@ -174,7 +172,7 @@ public class DeadeyeClient {
 			minecraft.screen == null;
 	}
 
-	private static EventResult handleKeybindActivation(boolean toggleMatch, boolean markMatch, boolean shootMatch, int action) {
+	private static EventResult handleKeybindActivation(boolean toggleMatch, boolean markMatch, boolean shootMatch, boolean info, int action) {
 		if(action != GLFW.GLFW_PRESS) {
 			return EventResult.pass();
 		}
@@ -191,6 +189,12 @@ public class DeadeyeClient {
 
 		if(shootMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase == Phase.MARKED) {
 			initShootingPhase();
+			return EventResult.interruptDefault();
+		}
+
+		if(info) {
+			DeadeyeHud.showDeadeyeInfo();
+			DeadeyeSound.playUIAppear();
 			return EventResult.interruptDefault();
 		}
 

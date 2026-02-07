@@ -3,6 +3,7 @@ package com.namefix.registry;
 import com.namefix.DeadeyeMod;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -21,6 +22,7 @@ public class SoundEventRegistry {
 	public static final RegistrySupplier<SoundEvent> DEADEYE_ARTHUR_MARK = registerDefaultSound("deadeye_arthur_mark");
 
 	public static final RegistrySupplier<SoundEvent> CONSUME_TONIC = registerDefaultSound("consume_tonic");
+	public static final RegistrySupplier<SoundEvent> UI_APPEAR = registerDefaultSound("ui_appear");
 
 	private static RegistrySupplier<SoundEvent> registerDefaultSound(String id) {
 		return SOUNDS.register(id, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, id)));

@@ -1,0 +1,11 @@
+{
+  "type": "deadeye:wild_tobacco",
+  "config": {
+    "tries": 10,
+    "xz_spread": 5,
+    "y_spread": 2,
+    "primary_feature": "deadeye:wild_tobacco_primary",
+    "secondary_feature": "deadeye:wild_tobacco_secondary",
+    "floor_feature": "deadeye:wild_tobacco_coarse_dirt"
+  }
+}

@@ -1,6 +1,7 @@
 package com.namefix.registry;
 
 import com.namefix.DeadeyeMod;
+import com.namefix.block.TobaccoCropBlock;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -11,12 +12,14 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class BlockRegistry {
 	public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(DeadeyeMod.MOD_ID, Registries.BLOCK);
 
-	public static final RegistrySupplier<Block> TOBACCO_CROP = registerBlock("tobacco_crop", BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT));
+	public static final RegistrySupplier<CropBlock> TOBACCO_CROP = registerBlock("tobacco_crop", TobaccoCropBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT));
+	public static final RegistrySupplier<Block> WILD_TOBACCO = registerBlock("wild_tobacco", BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT));
 
 	public static void register() {
 		BLOCKS.register();

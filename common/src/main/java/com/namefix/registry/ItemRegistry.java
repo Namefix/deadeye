@@ -37,7 +37,7 @@ public class ItemRegistry {
 	public static RegistrySupplier<Item> registerItem(String name, ItemFactory<Item> factory, ResourceKey<CreativeModeTab> tab) {
 		return ITEMS.register(name, () -> factory.create(new Item.Properties().arch$tab(tab)));
 	}
-	public static RegistrySupplier<Item> registerItem(String name, RegistrySupplier<Block> block, ResourceKey<CreativeModeTab> tab) {
+	public static RegistrySupplier<Item> registerItem(String name, RegistrySupplier<? extends Block> block, ResourceKey<CreativeModeTab> tab) {
 		return ITEMS.register(name, () -> new ItemNameBlockItem(block.get(), new Item.Properties().arch$tab(tab)));
 	}
 	public static <T extends Item> RegistrySupplier<T> registerItem(String name, ItemFactory<T> factory) {

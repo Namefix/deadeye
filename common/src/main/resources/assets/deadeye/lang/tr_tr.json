@@ -1,4 +1,7 @@
 {
+  "block.deadeye.tobacco_crop": "Tütün",
+  "block.deadeye.wild_tobacco": "Vahşi Tütün",
+
   "command.deadeye.toggle.enabled": "%s için Dead Eye etkinleştirildi.",
   "command.deadeye.toggle.disabled": "%s için Dead Eye devre dışı bırakıldı.",
   "command.deadeye.data.set": "%3$s için %1$s değeri %2$s olarak ayarlandı.",

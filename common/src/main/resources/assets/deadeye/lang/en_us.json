@@ -1,4 +1,7 @@
 {
+  "block.deadeye.tobacco_crop": "Tobacco",
+  "block.deadeye.wild_tobacco": "Wild Tobacco",
+
   "command.deadeye.toggle.enabled": "Enabled Dead Eye for %s.",
   "command.deadeye.toggle.disabled": "Disabled Dead Eye for %s.",
   "command.deadeye.data.set": "Set %s to %s for %s.",

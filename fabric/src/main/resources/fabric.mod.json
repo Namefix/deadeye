@@ -21,6 +21,9 @@
     ],
     "client": [
       "com.namefix.fabric.client.DeadeyeFabricClient"
+    ],
+    "fabric-datagen": [
+      "com.namefix.fabric.datagen.DeadeyeDataGenerator"
     ]
   },
   "mixins": [

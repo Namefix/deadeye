@@ -3,6 +3,8 @@ package com.namefix.client;
 import com.namefix.registry.SoundEventRegistry;
 import com.namefix.sound.DeadeyeLoopingSound;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -52,10 +54,10 @@ public class DeadeyeSound {
 
 		while(HEARTBEAT_PHASE_TIME >= threshold) {
 			if(WAITING_FOR_HEARTBEAT_IN) {
-				player.playSound(SOUND_HEARTBEAT_IN, 2.0f, 1.0f);
+				play2D(SOUND_HEARTBEAT_IN, 2.0f, 1.0f);
 				WAITING_FOR_HEARTBEAT_IN = false;
 			} else {
-				player.playSound(SOUND_HEARTBEAT_OUT, 2.0f, 1.0f);
+				play2D(SOUND_HEARTBEAT_OUT, 2.0f, 1.0f);
 				WAITING_FOR_HEARTBEAT_IN = true;
 			}
 
@@ -78,24 +80,41 @@ public class DeadeyeSound {
 	}
 
 	public static void playMarkSound() {
-		Minecraft mc = Minecraft.getInstance();
-		mc.player.playSound(SOUND_MARK, 1.0f, 1.0f);
+		play2D(SOUND_MARK, 1.0f, 1.0f);
 	}
 
 	public static void playEnterSound() {
-		Minecraft mc = Minecraft.getInstance();
-		mc.player.playSound(SOUND_ENTER, 1.0f, 1.0f);
+		play2D(SOUND_ENTER, 1.0f, 1.0f);
 	}
 
 	public static void playExitSound() {
 		Minecraft mc = Minecraft.getInstance();
-		mc.player.playSound(SOUND_EXIT, 1.0f, 1.0f);
+		play2D(SOUND_EXIT, 1.0f, 1.0f);
 
 		if(DeadeyeClient.DEADEYE_DATA.deadeyeCore == 0 && DeadeyeClient.DEADEYE_DATA.deadeyeMeter == 0)
-			mc.player.playSound(SOUND_BACKGROUND2_EXIT, 0.1f, 1.0f);
+			play2D(SOUND_BACKGROUND2_EXIT, 0.1f, 1.0f);
 	}
 
 	public static void playUIAppear() {
-		Minecraft.getInstance().player.playSound(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.5f, 1.0f);
+		play2D(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.5f, 1.0f);
+	}
+
+	private static void play2D(SoundEvent sound, float volume, float pitch) {
+		Minecraft mc = Minecraft.getInstance();
+		if(sound == null || mc == null) return;
+		mc.getSoundManager().play(new SimpleSoundInstance(
+			sound.getLocation(),
+			SoundSource.PLAYERS,
+			volume,
+			pitch,
+			SoundInstance.createUnseededRandom(),
+			false,
+			0,
+			SoundInstance.Attenuation.NONE,
+			0.0,
+			0.0,
+			0.0,
+			true
+		));
 	}
 }

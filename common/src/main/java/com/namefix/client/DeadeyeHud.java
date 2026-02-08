@@ -393,4 +393,8 @@ public class DeadeyeHud {
 	public static void showDeadeyeInfo() {
 		INFO_COUNTER = 0f;
 	}
+
+	public static boolean isDeadeyeInfoVisible() {
+		return INFO_COUNTER >= 0;
+	}
 }

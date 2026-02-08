@@ -7,7 +7,6 @@ import com.namefix.data.PlayerSavedData;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.network.payload.*;
 import com.namefix.registry.KeybindRegistry;
-import com.namefix.registry.SoundEventRegistry;
 import com.namefix.shader.ShaderManager;
 import com.namefix.util.ClientUtils;
 import com.namefix.util.Utils;
@@ -192,7 +191,7 @@ public class DeadeyeClient {
 			return EventResult.interruptDefault();
 		}
 
-		if(info) {
+		if(info && !DeadeyeHud.isDeadeyeInfoVisible()) {
 			DeadeyeHud.showDeadeyeInfo();
 			DeadeyeSound.playUIAppear();
 			return EventResult.interruptDefault();

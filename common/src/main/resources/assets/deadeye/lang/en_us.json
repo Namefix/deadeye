@@ -39,6 +39,15 @@
   "config.deadeye.hudCustomY.name": "Custom Hud Y",
   "config.deadeye.hudCustom.desc": "Requires \"Custom\" hud position.",
 
+  "item.deadeye.tobacco": "Tobacco",
+  "item.deadeye.tobacco_seeds": "Tobacco Seeds",
+  "item.deadeye.snake_oil": "Snake Oil",
+  "item.deadeye.snake_oil.tooltip": "Fortifies Dead Eye meter slightly.",
+  "item.deadeye.potent_snake_oil": "Potent Snake Oil",
+  "item.deadeye.potent_snake_oil.tooltip": "Fortifies Dead Eye meter moderately.",
+  "item.deadeye.special_snake_oil": "Special Snake Oil",
+  "item.deadeye.special_snake_oil.tooltip": "Fortifies Dead Eye meter greatly.",
+
   "key.deadeye.toggle_deadeye": "Toggle Dead Eye",
   "key.deadeye.mark": "Mark Targets",
   "key.deadeye.shoot_targets": "Shoot Marked Targets",

@@ -99,6 +99,10 @@ public class DeadeyeSound {
 		play2D(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.5f, 1.0f);
 	}
 
+	public static void playConsumeTonic() {
+		play2D(SoundEventRegistry.CONSUME_TONIC.getOrNull(), 0.5f, 1.0f);
+	}
+
 	private static void play2D(SoundEvent sound, float volume, float pitch) {
 		Minecraft mc = Minecraft.getInstance();
 		if(sound == null || mc == null) return;

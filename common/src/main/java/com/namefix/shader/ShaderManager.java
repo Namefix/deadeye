@@ -6,6 +6,7 @@ import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class ShaderManager {
 	private static final Map<String, ShaderEffect> LOADED_SHADERS = new HashMap<>();
 	private static final Map<String, Boolean> ACTIVE_SHADERS = new HashMap<>();
+	private static float TONIC_DURATION = 0.0f;
 
 	public static void initialize() {
 		if(Platform.isFabric()) {
@@ -27,7 +29,8 @@ public class ShaderManager {
 	}
 
 	private static void registerShaders() {
-		ShaderManager.registerShader("rdr2_deadeye", ResourceLocation.withDefaultNamespace("shaders/post/rdr2_deadeye.json.json"));
+		ShaderManager.registerShader("rdr2_deadeye", ResourceLocation.withDefaultNamespace("shaders/post/rdr2_deadeye.json"));
+		ShaderManager.registerShader("tonic", ResourceLocation.withDefaultNamespace("shaders/post/tonic.json"));
 	}
 
 	public static void registerShader(String name, ResourceLocation shaderLocation) {
@@ -35,11 +38,29 @@ public class ShaderManager {
 	}
 
 	public static void renderActiveShaders(float partialTicks) {
+		updateTonicTimer(partialTicks);
 		for(ShaderEffect shader : LOADED_SHADERS.values()) {
 			if(shader.isActive()) {
 				updateCommonUniforms(shader);
 				shader.render(partialTicks);
 			}
+		}
+	}
+
+	public static void updateTonicTimer(float realTimeDeltaTicks) {
+		TONIC_DURATION = Mth.clamp(TONIC_DURATION - (realTimeDeltaTicks / 20.0f), 0.0f, 1.0f);
+		if(isShaderActive("tonic")) {
+			setUniform("tonic", "TonicDuration", TONIC_DURATION);
+		}
+		if(TONIC_DURATION <= 0.0f) {
+			deactivateShader("tonic");
+		}
+	}
+
+	public static void setTonicDuration(float value) {
+		TONIC_DURATION = Mth.clamp(value, 0.0f, 1.0f);
+		if(isShaderActive("tonic")) {
+			setUniform("tonic", "TonicDuration", TONIC_DURATION);
 		}
 	}
 

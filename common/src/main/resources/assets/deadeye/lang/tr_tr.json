@@ -39,6 +39,15 @@
   "config.deadeye.hudCustomY.name": "Özel Arayüz Y",
   "config.deadeye.hudCustom.desc": "Arayüz pozisyonunun \"Özel\" olması gerekir.",
 
+  "item.deadeye.tobacco": "Tütün",
+  "item.deadeye.tobacco_seeds": "Tütün Tohumları",
+  "item.deadeye.snake_oil": "Yılan Yağı",
+  "item.deadeye.snake_oil.tooltip": "Dead Eye metresini düşük seviyede güçlendirir.",
+  "item.deadeye.potent_snake_oil": "Güçlü Yılan Yağı",
+  "item.deadeye.potent_snake_oil.tooltip": "Dead Eye metresini orta seviyede güçlendirir.",
+  "item.deadeye.special_snake_oil": "Özel Yılan Yağı",
+  "item.deadeye.special_snake_oil.tooltip": "Dead Eye metresini yüksek seviyede güçlendirir.",
+
   "key.deadeye.toggle_deadeye": "Dead Eye'ı Açma/Kapatma",
   "key.deadeye.mark": "Hedef İşaretleme",
   "key.deadeye.shoot_targets": "İşaretli Hedefleri Vur",

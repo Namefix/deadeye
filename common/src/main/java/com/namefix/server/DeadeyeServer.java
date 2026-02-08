@@ -106,6 +106,12 @@ public class DeadeyeServer {
 		return EventResult.interruptDefault();
 	}
 
+	public static void drinkTonic(ServerPlayer player, int tonicLevel) {
+		PlayerSavedData data = StateManager.getPlayerState((ServerPlayer) player);
+		if(tonicLevel <= 0 || data.deadeyeSkill <= 0) return;
+		PlayerSavedData.setDeadeyeMeter(player, PlayerSavedData.getMaxMeter(data, tonicLevel));
+	}
+
 	public static void toggleDeadeye(Player player) {
 		if(DeadeyeStates.containsKey(player)) {
 			disableDeadeye(player);

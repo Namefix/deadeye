@@ -6,6 +6,8 @@ import com.namefix.client.DeadeyeSound;
 import com.namefix.command.DeadeyeCommandRegistry;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.network.DeadeyeNetwork;
+import com.namefix.registry.BlockRegistry;
+import com.namefix.registry.ItemRegistry;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.registry.SoundEventRegistry;
 import com.namefix.server.DeadeyeServer;
@@ -31,6 +33,8 @@ public final class DeadeyeMod {
         CONFIGURATOR.register(DeadeyeConfig.class);
         DeadeyeCommandRegistry.initialize();
         SoundEventRegistry.register();
+        BlockRegistry.register();
+        ItemRegistry.register();
 
         DeadeyeNetwork.initialize();
 

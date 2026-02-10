@@ -1,7 +1,7 @@
 package com.namefix.registry;
 
 import com.namefix.DeadeyeMod;
-import com.namefix.item.TonicItem;
+import com.namefix.item.*;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -18,6 +18,14 @@ public class ItemRegistry {
 
 	public static final RegistrySupplier<Item> TOBACCO = registerItem("tobacco", Item::new, CreativeModeTabs.INGREDIENTS);
 	public static final RegistrySupplier<Item> TOBACCO_SEEDS = registerItem("tobacco_seeds", BlockRegistry.TOBACCO_CROP, CreativeModeTabs.INGREDIENTS);
+
+	public static final RegistrySupplier<Item> CHEWING_TOBACCO = registerItem("chewing_tobacco", item -> new ChewingTobaccoItem(item, 40f), CreativeModeTabs.FOOD_AND_DRINKS);
+	public static final RegistrySupplier<Item> CIGARETTE = registerItem("cigarette", item -> new CigaretteItem(item, 60f), CreativeModeTabs.FOOD_AND_DRINKS);
+	public static final RegistrySupplier<Item> CIGAR = registerItem("cigar", item -> new CigarItem(item, 80f), CreativeModeTabs.FOOD_AND_DRINKS);
+
+	public static final RegistrySupplier<Item> TOBACCO_WATER = registerItem("tobacco_water", TobaccoWaterItem::new, CreativeModeTabs.INGREDIENTS);
+	public static final RegistrySupplier<Item> POTENT_TOBACCO_WATER = registerItem("potent_tobacco_water", TobaccoWaterItem::new, CreativeModeTabs.INGREDIENTS);
+	public static final RegistrySupplier<Item> SPECIAL_TOBACCO_WATER = registerItem("special_tobacco_water", TobaccoWaterItem::new, CreativeModeTabs.INGREDIENTS);
 
 	public static final RegistrySupplier<Item> SNAKE_OIL = registerItem("snake_oil", item -> new TonicItem(item, 1), CreativeModeTabs.FOOD_AND_DRINKS);
 	public static final RegistrySupplier<Item> POTENT_SNAKE_OIL = registerItem("potent_snake_oil", item -> new TonicItem(item, 2), CreativeModeTabs.FOOD_AND_DRINKS);

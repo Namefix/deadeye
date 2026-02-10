@@ -6,6 +6,7 @@ import com.namefix.client.DeadeyeSound;
 import com.namefix.command.DeadeyeCommandRegistry;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.network.DeadeyeNetwork;
+import com.namefix.platform.RenderLayers;
 import com.namefix.registry.BlockRegistry;
 import com.namefix.registry.FeatureRegistry;
 import com.namefix.registry.ItemRegistry;
@@ -49,6 +50,7 @@ public final class DeadeyeMod {
 
     // CLIENT INIT
     public static void initClient() {
+        RenderLayers.registerCutout(BlockRegistry.TOBACCO_CROP.get(), BlockRegistry.WILD_TOBACCO.get());
         KeybindRegistry.register();
         DeadeyeNetwork.initializeClient();
         DeadeyeClient.initialize();

@@ -315,6 +315,14 @@ public class DeadeyeHud {
 			}
 		}
 
+		if(
+				LAST_DEADEYE_METER <= PlayerSavedData.getMaxMeter(data, 2) && currentMeter > PlayerSavedData.getMaxMeter(data, 2) ||
+				LAST_DEADEYE_METER <= PlayerSavedData.getMaxMeter(data, 1) && currentMeter > PlayerSavedData.getMaxMeter(data, 1) ||
+				LAST_DEADEYE_METER <= PlayerSavedData.getMaxMeter(data) && currentMeter > PlayerSavedData.getMaxMeter(data)
+		) {
+			DEADEYE_METER_BLINK = 1f;
+		}
+
 		LAST_DEADEYE_METER = currentMeter;
 
 		boolean hideMeterThisFrame = false;
@@ -381,7 +389,7 @@ public class DeadeyeHud {
 		int textColor = (Math.round(0xFF * opacity) << 24) | 0xFFFFFF;
 
 		Font font = Minecraft.getInstance().font;
-		String text = String.format("Dead Eye: Level %d - %.1f / %.1f XP", DeadeyeClient.DEADEYE_DATA.deadeyeLevel, DeadeyeClient.DEADEYE_DATA.deadeyeXp, PlayerSavedData.requiredXPToLevelUp(DeadeyeClient.DEADEYE_DATA.deadeyeLevel));
+		String text = String.format("Dead Eye Level %d - %.1f / %.1f XP", DeadeyeClient.DEADEYE_DATA.deadeyeLevel, DeadeyeClient.DEADEYE_DATA.deadeyeXp, PlayerSavedData.requiredXPToLevelUp(DeadeyeClient.DEADEYE_DATA.deadeyeLevel));
 		int textY = pos.y + (height - font.lineHeight) / 2 + 1;
 		int textWidth = font.width(text);
 		int width = textWidth + (paddingX * 2);

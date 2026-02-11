@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -97,6 +98,10 @@ public class DeadeyeSound {
 
 	public static void playUIAppear() {
 		play2D(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.5f, 1.0f);
+	}
+
+	public static void playUILevelUp() {
+		play2D(SoundEvents.PLAYER_LEVELUP, 1.0f, 1.0f);
 	}
 
 	public static void playConsumeTonic() {

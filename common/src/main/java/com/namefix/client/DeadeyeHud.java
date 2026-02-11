@@ -57,7 +57,10 @@ public class DeadeyeHud {
 	private static float DEADEYE_FADE_PULSE_TIME = -1f;
 	private static float LAST_FADE_FRAME_DELTA = 0f;
 
-	private static float INFO_COUNTER = -1;
+	private static float INFO_COUNTER = -1f;
+
+	private static float LEVEL_COUNTER = -1f;
+	private static int LEVEL_PERCENT = 0;
 
 	public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
@@ -71,6 +74,7 @@ public class DeadeyeHud {
 		}
 
 		if(INFO_COUNTER != -1f) renderDeadeyeInfo(guiGraphics, deltaTracker);
+		if(LEVEL_COUNTER != -1f) renderDeadeyeLevelUp(guiGraphics, deltaTracker);
 	}
 
 	public static void renderTargetMarks(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -367,8 +371,6 @@ public class DeadeyeHud {
 		float fadeDuration = 0.25f;
 		float opacity;
 
-		// DEADEYE INFO
-
 		if(INFO_COUNTER >= duration) {
 			INFO_COUNTER = -1f;
 			return;
@@ -404,5 +406,47 @@ public class DeadeyeHud {
 
 	public static boolean isDeadeyeInfoVisible() {
 		return INFO_COUNTER >= 0;
+	}
+
+	public static void renderDeadeyeLevelUp(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+		LEVEL_COUNTER += deltaTracker.getRealtimeDeltaTicks() / 20f;
+		float duration = 5.5f;
+		float fadeDuration = 0.25f;
+		float opacity;
+
+		if(LEVEL_COUNTER >= duration) {
+			LEVEL_COUNTER = -1f;
+			return;
+		}
+
+		if(LEVEL_COUNTER < fadeDuration) {
+			opacity = LEVEL_COUNTER / fadeDuration;
+		} else if(LEVEL_COUNTER > duration - fadeDuration) {
+			opacity = (duration - LEVEL_COUNTER) / fadeDuration;
+		} else {
+			opacity = 1f;
+		}
+
+		Vector2i pos = new Vector2i(16, 16);
+		if(INFO_COUNTER != -1f) pos.y += 16;
+		int height = 16;
+		int paddingX = 4;
+		int rectColor = (Math.round(0x80 * opacity) << 24);
+		int textColor = (Math.round(0xFF * opacity) << 24) | 0xFFFFFF;
+
+		Font font = Minecraft.getInstance().font;
+		String text = LEVEL_PERCENT < 100 ? String.format("Dead Eye %d%% to Level %d", LEVEL_PERCENT, DeadeyeClient.DEADEYE_DATA.deadeyeLevel + 1) : String.format("Dead Eye Level %d reached!", DeadeyeClient.DEADEYE_DATA.deadeyeLevel);
+		int textY = pos.y + (height - font.lineHeight) / 2 + 1;
+		int textWidth = font.width(text);
+		int width = textWidth + (paddingX * 2);
+
+		guiGraphics.fill(pos.x, pos.y, pos.x + width, pos.y + height, rectColor);
+		guiGraphics.drawString(font, text, pos.x + paddingX, textY, textColor);
+	}
+
+	public static void showDeadeyeLevelUp(int percent) {
+		if(LEVEL_COUNTER != -1f) return;
+		LEVEL_COUNTER = 0f;
+		LEVEL_PERCENT = percent;
 	}
 }

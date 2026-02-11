@@ -1,6 +1,8 @@
 package com.namefix.data;
 
 import com.google.common.collect.Lists;
+import com.namefix.client.DeadeyeHud;
+import com.namefix.client.DeadeyeSound;
 import com.namefix.server.DeadeyeServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +21,8 @@ public class PlayerSavedData {
 	// Will be used server side only
 	public float deadeyeConsumeRate = 0.25f;
 	public float deadeyeKillReward = 3f;
+
+	private static final int[] LEVEL_THRESHOLDS = new int[] {25, 50, 75, 100};
 
 	private static final List<Vector3f> HUD_FORTIFICATION_COLORS = Lists.newArrayList(
 			new Vector3f(1f, 0.969f, 0.776f),
@@ -76,20 +80,43 @@ public class PlayerSavedData {
 	public static void addDeadeyeXP(ServerPlayer player, float amount) {
 		PlayerSavedData data = StateManager.getPlayerState(player);
 		if(data.deadeyeLevel >= 10) return;
-		data.deadeyeXp += amount;
+		if(amount <= 0f) return;
 
-		boolean leveledUp = false;
-		float levelup = requiredXPToLevelUp(data.deadeyeLevel);
-		while(data.deadeyeXp >= levelup) {
-			data.deadeyeXp -= levelup;
-			data.deadeyeLevel++;
-			levelup = requiredXPToLevelUp(data.deadeyeLevel);
-			leveledUp = true;
+		float remaining = amount;
+		while(remaining > 0f && data.deadeyeLevel < 10) {
+			float levelup = requiredXPToLevelUp(data.deadeyeLevel);
+			if(levelup <= 0f) break;
+
+			float oldXp = data.deadeyeXp;
+			float xpToLevel = levelup - oldXp;
+			float add = Math.min(remaining, xpToLevel);
+			float newXp = oldXp + add;
+
+			triggerThresholds(oldXp, newXp, levelup);
+
+			if(newXp >= levelup) {
+				data.deadeyeXp = 0f;
+				data.deadeyeLevel++;
+				remaining -= add;
+			} else {
+				data.deadeyeXp = newXp;
+				remaining = 0f;
+			}
 		}
-		if(leveledUp) //TODO: Remove this message when the level up hud is added
-			player.sendSystemMessage(Component.literal("[DeadEye] Your Dead Eye leveled up! " + data.deadeyeLevel));
 
 		DeadeyeServer.updatePlayerLevelData(player, data);
+	}
+
+	private static void triggerThresholds(float oldXp, float newXp, float levelup) {
+		float oldPercent = (oldXp / levelup) * 100f;
+		float newPercent = (newXp / levelup) * 100f;
+		for(int threshold : LEVEL_THRESHOLDS) {
+			if(oldPercent < threshold && newPercent >= threshold) {
+				DeadeyeHud.showDeadeyeLevelUp(threshold);
+				DeadeyeSound.playUIAppear();
+				if(threshold == 100) DeadeyeSound.playUILevelUp();
+			}
+		}
 	}
 
 	public static void addDeadeyeMeter(ServerPlayer player, float amount, boolean meterCap) {

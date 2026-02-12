@@ -25,9 +25,21 @@ public class ShaderEffect {
 			field = PostChain.class.getDeclaredField("passes");
 			field.setAccessible(true);
 		} catch (NoSuchFieldException e) {
-			DeadeyeMod.LOGGER.error("Failed to access PostChain passes", e);
+			field = findPassesFieldFallback();
+			if(field == null) {
+				DeadeyeMod.LOGGER.error("Failed to access PostChain passes", e);
+			}
 		}
 		PASSES_FIELD = field;
+	}
+
+	private static Field findPassesFieldFallback() {
+		for(Field candidate : PostChain.class.getDeclaredFields()) {
+			if(!List.class.isAssignableFrom(candidate.getType())) continue;
+			candidate.setAccessible(true);
+			return candidate;
+		}
+		return null;
 	}
 
 	private final String name;

@@ -1,6 +1,7 @@
 package com.namefix.item;
 
 import com.namefix.client.DeadeyeSound;
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.data.PlayerSavedData;
 import com.namefix.shader.ShaderManager;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -45,8 +46,10 @@ public class CoreTonicItem extends Item {
 			PlayerSavedData.setDeadeyeCore((ServerPlayer) player, coreAmount);
 			if(meterAmount != 0f) PlayerSavedData.addDeadeyeMeter((ServerPlayer) player, meterAmount, false);
 		} else {
-			ShaderManager.activateShader("tonic");
-			ShaderManager.setTonicDuration(1.0f);
+			if(DeadeyeConfig.Client.enableShaders) {
+				ShaderManager.activateShader("tonic");
+				ShaderManager.setTonicDuration(1.0f);
+			}
 			DeadeyeSound.playConsumeTonic();
 		}
 

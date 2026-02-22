@@ -1,6 +1,7 @@
 package com.namefix.item;
 
 import com.namefix.client.DeadeyeSound;
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.shader.ShaderManager;
 import net.minecraft.ChatFormatting;
@@ -35,8 +36,10 @@ public class TonicItem extends Item {
 			CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer) player, itemStack);
 			DeadeyeServer.drinkTonic((ServerPlayer) player, tonicLevel);
 		} else {
-			ShaderManager.activateShader("tonic");
-			ShaderManager.setTonicDuration(1.0f);
+			if(DeadeyeConfig.Client.enableShaders) {
+				ShaderManager.activateShader("tonic");
+				ShaderManager.setTonicDuration(1.0f);
+			}
 			DeadeyeSound.playConsumeTonic();
 		}
 

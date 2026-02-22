@@ -45,6 +45,7 @@ public class DeadeyeClient {
 	private static long DEADEYE_LERP_START = 0;
 	private static long LAST_DEADEYE_SHOT = 0;
 	private static AbstractDeadeyeInteraction CURRENT_PHASE_INTERACTION = null;
+	private static long LAST_AUTO_MARK = 0;
 
 	public static void initialize() {
 		DeadeyeBowVisuals.registerItemProperties();
@@ -52,6 +53,7 @@ public class DeadeyeClient {
 
 	public static void render() {
 		shootingTick();
+		autoMark();
 		updateShaderVisuals();
 		DeadeyeSound.tick();
 	}
@@ -118,6 +120,13 @@ public class DeadeyeClient {
 		}
 	}
 
+	public static void autoMark() {
+		Minecraft mc = Minecraft.getInstance();
+		if(mc.isPaused() || !DEADEYE_ENABLED || mc.player == null || System.currentTimeMillis() - LAST_AUTO_MARK < 250 || DEADEYE_STATE.phase == Phase.SHOOTING || DEADEYE_DATA.deadeyeSkill != 1) return;
+		LAST_AUTO_MARK = System.currentTimeMillis();
+		requestMark();
+	}
+
 	public static void initShootingPhase() {
 		if(DEADEYE_STATE.targets.isEmpty()) return;
 		CURRENT_PHASE_INTERACTION = Utils.getDeadeyeInteraction(DEADEYE_STATE, Minecraft.getInstance().player, DEADEYE_STATE.markItem);
@@ -181,7 +190,7 @@ public class DeadeyeClient {
 			return EventResult.interruptDefault();
 		}
 
-		if(markMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase != Phase.SHOOTING) {
+		if(markMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase != Phase.SHOOTING && DEADEYE_DATA.deadeyeSkill != 1) {
 			requestMark();
 			return EventResult.interruptDefault();
 		}

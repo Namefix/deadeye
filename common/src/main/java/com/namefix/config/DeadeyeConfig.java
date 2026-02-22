@@ -128,5 +128,11 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "hudCustomXDesc", translation = "config.deadeye.hudCustom.desc")
 		public static int hudCustomY = 100;
+
+		@ConfigEntry(
+				id = "enableInfoToast",
+				translation = "config.deadeye.enableInfoToast.name"
+		)
+		public static boolean enableInfoToast = true;
 	}
 }

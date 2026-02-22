@@ -64,17 +64,21 @@ public class DeadeyeHud {
 
 	public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
-		
-		if(!DeadeyeConfig.HUD.hudPosition.equals(DeadeyeConfig.HUD.HudPosition.DISABLED) && DeadeyeClient.DEADEYE_DATA.deadeyeSkill > 0 && !mc.options.hideGui && !mc.player.isSpectator()) {
-			renderDeadeyeHUD(guiGraphics, deltaTracker);
+
+		if(!mc.options.hideGui && !mc.player.isSpectator()) {
+			if (!DeadeyeConfig.HUD.hudPosition.equals(DeadeyeConfig.HUD.HudPosition.DISABLED) && DeadeyeClient.DEADEYE_DATA.deadeyeSkill > 0) {
+				renderDeadeyeHUD(guiGraphics, deltaTracker);
+			}
+
+			if(DeadeyeConfig.HUD.enableInfoToast) {
+				if (INFO_COUNTER != -1f) renderDeadeyeInfo(guiGraphics, deltaTracker);
+				if (LEVEL_COUNTER != -1f) renderDeadeyeLevelUp(guiGraphics, deltaTracker);
+			}
 		}
 		if(DeadeyeClient.DEADEYE_ENABLED) {
 			renderTargetMarks(guiGraphics, deltaTracker);
 			if(LIGHTLEAK_FRAME < 15) renderLightLeak(guiGraphics, deltaTracker);
 		}
-
-		if(INFO_COUNTER != -1f) renderDeadeyeInfo(guiGraphics, deltaTracker);
-		if(LEVEL_COUNTER != -1f) renderDeadeyeLevelUp(guiGraphics, deltaTracker);
 	}
 
 	public static void renderTargetMarks(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {

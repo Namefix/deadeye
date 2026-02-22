@@ -41,6 +41,7 @@
   "config.deadeye.hudCustomX.name": "Özel Arayüz X",
   "config.deadeye.hudCustomY.name": "Özel Arayüz Y",
   "config.deadeye.hudCustom.desc": "Arayüz pozisyonunun \"Özel\" olması gerekir.",
+  "config.deadeye.enableInfoToast.name": "Dead Eye Bilgi Tostunu Etkinleştir",
 
   "item.deadeye.tobacco": "Tütün",
   "item.deadeye.tobacco_seeds": "Tütün Tohumu",
@@ -65,7 +66,7 @@
   "key.deadeye.toggle_deadeye": "Dead Eye'ı Açma/Kapatma",
   "key.deadeye.mark": "Hedef İşaretleme",
   "key.deadeye.shoot_targets": "İşaretli Hedefleri Vur",
-  "key.deadeye.info_show": "Dead Eye Seviyesini Göster",
+  "key.deadeye.info_show": "Dead Eye Bilgi Tostunu Göster",
   "key.categories.deadeye": "Dead Eye",
 
   "sound.deadeye.consume_tonic": "Tonik tüketildi",

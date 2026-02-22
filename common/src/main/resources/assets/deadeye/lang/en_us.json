@@ -41,6 +41,7 @@
   "config.deadeye.hudCustomX.name": "Custom Hud X",
   "config.deadeye.hudCustomY.name": "Custom Hud Y",
   "config.deadeye.hudCustom.desc": "Requires \"Custom\" hud position.",
+  "config.deadeye.enableInfoToast.name": "Enable Dead Eye Info Toast",
 
   "item.deadeye.tobacco": "Tobacco",
   "item.deadeye.tobacco_seeds": "Tobacco Seeds",
@@ -65,7 +66,7 @@
   "key.deadeye.toggle_deadeye": "Toggle Dead Eye",
   "key.deadeye.mark": "Mark Targets",
   "key.deadeye.shoot_targets": "Shoot Marked Targets",
-  "key.deadeye.info_show": "Show Dead Eye Level",
+  "key.deadeye.info_show": "Show Dead Eye Info Toast",
   "key.categories.deadeye": "Dead Eye",
 
   "sound.deadeye.consume_tonic": "Consumed tonic",

@@ -3,6 +3,7 @@ package com.namefix.data;
 import com.google.common.collect.Lists;
 import com.namefix.client.DeadeyeHud;
 import com.namefix.client.DeadeyeSound;
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.server.DeadeyeServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -112,8 +113,10 @@ public class PlayerSavedData {
 		float newPercent = (newXp / levelup) * 100f;
 		for(int threshold : LEVEL_THRESHOLDS) {
 			if(oldPercent < threshold && newPercent >= threshold) {
-				DeadeyeHud.showDeadeyeLevelUp(threshold);
-				DeadeyeSound.playUIAppear();
+				if(DeadeyeConfig.HUD.enableInfoToast) {
+					DeadeyeHud.showDeadeyeLevelUp(threshold);
+					DeadeyeSound.playUIAppear();
+				}
 				if(threshold == 100) DeadeyeSound.playUILevelUp();
 			}
 		}

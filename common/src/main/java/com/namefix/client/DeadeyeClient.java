@@ -191,7 +191,7 @@ public class DeadeyeClient {
 			return EventResult.interruptDefault();
 		}
 
-		if(info && !DeadeyeHud.isDeadeyeInfoVisible()) {
+		if(DeadeyeConfig.HUD.enableInfoToast && info && !DeadeyeHud.isDeadeyeInfoVisible()) {
 			DeadeyeHud.showDeadeyeInfo();
 			DeadeyeSound.playUIAppear();
 			return EventResult.interruptDefault();

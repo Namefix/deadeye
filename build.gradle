@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.10-SNAPSHOT' apply false
+    id 'dev.architectury.loom' version '1.11-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     id 'com.gradleup.shadow' version '8.3.6' apply false
 }
@@ -33,6 +33,17 @@ subprojects {
             // Location of the maven that hosts Team Resourceful's jars.
             name = "Team Resourceful Maven"
             url = "https://maven.teamresourceful.com/repository/maven-public/"
+        }
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    url "https://cursemaven.com"
+                }
+            }
+            filter {
+                includeGroup "curse.maven"
+            }
         }
     }
 

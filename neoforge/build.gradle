@@ -40,6 +40,9 @@ dependencies {
     // Resourceful Config
     modImplementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-neoforge-$rconfig_version"
 
+    modCompileOnly "curse.maven:geckolib-388172:7415496"
+    modCompileOnly "curse.maven:vics-point-blank-961053:7515178"
+
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }

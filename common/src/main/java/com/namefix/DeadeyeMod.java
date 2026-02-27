@@ -5,6 +5,7 @@ import com.namefix.client.DeadeyeHud;
 import com.namefix.client.DeadeyeSound;
 import com.namefix.command.DeadeyeCommandRegistry;
 import com.namefix.config.DeadeyeConfig;
+import com.namefix.integration.IntegrationRegistry;
 import com.namefix.network.DeadeyeNetwork;
 import com.namefix.platform.RenderLayers;
 import com.namefix.registry.BlockRegistry;
@@ -46,6 +47,8 @@ public final class DeadeyeMod {
         EntityEvent.LIVING_DEATH.register(DeadeyeServer::onPlayerDeath);
         TickEvent.SERVER_LEVEL_PRE.register(DeadeyeServer::onTick);
         EntityEvent.LIVING_DEATH.register(DeadeyeServer::onEntityDeath);
+
+        IntegrationRegistry.initialize();
     }
 
     // CLIENT INIT

@@ -2,6 +2,7 @@ package com.namefix.util;
 
 import com.mojang.blaze3d.platform.Window;
 import com.namefix.data.PlayerDeadeyeState;
+import com.namefix.integration.IntegrationRegistry;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.interactions.BowDeadeyeInteraction;
 import com.namefix.interactions.ProjectileDeadeyeInteraction;
@@ -124,6 +125,9 @@ public class Utils {
 	}
 
 	public static AbstractDeadeyeInteraction getDeadeyeInteraction(PlayerDeadeyeState state, Player player, ItemStack itemStack) {
+		AbstractDeadeyeInteraction integrationInteraction = IntegrationRegistry.resolveInteraction(state, player, itemStack);
+		if (integrationInteraction != null) return integrationInteraction;
+
 		Item item = itemStack.getItem();
 
 		if(item instanceof BowItem || item instanceof CrossbowItem) return new BowDeadeyeInteraction(state, player, itemStack);

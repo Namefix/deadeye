@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "package": "com.namefix.fabric.mixin.integration",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "plugin": "com.namefix.fabric.mixin.integration.FabricIntegrationMixinPlugin",
+  "mixins": [
+    "pointblank.PointBlankGunMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

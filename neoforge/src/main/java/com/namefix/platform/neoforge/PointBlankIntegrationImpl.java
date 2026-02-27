@@ -1,0 +1,58 @@
+package com.namefix.platform.neoforge;
+
+import com.vicmatskiv.pointblank.client.GunClientState;
+import com.vicmatskiv.pointblank.item.FireMode;
+import com.vicmatskiv.pointblank.item.GunItem;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.ModList;
+
+public final class PointBlankIntegrationImpl {
+	private PointBlankIntegrationImpl() {}
+
+	public static boolean isLoaded() {
+		ModList modList = ModList.get();
+		return modList != null && modList.isLoaded("pointblank");
+	}
+
+	public static boolean isGun(ItemStack item) {
+		if (!isLoaded()) return false;
+		return item.getItem() instanceof GunItem;
+	}
+
+	public static int getGunAmmo(ItemStack item) {
+		if (!isLoaded()) return 0;
+		if (!(item.getItem() instanceof GunItem)) return 0;
+		return GunItem.getAmmo(item, GunItem.getFireModeInstance(item));
+	}
+
+	public static int getMaxAmmo(ItemStack item) {
+		if (!isLoaded()) return 0;
+		if (!(item.getItem() instanceof GunItem gun)) return 0;
+		return gun.getMaxAmmoCapacity(item, GunItem.getFireModeInstance(item));
+	}
+
+	public static void fireGun(ItemStack item, Player player, Entity target) {
+		if(!isLoaded()) return;
+		if(!(item.getItem() instanceof GunItem gun)) return;
+		gun.tryFire(player, item, target);
+	}
+
+	public static FireMode getGunFiremode(ItemStack item) {
+		if(!isLoaded()) return null;
+		if(!(item.getItem() instanceof GunItem)) return null;
+		return GunItem.getFireModeInstance(item).getType();
+	}
+
+	public static boolean isGunReady(ItemStack item, Player player) {
+		if(!(item.getItem() instanceof GunItem gun)) return false;
+		if(!player.level().isClientSide) return false;
+		GunClientState state = GunClientState.getState(player, item, player.getInventory().selected, false);
+
+		FireMode mode = getGunFiremode(item);
+		if(mode == FireMode.AUTOMATIC && state.isIdle()) return true;
+		else if(mode == FireMode.AUTOMATIC) return state.isFiring();
+		else return state.isIdle();
+	}
+}

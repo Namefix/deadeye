@@ -20,10 +20,8 @@ public class ClientUtils {
 	private static final Tesselator HUD_TESSELATOR = new Tesselator();
 
 	public static DeadeyeTargetData getNextValidTarget() {
-		while(!DEADEYE_STATE.targets.isEmpty()) {
-			DeadeyeTargetData candidate = DEADEYE_STATE.targets.getFirst();
-			if(candidate != null && !candidate.isInvalid()) return candidate;
-			DEADEYE_STATE.targets.removeFirst();
+		if(!DEADEYE_STATE.targets.isEmpty()) {
+			return DEADEYE_STATE.targets.getFirst();
 		}
 		return null;
 	}

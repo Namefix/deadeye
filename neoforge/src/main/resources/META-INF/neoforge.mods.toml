@@ -43,3 +43,6 @@ side = "BOTH"
 
 [[mixins]]
 config = "deadeye.mixins.json"
+
+[[mixins]]
+config = "deadeye.neoforge.integrations.mixins.json"

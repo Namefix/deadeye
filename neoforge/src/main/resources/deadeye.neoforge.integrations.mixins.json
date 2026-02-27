@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "package": "com.namefix.neoforge.mixin.integration",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "plugin": "com.namefix.neoforge.mixin.integration.NeoForgeIntegrationMixinPlugin",
+  "mixins": [
+    "pointblank.PointBlankGunMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

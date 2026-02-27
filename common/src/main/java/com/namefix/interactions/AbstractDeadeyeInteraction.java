@@ -22,6 +22,8 @@ public abstract class AbstractDeadeyeInteraction {
 	protected final PlayerDeadeyeState state;
 	protected final Player player;
 	protected final ItemStack itemStack;
+	public boolean clientSideShoot = false;
+	public boolean isGun = false;
 
 	public AbstractDeadeyeInteraction(PlayerDeadeyeState state, Player player, ItemStack itemStack) {
 		this.state = state;

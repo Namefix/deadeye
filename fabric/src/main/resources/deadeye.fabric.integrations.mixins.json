@@ -5,6 +5,8 @@
   "minVersion": "0.8",
   "plugin": "com.namefix.fabric.mixin.integration.FabricIntegrationMixinPlugin",
   "mixins": [
+    "pointblank.PointBlankGunClientStateAccessor",
+    "pointblank.PointBlankFireModeFeatureMixin",
     "pointblank.PointBlankGunMixin"
   ],
   "injectors": {

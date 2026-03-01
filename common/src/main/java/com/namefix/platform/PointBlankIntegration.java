@@ -24,9 +24,7 @@ public final class PointBlankIntegration {
 	}
 
 	@ExpectPlatform
-	public static int getMaxAmmo(ItemStack item) {
-		throw new AssertionError();
-	}
+	public static void refillAmmo(Player player, ItemStack item) {throw new AssertionError();}
 
 	@ExpectPlatform
 	public static void fireGun(ItemStack item, Player player, Entity target) {

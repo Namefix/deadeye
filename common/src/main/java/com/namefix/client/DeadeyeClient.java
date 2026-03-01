@@ -5,7 +5,9 @@ import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.data.PlayerSavedData;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
+import com.namefix.interactions.PointBlankDeadeyeInteraction;
 import com.namefix.network.payload.*;
+import com.namefix.platform.PointBlankIntegration;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.shader.ShaderManager;
 import com.namefix.util.ClientUtils;
@@ -224,12 +226,19 @@ public class DeadeyeClient {
 		if(DEADEYE_ENABLED == enabled) return;
 		DEADEYE_ENABLED = enabled;
 
+		Player player = Minecraft.getInstance().player;
+
 		if(enabled) {
 			SHADER_FADE_PROGRESS = 0.0f;
 			if(DeadeyeConfig.Client.enableLightLeak) DeadeyeHud.playLightLeak();
 			DeadeyeSound.playEnterSound();
 			DeadeyeSound.startBackgroundSounds();
 			calculateDeadeyeEnding();
+
+			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, player, player.getMainHandItem());
+			if(interaction != null && interaction.isGun) {
+				if(interaction instanceof PointBlankDeadeyeInteraction) PointBlankIntegration.refillAmmo(player, player.getMainHandItem());
+			}
 		} else {
 			DEADEYE_STATE.phase = Phase.IDLE;
 			DEADEYE_STATE.targets.clear();

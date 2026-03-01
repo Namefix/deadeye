@@ -8,7 +8,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class PointBlankIntegrationImpl {
+	private static final Set<UUID> PENDING_INSTANT_RELOAD = ConcurrentHashMap.newKeySet();
+
 	private PointBlankIntegrationImpl() {}
 
 	public static boolean isLoaded() {
@@ -27,10 +33,20 @@ public final class PointBlankIntegrationImpl {
 		return GunItem.getAmmo(item, GunItem.getFireModeInstance(item));
 	}
 
-	public static int getMaxAmmo(ItemStack item) {
-		if (!isLoaded()) return 0;
-		if (!(item.getItem() instanceof GunItem gun)) return 0;
-		return gun.getMaxAmmoCapacity(item, GunItem.getFireModeInstance(item));
+	public static void refillAmmo(Player player, ItemStack item) {
+		if(!isLoaded()) return;
+		if(!(item.getItem() instanceof GunItem gun)) return;
+		if(!player.level().isClientSide) return;
+		UUID playerId = player.getUUID();
+		PENDING_INSTANT_RELOAD.add(playerId);
+		if(!gun.requestReloadFromServer(player, item)) {
+			PENDING_INSTANT_RELOAD.remove(playerId);
+		}
+	}
+
+	public static boolean consumePendingInstantReload(Player player) {
+		if(player == null) return false;
+		return PENDING_INSTANT_RELOAD.remove(player.getUUID());
 	}
 
 	public static void fireGun(ItemStack item, Player player, Entity target) {

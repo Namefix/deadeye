@@ -5,6 +5,8 @@
   "minVersion": "0.8",
   "plugin": "com.namefix.neoforge.mixin.integration.NeoForgeIntegrationMixinPlugin",
   "mixins": [
+    "pointblank.PointBlankGunClientStateAccessor",
+    "pointblank.PointBlankFireModeFeatureMixin",
     "pointblank.PointBlankGunMixin"
   ],
   "injectors": {

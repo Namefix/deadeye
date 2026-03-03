@@ -1,6 +1,7 @@
 package com.namefix.config;
 
 import com.teamresourceful.resourcefulconfig.api.annotations.*;
+import net.minecraft.client.Minecraft;
 
 @Config(
 		value = "deadeye",
@@ -17,6 +18,14 @@ import com.teamresourceful.resourcefulconfig.api.annotations.*;
 public class DeadeyeConfig {
 	@Category(value = "Server")
 	public static class Server {
+		@ConfigButton(title = "config.deadeye.reloadServerConfig", text = "config.deadeye.reload")
+		public static final Runnable button = () -> {
+			Minecraft mc = Minecraft.getInstance();
+			if(mc.level == null) return;
+			if(mc.getSingleplayerServer() == null) return;
+			SyncedConfigCache.reloadAndSyncIntegratedServer(mc.getSingleplayerServer());
+		};
+
 		@ConfigEntry(
 				id = "deadeyeTickRate",
 				translation = "config.deadeye.deadeyeTickRate.name"
@@ -37,6 +46,13 @@ public class DeadeyeConfig {
 		)
 		@Comment(value = "bowPullCompensationDesc", translation = "config.deadeye.bowPullCompensation.desc")
 		public static boolean bowPullCompensation = true;
+
+		@ConfigEntry(
+				id = "instantGunReload",
+				translation = "config.deadeye.instantGunReload.name"
+		)
+		@Comment(value = "instantGunReloadDesc", translation = "config.deadeye.instantGunReload.desc")
+		public static boolean instantGunReload = true;
 
 		@ConfigEntry(
 				id = "naturalDeadeyeRegeneration",

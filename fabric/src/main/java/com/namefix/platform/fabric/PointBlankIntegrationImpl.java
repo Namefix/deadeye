@@ -1,5 +1,6 @@
 package com.namefix.platform.fabric;
 
+import com.namefix.config.SyncedConfigCache;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.item.FireMode;
 import com.vicmatskiv.pointblank.item.GunItem;
@@ -36,6 +37,7 @@ public final class PointBlankIntegrationImpl {
 		if(!isLoaded()) return;
 		if(!(item.getItem() instanceof GunItem gun)) return;
 		if(!player.level().isClientSide) return;
+		if(!SyncedConfigCache.instantGunReload) return;
 		UUID playerId = player.getUUID();
 		PENDING_INSTANT_RELOAD.add(playerId);
 		if(!gun.requestReloadFromServer(player, item)) {

@@ -48,7 +48,6 @@ public class DeadeyeClient {
 	private static long LAST_DEADEYE_SHOT = 0;
 	private static AbstractDeadeyeInteraction CURRENT_PHASE_INTERACTION = null;
 	private static long LAST_AUTO_MARK = 0;
-	private static long GUN_ALIGNMENT_WAIT = 0;
 
 	public static void initialize() {
 		DeadeyeBowVisuals.registerItemProperties();
@@ -115,11 +114,6 @@ public class DeadeyeClient {
 
 			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, mc.player, mc.player.getMainHandItem());
 
-			if(interaction.isGun) {
-				if(GUN_ALIGNMENT_WAIT == -1) GUN_ALIGNMENT_WAIT = System.currentTimeMillis();
-				if(System.currentTimeMillis() - GUN_ALIGNMENT_WAIT < 250) return;
-			}
-
 			if(interaction.clientSideShoot) interaction.shoot();
 			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
 			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
@@ -129,7 +123,6 @@ public class DeadeyeClient {
 			LAST_DEADEYE_LERP = System.currentTimeMillis();
 			LAST_DEADEYE_SHOT = System.currentTimeMillis();
 			DEADEYE_LERP_START = System.currentTimeMillis();
-			GUN_ALIGNMENT_WAIT = -1;
 		}
 	}
 

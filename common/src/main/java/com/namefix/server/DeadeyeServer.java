@@ -55,7 +55,6 @@ public class DeadeyeServer {
 			}
 
 			if(state.phase == Phase.SHOOTING) {
-				state.targets.removeIf(target -> target == null || target.isInvalid());
 				if(state.targets.isEmpty()) toRemove.add(player);
 			}
 		}

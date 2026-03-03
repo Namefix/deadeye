@@ -1,28 +1,59 @@
 package com.namefix.neoforge.mixin.integration.pointblank;
 
 import com.namefix.client.DeadeyeClient;
+import com.namefix.data.PlayerDeadeyeState;
+import com.namefix.integration.pointblank.PointBlankPendingShotAim;
 import com.namefix.platform.neoforge.PointBlankIntegrationImpl;
 import com.namefix.server.DeadeyeServer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.server.level.ServerPlayer;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.item.FireModeInstance;
 import com.vicmatskiv.pointblank.item.GunItem;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
 @Mixin(targets = "com.vicmatskiv.pointblank.item.GunItem", remap = false)
 public class PointBlankGunMixin {
+	private static boolean deadeye$isServerDeadeye(Player player) {
+		return DeadeyeServer.DeadeyeStates.containsKey(player)
+			|| DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()));
+	}
+
+	private static PlayerDeadeyeState deadeye$getServerState(ServerPlayer player) {
+		PlayerDeadeyeState state = DeadeyeServer.DeadeyeStates.get(player);
+		if(state != null) return state;
+
+		for(var entry : DeadeyeServer.DeadeyeStates.entrySet()) {
+			if(entry.getKey().getUUID().equals(player.getUUID())) {
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
+
+	@Shadow
+	private double adjustInaccuracy(Player player, ItemStack itemStack, boolean isAiming) {
+		return 0.0;
+	}
+
 	@Inject(method = "adjustInaccuracy", at = @At("HEAD"), cancellable = true)
 	private void deadeye$modifyAdjustInaccuracy(Player player, ItemStack itemStack, boolean isAiming, CallbackInfoReturnable<Double> cir) {
 		if(!player.level().isClientSide) {
-			if(DeadeyeServer.DeadeyeStates.containsKey(player)) {
+			if(deadeye$isServerDeadeye(player)) {
 				cir.setReturnValue(0.0);
 			}
 		} else {
@@ -44,6 +75,84 @@ public class PointBlankGunMixin {
 		if(DeadeyeClient.DEADEYE_ENABLED && player instanceof Player localPlayer && PointBlankIntegrationImpl.consumePendingInstantReload(localPlayer)) {
 			cir.setReturnValue(0L);
 		}
+	}
+
+	@Inject(method = "requestFireFromServer", at = @At("HEAD"))
+	private void deadeye$syncRotationBeforeFire(GunClientState state, Player player, ItemStack itemStack, Entity target, CallbackInfo ci) {
+		if(!DeadeyeClient.DEADEYE_ENABLED) return;
+		PointBlankPendingShotAim.Aim pendingAim = PointBlankPendingShotAim.consume(player);
+		if(pendingAim != null) {
+			player.setXRot(pendingAim.xRot());
+			player.setYRot(pendingAim.yRot());
+			player.setYHeadRot(pendingAim.yRot());
+			player.setYBodyRot(pendingAim.yRot());
+		}
+		if(player instanceof LocalPlayer localPlayer) {
+			localPlayer.connection.send(new ServerboundMovePlayerPacket.Rot(localPlayer.getYRot(), localPlayer.getXRot(), localPlayer.onGround()));
+		}
+	}
+
+	@Redirect(
+		method = "requestFireFromServer",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/vicmatskiv/pointblank/item/GunItem;adjustInaccuracy(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)D"
+		)
+	)
+	private double deadeye$forceZeroInaccuracyClient(GunItem instance, Player player, ItemStack itemStack, boolean isAiming) {
+		if(DeadeyeClient.DEADEYE_ENABLED) return 0.0;
+		return adjustInaccuracy(player, itemStack, isAiming);
+	}
+
+	@Redirect(
+		method = "handleClientHitScanFireRequest",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/vicmatskiv/pointblank/item/GunItem;adjustInaccuracy(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)D"
+		)
+	)
+	private double deadeye$forceZeroInaccuracyServerHitScan(GunItem instance, Player player, ItemStack itemStack, boolean isAiming) {
+		if(deadeye$isServerDeadeye(player)) return 0.0;
+		return adjustInaccuracy(player, itemStack, isAiming);
+	}
+
+	@Redirect(
+		method = "handleClientHitScanFireRequest",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;getViewVector(F)Lnet/minecraft/world/phys/Vec3;"
+		)
+	)
+	private Vec3 deadeye$useMarkedVectorForServerHitScan(ServerPlayer player, float partialTick) {
+		PlayerDeadeyeState state = deadeye$getServerState(player);
+
+		if(state == null || state.phase != PlayerDeadeyeState.Phase.SHOOTING || state.targets.isEmpty()) {
+			return player.getViewVector(partialTick);
+		}
+
+		var currentTarget = state.targets.getFirst();
+		if(currentTarget == null) {
+			return player.getViewVector(partialTick);
+		}
+
+		Vec3 eye = player.getEyePosition();
+		Vec3 desired = currentTarget.getMarkPosition(0.0f).subtract(eye);
+		if(desired.lengthSqr() < 1.0E-7) {
+			return player.getViewVector(partialTick);
+		}
+		return desired.normalize();
+	}
+
+	@Redirect(
+		method = "handleClientProjectileFireRequest",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/vicmatskiv/pointblank/item/GunItem;adjustInaccuracy(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)D"
+		)
+	)
+	private double deadeye$forceZeroInaccuracyServerProjectile(GunItem instance, Player player, ItemStack itemStack, boolean isAiming) {
+		if(deadeye$isServerDeadeye(player)) return 0.0;
+		return adjustInaccuracy(player, itemStack, isAiming);
 	}
 
 	@Inject(method = "processServerReloadResponse", at = @At("TAIL"))

@@ -2,13 +2,12 @@ package com.namefix.interactions;
 
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
+import com.namefix.integration.pointblank.PointBlankPendingShotAim;
 import com.namefix.platform.PointBlankIntegration;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.util.Utils;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
@@ -48,14 +47,13 @@ public class PointBlankDeadeyeInteraction extends AbstractDeadeyeInteraction {
 
 		DeadeyeTargetData targetData = state.targets.getFirst();
 		if(targetData == null) return;
-		Entity target = targetData.target;
-		if(target == null || target.isRemoved()) return;
 
 		Vec2 heading = Utils.getHeadingFromTarget(player, EntityAnchorArgument.Anchor.EYES, targetData.getMarkPosition(0.0f));
 		player.setXRot(heading.x);
 		player.setYRot(heading.y);
 		player.setYHeadRot(heading.y);
 		player.setYBodyRot(heading.y);
+		PointBlankPendingShotAim.put(player, heading.x, heading.y);
 
 		PointBlankIntegration.fireGun(player.getMainHandItem(), player, targetData.target);
 	}

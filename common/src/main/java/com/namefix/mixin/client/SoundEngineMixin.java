@@ -23,6 +23,7 @@ public class SoundEngineMixin {
 
 		if(DeadeyeClient.DEADEYE_ENABLED) {
 			if(instance.getLocation().getNamespace().equals(DeadeyeMod.MOD_ID)) return;
+			if(instance.getLocation().toString().equals("pointblank:hit_light") || instance.getLocation().toString().equals("pointblank:hit_heavy") || instance.getLocation().toString().equals("pointblank:hit_headshot")) return;
 			float curTickRate = player.level().tickRateManager().tickrate();
 			float prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
 

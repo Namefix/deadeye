@@ -47,8 +47,9 @@ public class PointBlankDeadeyeInteraction extends AbstractDeadeyeInteraction {
 
 		DeadeyeTargetData targetData = state.targets.getFirst();
 		if(targetData == null) return;
+		var markPos = targetData.getMarkPosition(0.0f);
 
-		Vec2 heading = Utils.getHeadingFromTarget(player, EntityAnchorArgument.Anchor.EYES, targetData.getMarkPosition(0.0f));
+		Vec2 heading = Utils.getHeadingFromTarget(player, EntityAnchorArgument.Anchor.EYES, markPos);
 		player.setXRot(heading.x);
 		player.setYRot(heading.y);
 		player.setYHeadRot(heading.y);

@@ -113,9 +113,9 @@ public class DeadeyeClient {
 			if(!CURRENT_PHASE_INTERACTION.preShot()) return;
 
 			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, mc.player, mc.player.getMainHandItem());
+			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
 
 			if(interaction.clientSideShoot) interaction.shoot();
-			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
 			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
 			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
 			DEADEYE_STATE.targets.removeFirst();

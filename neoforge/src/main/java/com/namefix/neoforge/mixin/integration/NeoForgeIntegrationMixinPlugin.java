@@ -7,7 +7,21 @@ public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPlugin
 	@Override
 	protected boolean isModLoaded(String modId) {
 		ModList modList = ModList.get();
-		return modList != null && modList.isLoaded(modId);
+		if (modList != null) {
+			return modList.isLoaded(modId);
+		}
+
+		try {
+			Class<?> fmlLoaderClass = Class.forName("net.neoforged.fml.loading.FMLLoader");
+			Object loadingModList = fmlLoaderClass.getMethod("getLoadingModList").invoke(null);
+			if (loadingModList != null) {
+				Object modFile = loadingModList.getClass().getMethod("getModFileById", String.class).invoke(loadingModList, modId);
+				return modFile != null;
+			}
+		} catch (Throwable ignored) {
+		}
+
+		return true;
 	}
 
 	@Override

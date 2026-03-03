@@ -26,6 +26,7 @@ import java.util.*;
 
 public class DeadeyeServer {
 	public static Map<Player, PlayerDeadeyeState> DeadeyeStates = new HashMap<>();
+	private static final Map<UUID, Deque<Vec3>> POINTBLANK_PENDING_SHOT_MARKS = new HashMap<>();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 
 	public static void onTick(ServerLevel serverLevel) {
@@ -84,6 +85,7 @@ public class DeadeyeServer {
 
 	public static void onPlayerQuit(ServerPlayer serverPlayer) {
 		DeadeyeStates.remove(serverPlayer);
+		POINTBLANK_PENDING_SHOT_MARKS.remove(serverPlayer.getUUID());
 		if(DeadeyeStates.isEmpty()) disableDeadeye(serverPlayer);
 	}
 
@@ -131,11 +133,31 @@ public class DeadeyeServer {
 		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal()));
 	}
 
+	public static void enqueuePointBlankShotMark(Player player, Vec3 markPos) {
+		POINTBLANK_PENDING_SHOT_MARKS.computeIfAbsent(player.getUUID(), ignored -> new ArrayDeque<>()).addLast(markPos);
+	}
+
+	public static Vec3 consumePointBlankShotMark(ServerPlayer player) {
+		Deque<Vec3> queue = POINTBLANK_PENDING_SHOT_MARKS.get(player.getUUID());
+		if(queue == null || queue.isEmpty()) return null;
+		Vec3 mark = queue.pollFirst();
+		if(queue.isEmpty()) {
+			POINTBLANK_PENDING_SHOT_MARKS.remove(player.getUUID());
+		}
+		return mark;
+	}
+
+	public static boolean hasPendingPointBlankShotMark(Player player) {
+		Deque<Vec3> queue = POINTBLANK_PENDING_SHOT_MARKS.get(player.getUUID());
+		return queue != null && !queue.isEmpty();
+	}
+
 	public static void enableDeadeye(Player player) {
 		PlayerSavedData data = StateManager.getPlayerState((ServerPlayer) player);
 		if(data.deadeyeSkill <= 0 || data.deadeyeMeter + data.deadeyeCore <= 0f) return;
 
 		var level = player.level();
+		POINTBLANK_PENDING_SHOT_MARKS.remove(player.getUUID());
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
 
 		if(ServerUtils.canModifyTickRate(level.getServer())) {
@@ -192,11 +214,14 @@ public class DeadeyeServer {
 	}
 
 	public static void handleShotInfo(InformShotPayload payload, NetworkManager.PacketContext packetContext) {
+		ServerPlayer player = (ServerPlayer) packetContext.getPlayer();
 		PlayerDeadeyeState state = DeadeyeStates.get(packetContext.getPlayer());
 		if(state == null || state.phase != Phase.SHOOTING) {
 			disableDeadeye(packetContext.getPlayer()); // Failsafe. Player probably went out of sync.
 			return;
 		}
+
+		enqueuePointBlankShotMark(player, new Vec3(payload.targetPos()));
 
 		if(state.targets.isEmpty()) {
 			disableDeadeye(packetContext.getPlayer());

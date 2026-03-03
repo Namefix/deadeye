@@ -1,7 +1,6 @@
 package com.namefix.fabric.mixin.integration.pointblank;
 
 import com.namefix.client.DeadeyeClient;
-import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.integration.pointblank.PointBlankPendingShotAim;
 import com.namefix.platform.fabric.PointBlankIntegrationImpl;
 import com.namefix.server.DeadeyeServer;
@@ -33,18 +32,6 @@ public class PointBlankGunMixin {
 			|| DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()));
 	}
 
-	private static PlayerDeadeyeState deadeye$getServerState(ServerPlayer player) {
-		PlayerDeadeyeState state = DeadeyeServer.DeadeyeStates.get(player);
-		if(state != null) return state;
-
-		for(var entry : DeadeyeServer.DeadeyeStates.entrySet()) {
-			if(entry.getKey().getUUID().equals(player.getUUID())) {
-				return entry.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Shadow
 	private double adjustInaccuracy(Player player, ItemStack itemStack, boolean isAiming) {
 		return 0.0;
@@ -53,7 +40,7 @@ public class PointBlankGunMixin {
 	@Inject(method = "adjustInaccuracy", at = @At("HEAD"), cancellable = true)
 	private void deadeye$modifyAdjustInaccuracy(Player player, ItemStack itemStack, boolean isAiming, CallbackInfoReturnable<Double> cir) {
 		if(!player.level().isClientSide) {
-			if(deadeye$isServerDeadeye(player)) {
+			if(deadeye$isServerDeadeye(player) || DeadeyeServer.hasPendingPointBlankShotMark(player)) {
 				cir.setReturnValue(0.0);
 			}
 		} else {
@@ -112,7 +99,7 @@ public class PointBlankGunMixin {
 		)
 	)
 	private double deadeye$forceZeroInaccuracyServerHitScan(GunItem instance, Player player, ItemStack itemStack, boolean isAiming) {
-		if(deadeye$isServerDeadeye(player)) return 0.0;
+		if(deadeye$isServerDeadeye(player) || DeadeyeServer.hasPendingPointBlankShotMark(player)) return 0.0;
 		return adjustInaccuracy(player, itemStack, isAiming);
 	}
 
@@ -124,19 +111,12 @@ public class PointBlankGunMixin {
 		)
 	)
 	private Vec3 deadeye$useMarkedVectorForServerHitScan(ServerPlayer player, float partialTick) {
- 		PlayerDeadeyeState state = deadeye$getServerState(player);
-
-		if(state == null || state.phase != PlayerDeadeyeState.Phase.SHOOTING || state.targets.isEmpty()) {
+		Vec3 markPos = DeadeyeServer.consumePointBlankShotMark(player);
+		if(markPos == null) {
 			return player.getViewVector(partialTick);
 		}
-
-		var currentTarget = state.targets.getFirst();
-		if(currentTarget == null) {
-			return player.getViewVector(partialTick);
-		}
-
 		Vec3 eye = player.getEyePosition();
-		Vec3 desired = currentTarget.getMarkPosition(0.0f).subtract(eye);
+		Vec3 desired = markPos.subtract(eye);
 		if(desired.lengthSqr() < 1.0E-7) {
 			return player.getViewVector(partialTick);
 		}
@@ -151,7 +131,7 @@ public class PointBlankGunMixin {
 		)
 	)
 	private double deadeye$forceZeroInaccuracyServerProjectile(GunItem instance, Player player, ItemStack itemStack, boolean isAiming) {
-		if(deadeye$isServerDeadeye(player)) return 0.0;
+		if(deadeye$isServerDeadeye(player) || DeadeyeServer.hasPendingPointBlankShotMark(player)) return 0.0;
 		return adjustInaccuracy(player, itemStack, isAiming);
 	}
 

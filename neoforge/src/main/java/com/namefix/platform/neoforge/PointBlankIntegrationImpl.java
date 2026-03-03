@@ -1,8 +1,10 @@
 package com.namefix.platform.neoforge;
 
 import com.namefix.config.SyncedConfigCache;
+import com.namefix.neoforge.mixin.integration.pointblank.PointBlankGunClientStateAccessor;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.item.FireMode;
+import com.vicmatskiv.pointblank.item.FireModeInstance;
 import com.vicmatskiv.pointblank.item.GunItem;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -39,10 +41,18 @@ public final class PointBlankIntegrationImpl {
 		if(!(item.getItem() instanceof GunItem gun)) return;
 		if(!player.level().isClientSide) return;
 		if(!SyncedConfigCache.instantGunReload) return;
+		FireModeInstance fireMode = GunItem.getFireModeInstance(item);
 		UUID playerId = player.getUUID();
 		PENDING_INSTANT_RELOAD.add(playerId);
 		if(!gun.requestReloadFromServer(player, item)) {
 			PENDING_INSTANT_RELOAD.remove(playerId);
+			return;
+		}
+
+		GunClientState state = GunClientState.getState(player, item, player.getInventory().selected, false);
+		if(state != null && fireMode != null) {
+			int maxAmmo = gun.getMaxAmmoCapacity(item, fireMode);
+			((PointBlankGunClientStateAccessor) state).deadeye$getAmmoCount().setAmmoCount(fireMode, maxAmmo);
 		}
 	}
 

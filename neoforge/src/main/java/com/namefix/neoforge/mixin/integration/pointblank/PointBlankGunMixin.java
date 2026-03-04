@@ -81,6 +81,7 @@ public class PointBlankGunMixin {
 
 	@Redirect(
 		method = "requestFireFromServer",
+		remap = true,
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/vicmatskiv/pointblank/item/GunItem;adjustInaccuracy(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)D"
@@ -93,6 +94,7 @@ public class PointBlankGunMixin {
 
 	@Redirect(
 		method = "handleClientHitScanFireRequest",
+		remap = true,
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/vicmatskiv/pointblank/item/GunItem;adjustInaccuracy(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)D"
@@ -105,6 +107,7 @@ public class PointBlankGunMixin {
 
 	@Redirect(
 		method = "handleClientHitScanFireRequest",
+		remap = true,
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/server/level/ServerPlayer;getViewVector(F)Lnet/minecraft/world/phys/Vec3;"
@@ -122,6 +125,7 @@ public class PointBlankGunMixin {
 
 	@Redirect(
 		method = "handleClientProjectileFireRequest",
+		remap = true,
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/vicmatskiv/pointblank/item/GunItem;adjustInaccuracy(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)D"

@@ -45,7 +45,7 @@ public class PointBlankDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	public void shoot() {
 		if(state.targets.isEmpty()) return;
 
-		DeadeyeTargetData targetData = state.targets.getFirst();
+		DeadeyeTargetData targetData = state.targets.get(0);
 		if(targetData == null) return;
 		var markPos = targetData.getMarkPosition(0.0f);
 

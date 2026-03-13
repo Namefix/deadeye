@@ -32,7 +32,7 @@ public abstract class ItemInHandRendererMixin {
 			ordinal = 0
 		)
 	)
-	private static boolean deadeye$ignoreMinorItemDifferencesMain(ItemStack previous, ItemStack current) {
+	private boolean deadeye$ignoreMinorItemDifferencesMain(ItemStack previous, ItemStack current) {
 		return deadeye$shouldIgnoreMinorItemDifferences(previous, current);
 	}
 
@@ -44,7 +44,7 @@ public abstract class ItemInHandRendererMixin {
 			ordinal = 1
 		)
 	)
-	private static boolean deadeye$ignoreMinorItemDifferencesOff(ItemStack previous, ItemStack current) {
+	private boolean deadeye$ignoreMinorItemDifferencesOff(ItemStack previous, ItemStack current) {
 		return deadeye$shouldIgnoreMinorItemDifferences(previous, current);
 	}
 

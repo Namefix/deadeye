@@ -55,6 +55,21 @@ public class DeadeyeClient {
 		DeadeyeBowVisuals.registerItemProperties();
 	}
 
+	public static float getEffectiveCurrentTickRate() {
+		if(!DEADEYE_ENABLED) return 20.0f;
+		return DeadeyeConfig.Server.deadeyeTickRate <= 0.0f ? 20.0f : DeadeyeConfig.Server.deadeyeTickRate;
+	}
+
+	public static float getEffectivePreviousTickRate() {
+		if(PREVIOUS_TICK_RATE <= 0.0f) return 20.0f;
+		return PREVIOUS_TICK_RATE;
+	}
+
+	public static float getClientTickScale() {
+		if(!DEADEYE_ENABLED) return 1.0f;
+		return TickManager.getTickScale(getEffectiveCurrentTickRate(), getEffectivePreviousTickRate());
+	}
+
 	public static void render() {
 		shootingTick();
 		autoMark();
@@ -123,7 +138,7 @@ public class DeadeyeClient {
 			if(interaction.clientSideShoot) interaction.shoot();
 			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
 			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
-			DEADEYE_STATE.targets.removeFirst();
+			DEADEYE_STATE.targets.remove(0);
 
 			LAST_DEADEYE_LERP = System.currentTimeMillis();
 			LAST_DEADEYE_SHOT = System.currentTimeMillis();

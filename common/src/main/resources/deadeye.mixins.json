@@ -1,23 +1,26 @@
 {
   "required": true,
   "package": "com.namefix.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
     "client.AbstractClientPlayerMixin",
     "client.ItemInHandRendererMixin",
     "client.KeyboardInputMixin",
+    "client.tickmanager.MinecraftMixin",
     "client.LocalPlayerMixin",
     "client.MouseHandlerMixin",
     "client.PlayerMixin",
-    "client.SoundEngineMixin"
+    "client.SoundEngineMixin",
+    "client.tickmanager.TimerAccessor"
   ],
   "mixins": [
     "AbstractArrowMixin",
     "BowItemMixin",
     "CrossbowItemMixin",
+    "tickmanager.MinecraftServerAccessor",
     "LivingEntityMixin",
-    "MinecraftServerMixin",
+    "tickmanager.MinecraftServerMixin",
     "PlayerMixin",
     "ProjectileWeaponItemMixin",
     "ServerPlayerMixin"

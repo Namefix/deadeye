@@ -1,4 +1,4 @@
-package com.namefix.mixin;
+package com.namefix.mixin.tickmanager;
 
 import com.namefix.util.TickManager;
 import net.minecraft.server.MinecraftServer;
@@ -27,17 +27,10 @@ public class MinecraftServerMixin {
 		long targetMspt = TickManager.getMillisecondsPerTick(server);
 		if(targetMspt <= MinecraftServer.MS_PER_TICK) return;
 
-		long elapsedNs = System.nanoTime() - deadeye$lastTickStartNs;
-		long targetNs = targetMspt * 1_000_000L;
-		long sleepNs = targetNs - elapsedNs;
-		if(sleepNs <= 0L) return;
+		long extraMs = targetMspt - MinecraftServer.MS_PER_TICK;
+		if(extraMs <= 0L) return;
 
-		long sleepMs = sleepNs / 1_000_000L;
-		int sleepExtraNs = (int) (sleepNs % 1_000_000L);
-		try {
-			Thread.sleep(sleepMs, sleepExtraNs);
-		} catch (InterruptedException ignored) {
-			Thread.currentThread().interrupt();
-		}
+		MinecraftServerAccessor accessor = (MinecraftServerAccessor) this;
+		accessor.deadeye$setNextTickTime(accessor.deadeye$getNextTickTime() + extraMs);
 	}
 }

@@ -251,7 +251,7 @@ public class DeadeyeServer {
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
 		if(!interaction.clientSideShoot) interaction.shoot();
 
-		state.targets.removeFirst();
+		state.targets.remove(0);
 		boolean hasMoreTargets = !state.targets.isEmpty();
 
 		interaction.postShot(hasMoreTargets);

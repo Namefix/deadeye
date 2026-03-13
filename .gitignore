@@ -2,12 +2,15 @@ build/
 .idea/
 fabric/build
 neoforge/build
+forge/build
 
 .gradle/
 fabric/.gradle/
 neoforge/.gradle/
+forge/.gradle/
 
 fabric/run*
 neoforge/run*
+forge/run*
 
 common/src/main/generated

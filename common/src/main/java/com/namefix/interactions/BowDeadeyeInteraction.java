@@ -76,7 +76,7 @@ public class BowDeadeyeInteraction extends AbstractDeadeyeInteraction {
 		if(player.level().isClientSide) return;
 		if(state.targets.isEmpty()) return;
 
-		DeadeyeTargetData targetData = state.targets.getFirst();
+		DeadeyeTargetData targetData = state.targets.get(0);
 		if(targetData == null) return;
 		Entity target = targetData.target;
 		if(target == null || target.isRemoved()) return;

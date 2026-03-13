@@ -6,7 +6,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber(modid = DeadeyeMod.MOD_ID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = DeadeyeMod.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DeadeyeForgeClient {
 
 	@SubscribeEvent

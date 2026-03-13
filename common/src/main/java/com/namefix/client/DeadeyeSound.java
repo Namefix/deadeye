@@ -2,6 +2,7 @@ package com.namefix.client;
 
 import com.namefix.registry.SoundEventRegistry;
 import com.namefix.sound.DeadeyeLoopingSound;
+import com.namefix.util.TickManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -47,7 +48,7 @@ public class DeadeyeSound {
 		Minecraft mc = Minecraft.getInstance();
 		if(!DeadeyeClient.DEADEYE_ENABLED || mc.isPaused()) return;
 		Player player = mc.player;
-		float delta = mc.getDeltaFrameTime();
+		float delta = TickManager.getRealtimeDeltaTicks(mc);
 		if(player == null) return;
 
 		HEARTBEAT_PHASE_TIME += delta;
@@ -68,16 +69,19 @@ public class DeadeyeSound {
 	}
 
 	public static void startBackgroundSounds() {
-		Minecraft mc = Minecraft.getInstance();
-
-		resetBackgroundSounds();
-		mc.getSoundManager().play(SOUND_BACKGROUND);
-		mc.getSoundManager().play(SOUND_BACKGROUND2);
+		runOnClientThread(() -> {
+			Minecraft mc = Minecraft.getInstance();
+			resetBackgroundSounds();
+			mc.getSoundManager().play(SOUND_BACKGROUND);
+			mc.getSoundManager().play(SOUND_BACKGROUND2);
+		});
 	}
 
 	public static void stopBackgroundSounds() {
-		SOUND_BACKGROUND.stopLooping();
-		SOUND_BACKGROUND2.stopLooping();
+		runOnClientThread(() -> {
+			SOUND_BACKGROUND.stopLooping();
+			SOUND_BACKGROUND2.stopLooping();
+		});
 	}
 
 	public static void playMarkSound() {
@@ -109,21 +113,34 @@ public class DeadeyeSound {
 	}
 
 	private static void play2D(SoundEvent sound, float volume, float pitch) {
+		if(sound == null) return;
+		runOnClientThread(() -> {
+			Minecraft mc = Minecraft.getInstance();
+			if(mc == null) return;
+			mc.getSoundManager().play(new SimpleSoundInstance(
+				sound.getLocation(),
+				SoundSource.PLAYERS,
+				volume,
+				pitch,
+				SoundInstance.createUnseededRandom(),
+				false,
+				0,
+				SoundInstance.Attenuation.NONE,
+				0.0,
+				0.0,
+				0.0,
+				true
+			));
+		});
+	}
+
+	private static void runOnClientThread(Runnable runnable) {
 		Minecraft mc = Minecraft.getInstance();
-		if(sound == null || mc == null) return;
-		mc.getSoundManager().play(new SimpleSoundInstance(
-			sound.getLocation(),
-			SoundSource.PLAYERS,
-			volume,
-			pitch,
-			SoundInstance.createUnseededRandom(),
-			false,
-			0,
-			SoundInstance.Attenuation.NONE,
-			0.0,
-			0.0,
-			0.0,
-			true
-		));
+		if(mc == null) return;
+		if(mc.isSameThread()) {
+			runnable.run();
+			return;
+		}
+		mc.execute(runnable);
 	}
 }

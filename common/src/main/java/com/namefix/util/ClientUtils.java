@@ -21,7 +21,7 @@ public class ClientUtils {
 
 	public static DeadeyeTargetData getNextValidTarget() {
 		if(!DEADEYE_STATE.targets.isEmpty()) {
-			return DEADEYE_STATE.targets.getFirst();
+			return DEADEYE_STATE.targets.get(0);
 		}
 		return null;
 	}

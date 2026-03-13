@@ -1,4 +1,4 @@
-package com.namefix.platform.neoforge;
+package com.namefix.platform.forge;
 
 import com.namefix.platform.RenderEvents;
 

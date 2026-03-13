@@ -3,26 +3,24 @@ package com.namefix.fabric.datagen;
 import com.namefix.registry.ItemRegistry;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
-import static net.minecraft.data.recipes.ShapedRecipeBuilder.shaped;
 import static net.minecraft.data.recipes.ShapelessRecipeBuilder.shapeless;
 import static net.minecraft.data.recipes.SimpleCookingRecipeBuilder.smelting;
 
 public class DeadeyeRecipeProvider extends FabricRecipeProvider {
-	public DeadeyeRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
-		super(output, registriesFuture);
+	public DeadeyeRecipeProvider(FabricDataOutput output) {
+		super(output);
 	}
 
 	@Override
-	public void buildRecipes(RecipeOutput recipeOutput) {
+	public void buildRecipes(Consumer<FinishedRecipe> recipeOutput) {
 		shapeless(RecipeCategory.BREWING, ItemRegistry.TOBACCO_SEEDS.get())
 				.requires(ItemRegistry.TOBACCO.get())
 				.unlockedBy(RecipeProvider.getHasName(ItemRegistry.TOBACCO.get()), has(ItemRegistry.TOBACCO.get()))

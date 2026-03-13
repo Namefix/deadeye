@@ -1,15 +1,16 @@
-package com.namefix.platform.neoforge;
+package com.namefix.platform.forge;
 
 import com.namefix.config.SyncedConfigCache;
-import com.namefix.neoforge.mixin.integration.pointblank.PointBlankGunClientStateAccessor;
+import com.namefix.forge.mixin.integration.pointblank.PointBlankGunClientStateAccessor;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.item.FireMode;
 import com.vicmatskiv.pointblank.item.FireModeInstance;
 import com.vicmatskiv.pointblank.item.GunItem;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.Set;
 import java.util.UUID;
@@ -64,7 +65,7 @@ public final class PointBlankIntegrationImpl {
 	public static void fireGun(ItemStack item, Player player, Entity target) {
 		if(!isLoaded()) return;
 		if(!(item.getItem() instanceof GunItem gun)) return;
-		gun.tryFire(player, item, target);
+		gun.tryFire((LocalPlayer) player, item, target);
 	}
 
 	public static FireMode getGunFiremode(ItemStack item) {

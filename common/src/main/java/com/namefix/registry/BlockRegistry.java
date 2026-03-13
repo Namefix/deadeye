@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 public class BlockRegistry {
 	public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(DeadeyeMod.MOD_ID, Registries.BLOCK);
 
-	public static final RegistrySupplier<CropBlock> TOBACCO_CROP = registerBlock("tobacco_crop", TobaccoCropBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT));
-	public static final RegistrySupplier<Block> WILD_TOBACCO = registerBlock("wild_tobacco", BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT));
+	public static final RegistrySupplier<CropBlock> TOBACCO_CROP = registerBlock("tobacco_crop", TobaccoCropBlock::new, BlockBehaviour.Properties.copy(Blocks.WHEAT));
+	public static final RegistrySupplier<Block> WILD_TOBACCO = registerBlock("wild_tobacco", BlockBehaviour.Properties.copy(Blocks.WHEAT));
 
 	public static void register() {
 		BLOCKS.register();
@@ -35,7 +35,7 @@ public class BlockRegistry {
 		return registerBlock(name, factory, BlockBehaviour.Properties.of());
 	}
 	public static <T extends Block> RegistrySupplier<T> registerBlock(String name, BlockFactory<T> factory, BlockBehaviour.Properties base) {
-		ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, name));
+		ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, new ResourceLocation(DeadeyeMod.MOD_ID, name));
 		return BLOCKS.register(name, () -> factory.create(base));
 	}
 	public static Tuple<RegistrySupplier<Block>, RegistrySupplier<BlockItem>> registerBlockWithItem(String name) {

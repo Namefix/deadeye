@@ -17,6 +17,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -44,9 +45,9 @@ public class TonicItem extends Item {
 		}
 
 		player.awardStat(Stats.ITEM_USED.get(this));
-		itemStack.consume(1, player);
+		if(!player.getAbilities().instabuild) itemStack.shrink(1);
 
-		if(!player.hasInfiniteMaterials()) {
+		if(!player.getAbilities().instabuild) {
 			if(itemStack.isEmpty()) {
 				return new ItemStack(Items.GLASS_BOTTLE);
 			}
@@ -69,18 +70,18 @@ public class TonicItem extends Item {
 	}
 
 	@Override
-	public int getUseDuration(ItemStack itemStack, LivingEntity livingEntity) {
+	public int getUseDuration(ItemStack itemStack) {
 		return 32;
 	}
 
 	@Override
-	public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
+	public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
 		switch (tonicLevel) {
 			case 1 -> list.add(Component.translatable("item.deadeye.snake_oil.tooltip").withStyle(ChatFormatting.GRAY));
 			case 2 -> list.add(Component.translatable("item.deadeye.potent_snake_oil.tooltip").withStyle(ChatFormatting.GRAY));
 			case 3 -> list.add(Component.translatable("item.deadeye.special_snake_oil.tooltip").withStyle(ChatFormatting.GRAY));
 		}
 
-		super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
+		super.appendHoverText(itemStack, level, list, tooltipFlag);
 	}
 }

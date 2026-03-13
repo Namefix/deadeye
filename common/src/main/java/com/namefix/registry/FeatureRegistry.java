@@ -22,7 +22,7 @@ public class FeatureRegistry {
 
     public static final ResourceKey<PlacedFeature> WILD_TOBACCO_PLACED_KEY = ResourceKey.create(
             Registries.PLACED_FEATURE,
-            ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "wild_tobacco")
+            new ResourceLocation(DeadeyeMod.MOD_ID, "wild_tobacco")
     );
 
     public static void register() {

@@ -32,7 +32,6 @@ public class ServerPlayerMixin {
 	@Unique
 	private static boolean deadeye$isEnvironmentalDamage(DamageSource damageSource) {
 		return damageSource.is(DamageTypes.IN_FIRE)
-				|| damageSource.is(DamageTypes.CAMPFIRE)
 				|| damageSource.is(DamageTypes.LIGHTNING_BOLT)
 				|| damageSource.is(DamageTypes.ON_FIRE)
 				|| damageSource.is(DamageTypes.LAVA)

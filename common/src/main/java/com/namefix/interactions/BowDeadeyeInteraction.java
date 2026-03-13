@@ -4,7 +4,9 @@ import com.namefix.client.DeadeyeBowVisuals;
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.server.DeadeyeServer;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -15,7 +17,6 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
-import net.minecraft.world.item.component.ChargedProjectiles;
 
 import java.util.function.Predicate;
 
@@ -131,28 +132,42 @@ public class BowDeadeyeInteraction extends AbstractDeadeyeInteraction {
 		float power = BowItem.getPowerForTime(drawTicks);
 		double projectileSpeed = power * 3.0d;
 		alignPlayerForShot(targetData, target, projectileSpeed, 0.05d);
-		int useDuration = bowItem.getUseDuration(bowStack, player);
+		int useDuration = bowItem.getUseDuration(bowStack);
 		int timeLeft = Mth.clamp(useDuration - drawTicks, 0, useDuration);
 		bowItem.releaseUsing(bowStack, player.level(), player, timeLeft);
 	}
 
 	private void handleCrossbowShot(CrossbowItem crossbowItem, ItemStack stack, DeadeyeTargetData targetData, Entity target) {
 		if(!CrossbowItem.isCharged(stack)) {
-			int chargeDuration = CrossbowItem.getChargeDuration(stack, player);
-			int timeLeft = Mth.clamp(crossbowItem.getUseDuration(stack, player) - chargeDuration, 0, crossbowItem.getUseDuration(stack, player));
+			int chargeDuration = CrossbowItem.getChargeDuration(stack);
+			int timeLeft = Mth.clamp(crossbowItem.getUseDuration(stack) - chargeDuration, 0, crossbowItem.getUseDuration(stack));
 			crossbowItem.releaseUsing(stack, player.level(), player, timeLeft);
 		}
 
 		if(!CrossbowItem.isCharged(stack)) return;
 
-		ChargedProjectiles charged = stack.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
-		if(charged.isEmpty()) return;
+		ListTag chargedProjectiles = getChargedProjectiles(stack);
+		if(chargedProjectiles.isEmpty()) return;
 
-		boolean hasFirework = charged.contains(Items.FIREWORK_ROCKET);
+		boolean hasFirework = containsFireworkProjectile(chargedProjectiles);
 		double projectileSpeed = hasFirework ? 1.6d : 3.15d;
 		double projectileGravity = hasFirework ? 0.0d : 0.05d;
 		alignPlayerForShot(targetData, target, projectileSpeed, projectileGravity);
-		crossbowItem.performShooting(player.level(), player, InteractionHand.MAIN_HAND, stack, (float) projectileSpeed, 1.0f, null);
+		CrossbowItem.performShooting(player.level(), player, InteractionHand.MAIN_HAND, stack, (float) projectileSpeed, 1.0f);
+	}
+
+	private static ListTag getChargedProjectiles(ItemStack stack) {
+		CompoundTag tag = stack.getTag();
+		if(tag == null) return new ListTag();
+		return tag.getList("ChargedProjectiles", Tag.TAG_COMPOUND);
+	}
+
+	private static boolean containsFireworkProjectile(ListTag chargedProjectiles) {
+		for(int i = 0; i < chargedProjectiles.size(); i++) {
+			CompoundTag projectileTag = chargedProjectiles.getCompound(i);
+			if(ItemStack.of(projectileTag).is(Items.FIREWORK_ROCKET)) return true;
+		}
+		return false;
 	}
 
 }

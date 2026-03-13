@@ -3,6 +3,7 @@ package com.namefix.mixin.client;
 import com.namefix.DeadeyeMod;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.DeadeyeConfig;
+import com.namefix.util.TickManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -24,7 +25,7 @@ public class SoundEngineMixin {
 		if(DeadeyeClient.DEADEYE_ENABLED) {
 			if(instance.getLocation().getNamespace().equals(DeadeyeMod.MOD_ID)) return;
 			if(instance.getLocation().toString().equals("pointblank:hit_light") || instance.getLocation().toString().equals("pointblank:hit_heavy") || instance.getLocation().toString().equals("pointblank:hit_headshot")) return;
-			float curTickRate = player.level().tickRateManager().tickrate();
+			float curTickRate = TickManager.getTickRate(player.level());
 			float prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
 
 			cir.setReturnValue(originalPitch / (prevTickRate / curTickRate));

@@ -1,14 +1,14 @@
 package com.namefix.network.payload;
 
-import com.namefix.network.DeadeyeNetwork;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 
-public record ConfigSyncPayload(boolean bowPullCompensation, boolean instantGunReload) implements CustomPacketPayload {
-	public static final StreamCodec<RegistryFriendlyByteBuf, ConfigSyncPayload> CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, ConfigSyncPayload::bowPullCompensation, ByteBufCodecs.BOOL, ConfigSyncPayload::instantGunReload, ConfigSyncPayload::new);
+public record ConfigSyncPayload(boolean bowPullCompensation, boolean instantGunReload) {
+	public ConfigSyncPayload(FriendlyByteBuf buffer) {
+		this(buffer.readBoolean(), buffer.readBoolean());
+	}
 
-	@Override
-	public Type<? extends CustomPacketPayload> type() { return DeadeyeNetwork.CONFIG_SYNC; }
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeBoolean(bowPullCompensation);
+		buffer.writeBoolean(instantGunReload);
+	}
 }

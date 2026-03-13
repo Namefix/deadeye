@@ -1,16 +1,16 @@
 package com.namefix.network.payload;
 
 import com.namefix.network.DeadeyeNetwork;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 
-public record DeadeyeStatePayload(boolean state, float previousTickrate, int phase) implements CustomPacketPayload {
-	public static final StreamCodec<RegistryFriendlyByteBuf, DeadeyeStatePayload> CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, DeadeyeStatePayload::state, ByteBufCodecs.FLOAT, DeadeyeStatePayload::previousTickrate, ByteBufCodecs.INT, DeadeyeStatePayload::phase, DeadeyeStatePayload::new);
+public record DeadeyeStatePayload(boolean state, float previousTickrate, int phase) {
+	public DeadeyeStatePayload(FriendlyByteBuf buffer) {
+		this(buffer.readBoolean(), buffer.readFloat(), buffer.readInt());
+	}
 
-	@Override
-	public Type<? extends CustomPacketPayload> type() {
-		return DeadeyeNetwork.DEADEYE_STATE;
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeBoolean(state);
+		buffer.writeFloat(previousTickrate);
+		buffer.writeInt(phase);
 	}
 }

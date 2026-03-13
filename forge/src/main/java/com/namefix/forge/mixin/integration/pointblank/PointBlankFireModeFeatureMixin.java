@@ -1,4 +1,4 @@
-package com.namefix.neoforge.mixin.integration.pointblank;
+package com.namefix.forge.mixin.integration.pointblank;
 
 import com.mojang.datafixers.util.Pair;
 import com.namefix.client.DeadeyeClient;

@@ -8,8 +8,10 @@ import com.namefix.data.PlayerDeadeyeState.Phase;
 import com.namefix.data.PlayerSavedData;
 import com.namefix.data.StateManager;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
+import com.namefix.network.DeadeyeNetwork;
 import com.namefix.network.payload.*;
 import com.namefix.util.ServerUtils;
+import com.namefix.util.TickManager;
 import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
@@ -126,11 +128,14 @@ public class DeadeyeServer {
 		DeadeyeStates.remove(player);
 
 		if(DeadeyeStates.isEmpty() && PREVIOUS_TICK_RATE >= 0) {
-			level.tickRateManager().setTickRate(PREVIOUS_TICK_RATE);
+			TickManager.setTickRate(level, PREVIOUS_TICK_RATE);
 			PREVIOUS_TICK_RATE = -1f;
 		}
 
-		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(false, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal()));
+		DeadeyeStatePayload payload = new DeadeyeStatePayload(false, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal());
+		var buffer = DeadeyeNetwork.createBuffer();
+		payload.write(buffer);
+		DeadeyeNetwork.sendToPlayer((ServerPlayer) player, DeadeyeNetwork.DEADEYE_STATE, buffer);
 	}
 
 	public static void enqueuePointBlankShotMark(Player player, Vec3 markPos) {
@@ -161,26 +166,38 @@ public class DeadeyeServer {
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
 
 		if(ServerUtils.canModifyTickRate(level.getServer())) {
-			if(DeadeyeStates.size() == 1) PREVIOUS_TICK_RATE = level.tickRateManager().tickrate();
-			level.tickRateManager().setTickRate(DeadeyeConfig.Server.deadeyeTickRate);
+			if(DeadeyeStates.size() == 1) PREVIOUS_TICK_RATE = TickManager.getTickRate(level);
+			TickManager.setTickRate(level, DeadeyeConfig.Server.deadeyeTickRate);
 		}
 
-		NetworkManager.sendToPlayer((ServerPlayer) player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal()));
+		DeadeyeStatePayload payload = new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal());
+		var buffer = DeadeyeNetwork.createBuffer();
+		payload.write(buffer);
+		DeadeyeNetwork.sendToPlayer((ServerPlayer) player, DeadeyeNetwork.DEADEYE_STATE, buffer);
 	}
 
 	public static void updatePlayerPhase(ServerPlayer player, Phase phase) {
 		if(!DeadeyeStates.containsKey(player)) return;
 		PlayerDeadeyeState state = DeadeyeStates.get(player);
 		state.phase = phase;
-		NetworkManager.sendToPlayer(player, new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, phase.ordinal()));
+		DeadeyeStatePayload payload = new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, phase.ordinal());
+		var buffer = DeadeyeNetwork.createBuffer();
+		payload.write(buffer);
+		DeadeyeNetwork.sendToPlayer(player, DeadeyeNetwork.DEADEYE_STATE, buffer);
 	}
 
 	public static void updatePlayerLevelData(ServerPlayer player, PlayerSavedData data) {
-		NetworkManager.sendToPlayer(player, new LevelDataPayload(data.deadeyeSkill, data.deadeyeLevel, data.deadeyeXp));
+		LevelDataPayload payload = new LevelDataPayload(data.deadeyeSkill, data.deadeyeLevel, data.deadeyeXp);
+		var buffer = DeadeyeNetwork.createBuffer();
+		payload.write(buffer);
+		DeadeyeNetwork.sendToPlayer(player, DeadeyeNetwork.LEVEL_DATA, buffer);
 	}
 
 	public static void updatePlayerMeterData(ServerPlayer player, PlayerSavedData data) {
-		NetworkManager.sendToPlayer(player, new MeterDataPayload(data.deadeyeMeter, data.deadeyeCore));
+		MeterDataPayload payload = new MeterDataPayload(data.deadeyeMeter, data.deadeyeCore);
+		var buffer = DeadeyeNetwork.createBuffer();
+		payload.write(buffer);
+		DeadeyeNetwork.sendToPlayer(player, DeadeyeNetwork.METER_DATA, buffer);
 	}
 
 	public static void handleDeadeyeRequest(RequestDeadeyePayload payload, NetworkManager.PacketContext packetContext) {
@@ -208,7 +225,10 @@ public class DeadeyeServer {
 		Vec3 pos = new Vec3(payload.markPos());
 		state.targets.add(new DeadeyeTargetData(entity, pos));
 		state.markItem = player.getMainHandItem().copy();
-		NetworkManager.sendToPlayer(player, RequestMarkPayload.forServerToClient(payload.markPos(), payload.entityId()));
+		RequestMarkPayload responsePayload = RequestMarkPayload.forServerToClient(payload.markPos(), payload.entityId());
+		var responseBuffer = DeadeyeNetwork.createBuffer();
+		responsePayload.write(responseBuffer);
+		DeadeyeNetwork.sendToPlayer(player, DeadeyeNetwork.REQUEST_MARK_S2C, responseBuffer);
 
 		interaction.postMark();
 	}

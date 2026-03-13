@@ -36,7 +36,7 @@ public class TobaccoCropBlock extends CropBlock {
 	}
 
 	@Override
-	protected @NotNull VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+	public @NotNull VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
 		return AGE_TO_SHAPE[getAge(blockState)];
 	}
 

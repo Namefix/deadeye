@@ -49,8 +49,8 @@ dependencies {
     // Resourceful Config
     modImplementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-fabric-$rconfig_version"
 
-    modCompileOnly "curse.maven:geckolib-388172:7415489"
-    modCompileOnly "curse.maven:vics-point-blank-961053:7491349"
+    modCompileOnly "curse.maven:geckolib-388172:7553256"
+    modCompileOnly "curse.maven:vics-point-blank-961053:7679728"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')

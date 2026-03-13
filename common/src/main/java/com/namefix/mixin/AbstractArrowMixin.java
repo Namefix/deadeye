@@ -16,7 +16,7 @@ public class AbstractArrowMixin {
 			method = "onHitEntity",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;doKnockback(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/damagesource/DamageSource;)V"
+					target = "Ljava/lang/Math;max(DD)D"
 			)
 	)
 	private void deadeye$preventInvTime(EntityHitResult entityHitResult, CallbackInfo ci) {

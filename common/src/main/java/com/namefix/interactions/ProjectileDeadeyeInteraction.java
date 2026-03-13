@@ -3,6 +3,8 @@ package com.namefix.interactions;
 import com.namefix.data.DeadeyeTargetData;
 import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.server.DeadeyeServer;
+import com.namefix.util.Utils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -47,7 +49,7 @@ public class ProjectileDeadeyeInteraction extends AbstractDeadeyeInteraction {
 		ItemStack held = player.getMainHandItem();
 		if(held.isEmpty() || held.getItem() != itemStack.getItem()) return;
 		Item item = held.getItem();
-		if(!(item instanceof ProjectileItem)) return;
+		if(!Utils.isProjectileItem(held)) return;
 
 		ShotConfig config = getShotConfig(item);
 		alignPlayerForShot(targetData, target, config.speed, config.gravity);
@@ -56,7 +58,7 @@ public class ProjectileDeadeyeInteraction extends AbstractDeadeyeInteraction {
 		}
 
 		if(item instanceof TridentItem tridentItem) {
-			int useDuration = tridentItem.getUseDuration(held, player);
+			int useDuration = tridentItem.getUseDuration(held);
 			int timeLeft = Mth.clamp(useDuration - TridentItem.THROW_THRESHOLD_TIME, 0, useDuration);
 			player.startUsingItem(InteractionHand.MAIN_HAND);
 			tridentItem.releaseUsing(held, player.level(), player, timeLeft);
@@ -77,12 +79,6 @@ public class ProjectileDeadeyeInteraction extends AbstractDeadeyeInteraction {
 		if(item instanceof ExperienceBottleItem) return new ShotConfig(0.7d, 0.07d, -20.0f);
 		if(item instanceof ThrowablePotionItem) return new ShotConfig(0.5d, 0.05d, -20.0f);
 		if(item instanceof SnowballItem || item instanceof EggItem) return new ShotConfig(1.5d, 0.03d, 0.0f);
-		if(item instanceof WindChargeItem) return new ShotConfig(1.5d, 0.0d, 0.0f);
-		if(item instanceof ProjectileItem projectileItem) {
-			double power = projectileItem.createDispenseConfig().power();
-			double speed = power <= 0.0d ? 1.1d : power;
-			return new ShotConfig(speed, 0.03d, 0.0f);
-		}
 		return new ShotConfig(1.1d, 0.03d, 0.0f);
 	}
 }

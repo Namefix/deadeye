@@ -6,11 +6,13 @@ import com.namefix.data.PlayerDeadeyeState;
 import com.namefix.data.PlayerSavedData;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
 import com.namefix.interactions.PointBlankDeadeyeInteraction;
+import com.namefix.network.DeadeyeNetwork;
 import com.namefix.network.payload.*;
 import com.namefix.platform.PointBlankIntegration;
 import com.namefix.registry.KeybindRegistry;
 import com.namefix.shader.ShaderManager;
 import com.namefix.util.ClientUtils;
+import com.namefix.util.TickManager;
 import com.namefix.util.Utils;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
@@ -83,10 +85,10 @@ public class DeadeyeClient {
 		float pPitch = mc.player.getXRot();
 		float pYaw = mc.player.getYRot();
 
-		float interpolationFactor = (mc.getTimer().getRealtimeDeltaTicks() / 2.0f);
+		float interpolationFactor = (TickManager.getRealtimeDeltaTicks(mc) / 2.0f);
 		if(System.currentTimeMillis() - DEADEYE_LERP_START > 3_000) interpolationFactor *= 4;
 
-		Vec2 targetHeading = Utils.getHeadingFromTarget(mc.player, EntityAnchorArgument.Anchor.EYES, target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)));
+		Vec2 targetHeading = Utils.getHeadingFromTarget(mc.player, EntityAnchorArgument.Anchor.EYES, target.getMarkPosition(TickManager.getGameTimeDeltaPartialTick(mc, false)));
 		float targetPitch = targetHeading.x;
 		float targetYaw = targetHeading.y;
 		float shortestPitch = pPitch + Mth.wrapDegrees(targetPitch - pPitch);
@@ -113,7 +115,10 @@ public class DeadeyeClient {
 			if(!CURRENT_PHASE_INTERACTION.preShot()) return;
 
 			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, mc.player, mc.player.getMainHandItem());
-			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
+			InformShotPayload shotPayload = new InformShotPayload(target.getMarkPosition(TickManager.getGameTimeDeltaPartialTick(mc, false)).toVector3f());
+			var shotBuffer = DeadeyeNetwork.createBuffer();
+			shotPayload.write(shotBuffer);
+			DeadeyeNetwork.sendToServer(DeadeyeNetwork.INFORM_SHOT, shotBuffer);
 
 			if(interaction.clientSideShoot) interaction.shoot();
 			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
@@ -140,7 +145,10 @@ public class DeadeyeClient {
 		DEADEYE_LERP_START = System.currentTimeMillis();
 
 		DEADEYE_STATE.phase = Phase.SHOOTING;
-		NetworkManager.sendToServer(new InformShootingPhasePayload());
+		InformShootingPhasePayload phasePayload = new InformShootingPhasePayload();
+		var phaseBuffer = DeadeyeNetwork.createBuffer();
+		phasePayload.write(phaseBuffer);
+		DeadeyeNetwork.sendToServer(DeadeyeNetwork.INFORM_SHOOTING_PHASE, phaseBuffer);
 	}
 
 	public static void onQuit(LocalPlayer localPlayer) {
@@ -251,7 +259,10 @@ public class DeadeyeClient {
 	// Request Dead Eye toggle from the server
 	public static void requestDeadeye() {
 		if(DEADEYE_DATA.deadeyeSkill <= 0 || DEADEYE_DATA.deadeyeMeter + DEADEYE_DATA.deadeyeCore <= 0f) return;
-		NetworkManager.sendToServer(new RequestDeadeyePayload());
+		RequestDeadeyePayload togglePayload = new RequestDeadeyePayload();
+		var toggleBuffer = DeadeyeNetwork.createBuffer();
+		togglePayload.write(toggleBuffer);
+		DeadeyeNetwork.sendToServer(DeadeyeNetwork.REQUEST_DEADEYE, toggleBuffer);
 	}
 
 	public static void requestMark() {
@@ -271,7 +282,10 @@ public class DeadeyeClient {
 		EntityHitResult entityHit = (EntityHitResult) hit;
 
 		LivingEntity target = (LivingEntity) entityHit.getEntity();
-		NetworkManager.sendToServer(new RequestMarkPayload(hit.getLocation().toVector3f(), target.getId()));
+		RequestMarkPayload markPayload = new RequestMarkPayload(hit.getLocation().toVector3f(), target.getId());
+		var markBuffer = DeadeyeNetwork.createBuffer();
+		markPayload.write(markBuffer);
+		DeadeyeNetwork.sendToServer(DeadeyeNetwork.REQUEST_MARK_C2S, markBuffer);
 	}
 
 	// Handle server Dead Eye phase

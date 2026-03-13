@@ -1,9 +1,8 @@
 package com.namefix.mixin;
 
 import com.namefix.client.DeadeyeClient;
+import com.namefix.config.DeadeyeConfig;
 import com.namefix.server.DeadeyeServer;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,28 +17,23 @@ public class CrossbowItemMixin {
 			at = @At("RETURN"),
 			cancellable = true
 	)
-	private static void deadeye$modifyChargeDuration(ItemStack itemStack, LivingEntity livingEntity, CallbackInfoReturnable<Integer> cir) {
-		if(!(livingEntity instanceof Player player) || player.level().isClientSide) return;
+	private static void deadeye$modifyChargeDuration(ItemStack itemStack, CallbackInfoReturnable<Integer> cir) {
+		boolean serverSide = !DeadeyeServer.DeadeyeStates.isEmpty();
+		boolean clientSide = DeadeyeClient.DEADEYE_ENABLED;
+		if(!serverSide && !clientSide) return;
 
-		if(DeadeyeServer.DeadeyeStates.containsKey(player)) {
-			float curTickRate = player.level().tickRateManager().tickrate();
-			float prevTickRate = DeadeyeServer.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeServer.PREVIOUS_TICK_RATE;
-			cir.setReturnValue((int) (cir.getReturnValue() / (prevTickRate / curTickRate)));
+		float curTickRate = DeadeyeConfig.Server.deadeyeTickRate;
+		if(curTickRate <= 0.0f) return;
+
+		float prevTickRate;
+		if(serverSide) {
+			prevTickRate = DeadeyeServer.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeServer.PREVIOUS_TICK_RATE;
+		} else {
+			prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
 		}
-	}
 
-	@Inject(
-			method = "getChargeDuration",
-			at = @At("RETURN"),
-			cancellable = true
-	)
-	private static void deadeye$modifyChargeDurationClient(ItemStack itemStack, LivingEntity livingEntity, CallbackInfoReturnable<Integer> cir) {
-		if(!(livingEntity instanceof Player player) || !player.level().isClientSide) return;
-
-		if(DeadeyeClient.DEADEYE_ENABLED) {
-			float curTickRate = player.level().tickRateManager().tickrate();
-			float prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
-			cir.setReturnValue((int) (cir.getReturnValue() / (prevTickRate / curTickRate)));
-		}
+		if(prevTickRate <= 0.0f) return;
+		int adjusted = Math.max(1, (int) (cir.getReturnValue() / (prevTickRate / curTickRate)));
+		cir.setReturnValue(adjusted);
 	}
 }

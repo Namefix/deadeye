@@ -1,8 +1,8 @@
-package com.namefix.neoforge.mixin.integration.pointblank;
+package com.namefix.forge.mixin.integration.pointblank;
 
 import com.namefix.client.DeadeyeClient;
 import com.namefix.integration.pointblank.PointBlankPendingShotAim;
-import com.namefix.platform.neoforge.PointBlankIntegrationImpl;
+import com.namefix.platform.forge.PointBlankIntegrationImpl;
 import com.namefix.server.DeadeyeServer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;

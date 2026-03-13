@@ -58,7 +58,7 @@ public class ShaderEffect {
 	public boolean load() {
 		try {
 			Minecraft mc = Minecraft.getInstance();
-			ResourceLocation shaderLocation = ResourceLocation.withDefaultNamespace("shaders/post/" + name + ".json");
+			ResourceLocation shaderLocation = new ResourceLocation("minecraft", "shaders/post/" + name + ".json");
 
 			this.postChain = new PostChain(mc.getTextureManager(), mc.getResourceManager(), mc.getMainRenderTarget(), shaderLocation);
 			this.postChain.resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());

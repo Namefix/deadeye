@@ -1,15 +1,12 @@
 package com.namefix.network.payload;
 
-import com.namefix.network.DeadeyeNetwork;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 
-public record InformShootingPhasePayload() implements CustomPacketPayload {
-	public static final StreamCodec<RegistryFriendlyByteBuf, InformShootingPhasePayload> CODEC = StreamCodec.unit(new InformShootingPhasePayload());
+public record InformShootingPhasePayload() {
+	public InformShootingPhasePayload(FriendlyByteBuf buffer) {
+		this();
+	}
 
-	@Override
-	public Type<? extends CustomPacketPayload> type() {
-		return DeadeyeNetwork.INFORM_SHOOTING_PHASE;
+	public void write(FriendlyByteBuf buffer) {
 	}
 }

@@ -1,24 +1,32 @@
 package com.namefix.mixin;
 
 import com.namefix.server.DeadeyeServer;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(ProjectileWeaponItem.class)
+@Mixin(Projectile.class)
 public class ProjectileWeaponItemMixin {
-	@ModifyArgs(method = "shoot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ProjectileWeaponItem;shootProjectile(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/projectile/Projectile;IFFFLnet/minecraft/world/entity/LivingEntity;)V"))
-	private void deadeye$modifyBowAccuracy(Args args) {
-		LivingEntity owner = args.get(0);
-		if(!(owner instanceof Player player)) return;
+	@ModifyVariable(
+			method = "shootFromRotation(Lnet/minecraft/world/entity/Entity;FFFFF)V",
+			at = @At("HEAD"),
+			ordinal = 4,
+			argsOnly = true
+	)
+	private float deadeye$modifyProjectileInaccuracy(float inaccuracy, Entity owner) {
+		if(!(owner instanceof Player player)) return inaccuracy;
+		if(!DeadeyeServer.DeadeyeStates.containsKey(player)) return inaccuracy;
 
-		if(DeadeyeServer.DeadeyeStates.containsKey(player)) {
-			args.set(4, 0f);
-			args.set(5, 0f);
+		Projectile projectile = (Projectile) (Object) this;
+		if(projectile instanceof AbstractArrow || projectile instanceof FireworkRocketEntity) {
+			return 0.0f;
 		}
+
+		return inaccuracy;
 	}
 }

@@ -1,9 +1,9 @@
-package com.namefix.neoforge.mixin.integration;
+package com.namefix.forge.mixin.integration;
 
 import com.namefix.mixin.integration.IntegrationMixinPluginBase;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
-public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPluginBase {
+public final class ForgeIntegrationMixinPlugin extends IntegrationMixinPluginBase {
 	@Override
 	protected boolean isModLoaded(String modId) {
 		ModList modList = ModList.get();
@@ -12,7 +12,7 @@ public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPlugin
 		}
 
 		try {
-			Class<?> fmlLoaderClass = Class.forName("net.neoforged.fml.loading.FMLLoader");
+			Class<?> fmlLoaderClass = Class.forName("net.minecraftforge.fml.loading.FMLLoader");
 			Object loadingModList = fmlLoaderClass.getMethod("getLoadingModList").invoke(null);
 			if (loadingModList != null) {
 				Object modFile = loadingModList.getClass().getMethod("getModFileById", String.class).invoke(loadingModList, modId);
@@ -26,7 +26,7 @@ public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPlugin
 
 	@Override
 	protected void registerMixins() {
-		registerIntegrationMixin("com.namefix.neoforge.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.neoforge.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
 	}
 }

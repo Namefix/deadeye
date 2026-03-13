@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -131,11 +132,19 @@ public class Utils {
 		Item item = itemStack.getItem();
 
 		if(item instanceof BowItem || item instanceof CrossbowItem) return new BowDeadeyeInteraction(state, player, itemStack);
-		else if(item instanceof ProjectileItem) {
+		else if(isProjectileItem(itemStack)) {
 			if(item instanceof ArrowItem || item instanceof FireworkRocketItem || item instanceof FireChargeItem) return null;
 			return new ProjectileDeadeyeInteraction(state, player, itemStack);
 		}
 		else return null;
+	}
+
+	public static boolean isProjectileItem(ItemStack stack) {
+		Item item = stack.getItem();
+		if(item instanceof TridentItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderpearlItem || item instanceof ThrowablePotionItem || item instanceof ExperienceBottleItem) {
+			return true;
+		}
+		return false;
 	}
 
 	public static HitResult raycastFromPlayer(Player player, double maxDistance) {

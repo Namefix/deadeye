@@ -1,4 +1,4 @@
-package com.namefix.platform.neoforge;
+package com.namefix.platform.forge;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;

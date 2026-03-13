@@ -4,7 +4,7 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    neoForge()
+    forge()
 }
 
 configurations {
@@ -14,7 +14,7 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentNeoForge.extendsFrom common
+    developmentForge.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
     // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
@@ -24,34 +24,27 @@ configurations {
     }
 }
 
-repositories {
-    maven {
-        name = 'NeoForged'
-        url = 'https://maven.neoforged.net/releases'
-    }
-}
-
 dependencies {
-    neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
+    forge "net.minecraftforge:forge:$rootProject.forge_version"
 
     // Architectury API. This is optional, and you can comment it out if you don't need it.
-    modImplementation "dev.architectury:architectury-neoforge:$rootProject.architectury_api_version"
+    modImplementation "dev.architectury:architectury-forge:$rootProject.architectury_api_version"
 
     // Resourceful Config
-    modImplementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-neoforge-$rconfig_version"
+    modImplementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-forge-$rconfig_version"
 
-    modCompileOnly "curse.maven:geckolib-388172:7415496"
-    modCompileOnly "curse.maven:vics-point-blank-961053:7515178"
+    modCompileOnly "curse.maven:geckolib-388172:7553267"
+    modCompileOnly "curse.maven:vics-point-blank-961053:7664533"
 
-    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
-    shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
+    common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
+    shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 }
 
 processResources {
     inputs.property 'version', project.version
 
-    filesMatching('META-INF/neoforge.mods.toml') {
-        expand version: project.version
+    filesMatching('META-INF/mods.toml') {
+        expand version: inputs.properties.version
     }
 }
 

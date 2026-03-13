@@ -10,7 +10,7 @@ public class RenderEventsImpl implements RenderEvents {
 	public void registerRenderLevelLastEvent() {
 		WorldRenderEvents.END.register(context -> {
 			DeadeyeClient.render();
-			ShaderManager.renderActiveShaders(context.tickCounter().getRealtimeDeltaTicks());
+			ShaderManager.renderActiveShaders(context.tickDelta());
 		});
 	}
 }

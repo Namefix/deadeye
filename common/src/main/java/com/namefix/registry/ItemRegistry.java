@@ -49,7 +49,7 @@ public class ItemRegistry {
 		return ITEMS.register(name, () -> new ItemNameBlockItem(block.get(), new Item.Properties().arch$tab(tab)));
 	}
 	public static <T extends Item> RegistrySupplier<T> registerItem(String name, ItemFactory<T> factory) {
-		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, name));
+		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, new ResourceLocation(DeadeyeMod.MOD_ID, name));
 		return ITEMS.register(name, () -> factory.create(new Item.Properties()));
 	}
 }

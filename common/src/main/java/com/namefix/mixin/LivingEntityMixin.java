@@ -4,7 +4,7 @@ import com.namefix.client.DeadeyeBowVisuals;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.SyncedConfigCache;
 import com.namefix.data.PlayerSavedData;
-import net.minecraft.core.component.DataComponents;
+import com.namefix.util.TickManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +30,7 @@ public class LivingEntityMixin {
 			ItemStack useItem = entity.getUseItem();
 			if(useItem.getItem() instanceof BowItem || useItem.getItem() instanceof CrossbowItem) {
 				int originalTicks = cir.getReturnValue();
-				float curTickRate = entity.level().tickRateManager().tickrate();
+				float curTickRate = TickManager.getTickRate(entity.level());
 				float prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
 				cir.setReturnValue((int) (originalTicks * (prevTickRate / curTickRate)));
 			}
@@ -61,13 +61,13 @@ public class LivingEntityMixin {
 		if(((Object) this) instanceof Player player) {
 			if(player.level().isClientSide) return;
 			ItemStack item = player.getUseItem();
-			FoodProperties food = item.get(DataComponents.FOOD);
+			FoodProperties food = item.getItem().getFoodProperties();
 			if(food == null) return;
 
-			if(food.nutrition() + food.saturation() >= 10) {
-				PlayerSavedData.addDeadeyeCore((ServerPlayer) player, food.nutrition()+food.saturation()/2f, false);
+			if(food.getNutrition() + food.getSaturationModifier() >= 10) {
+				PlayerSavedData.addDeadeyeCore((ServerPlayer) player, food.getNutrition()+food.getSaturationModifier()/2f, false);
 			} else {
-				PlayerSavedData.addDeadeyeCore((ServerPlayer) player, (food.nutrition()+food.saturation())/2f, true);
+				PlayerSavedData.addDeadeyeCore((ServerPlayer) player, (food.getNutrition()+food.getSaturationModifier())/2f, true);
 			}
 		}
 	}

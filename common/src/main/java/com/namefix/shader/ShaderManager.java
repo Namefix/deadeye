@@ -29,8 +29,8 @@ public class ShaderManager {
 	}
 
 	private static void registerShaders() {
-		ShaderManager.registerShader("rdr2_deadeye", ResourceLocation.withDefaultNamespace("shaders/post/rdr2_deadeye.json"));
-		ShaderManager.registerShader("tonic", ResourceLocation.withDefaultNamespace("shaders/post/tonic.json"));
+		ShaderManager.registerShader("rdr2_deadeye", new ResourceLocation("minecraft", "shaders/post/rdr2_deadeye.json"));
+		ShaderManager.registerShader("tonic", new ResourceLocation("minecraft", "shaders/post/tonic.json"));
 	}
 
 	public static void registerShader(String name, ResourceLocation shaderLocation) {

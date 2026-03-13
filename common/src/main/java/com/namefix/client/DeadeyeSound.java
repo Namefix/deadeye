@@ -47,7 +47,7 @@ public class DeadeyeSound {
 		Minecraft mc = Minecraft.getInstance();
 		if(!DeadeyeClient.DEADEYE_ENABLED || mc.isPaused()) return;
 		Player player = mc.player;
-		float delta = mc.getTimer().getRealtimeDeltaTicks();
+		float delta = mc.getDeltaFrameTime();
 		if(player == null) return;
 
 		HEARTBEAT_PHASE_TIME += delta;

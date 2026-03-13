@@ -17,7 +17,7 @@ import org.joml.Vector2i;
 import static com.namefix.client.DeadeyeClient.DEADEYE_STATE;
 
 public class ClientUtils {
-	private static final Tesselator HUD_TESSELATOR = new Tesselator();
+	private static final Tesselator HUD_TESSELATOR = Tesselator.getInstance();
 
 	public static DeadeyeTargetData getNextValidTarget() {
 		if(!DEADEYE_STATE.targets.isEmpty()) {
@@ -92,18 +92,19 @@ public class ClientUtils {
 		if (radius <= 0f) return;
 		float zLevel = -90f;
 		Matrix4f poseMatrix = guiGraphics.pose().last().pose();
-		BufferBuilder bufferBuilder = HUD_TESSELATOR.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder bufferBuilder = HUD_TESSELATOR.getBuilder();
+		bufferBuilder.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
 		int segmentCount = Math.max(48, Mth.ceil(radius * 1.5f));
-		bufferBuilder.addVertex(poseMatrix, centerX, centerY, zLevel).setColor(red, green, blue, alpha);
+		bufferBuilder.vertex(poseMatrix, centerX, centerY, zLevel).color(red, green, blue, alpha).endVertex();
 		for (int i = 0; i <= segmentCount; i++) {
 			float angle = (float)(Math.PI * 2f * i / (float)segmentCount);
 			float x = centerX + Mth.cos(angle) * radius;
 			float y = centerY + Mth.sin(angle) * radius;
-			bufferBuilder.addVertex(poseMatrix, x, y, zLevel).setColor(red, green, blue, alpha);
+			bufferBuilder.vertex(poseMatrix, x, y, zLevel).color(red, green, blue, alpha).endVertex();
 		}
 		RenderSystem.disableCull();
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+		BufferUploader.drawWithShader(bufferBuilder.end());
 		RenderSystem.enableCull();
 	}
 }

@@ -15,7 +15,7 @@ import com.namefix.registry.KeybindRegistry;
 import com.namefix.registry.SoundEventRegistry;
 import com.namefix.server.DeadeyeServer;
 import com.namefix.shader.ShaderManager;
-import com.teamresourceful.resourcefulconfig.api.loader.Configurator;
+import com.teamresourceful.resourcefulconfig.common.config.Configurator;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
@@ -28,12 +28,12 @@ import org.slf4j.LoggerFactory;
 public final class DeadeyeMod {
     public static final String MOD_ID = "deadeye";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-    public static final Configurator CONFIGURATOR = new Configurator(MOD_ID);
+    public static final Configurator CONFIGURATOR = new Configurator();
 
     // COMMON INIT
     public static void init() {
         DeadeyeMod.LOGGER.info("Initializing Dead Eye. People don't forget, nothing gets forgiven.");
-        CONFIGURATOR.register(DeadeyeConfig.class);
+        CONFIGURATOR.registerConfig(DeadeyeConfig.class);
         DeadeyeCommandRegistry.initialize();
         SoundEventRegistry.register();
         BlockRegistry.register();

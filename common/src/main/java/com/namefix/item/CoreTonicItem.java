@@ -54,7 +54,7 @@ public class CoreTonicItem extends Item {
 		}
 
 		player.awardStat(Stats.ITEM_USED.get(this));
-		itemStack.consume(1, player);
+		if(!player.getAbilities().instabuild) itemStack.shrink(1);
 
 		player.gameEvent(isEaten ? GameEvent.EAT : GameEvent.DRINK);
 		return itemStack;
@@ -66,7 +66,7 @@ public class CoreTonicItem extends Item {
 	}
 
 	@Override
-	public int getUseDuration(ItemStack itemStack, LivingEntity livingEntity) {
+	public int getUseDuration(ItemStack itemStack) {
 		return 32;
 	}
 

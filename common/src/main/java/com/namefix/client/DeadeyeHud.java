@@ -6,8 +6,8 @@ import com.namefix.DeadeyeMod;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.data.PlayerSavedData;
 import com.namefix.util.ClientUtils;
+import com.namefix.util.TickManager;
 import com.namefix.util.Utils;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,22 +23,22 @@ import java.util.stream.IntStream;
 public class DeadeyeHud {
 
 	// SPRITES
-	private static final ResourceLocation DEADEYE_MARK_SPRITE = ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, "textures/cross.png");
+	private static final ResourceLocation DEADEYE_MARK_SPRITE = new ResourceLocation(DeadeyeMod.MOD_ID, "textures/cross.png");
 
 	private static final List<ResourceLocation> DEADEYE_LIGHTLEAK_SPRITES = IntStream.rangeClosed(1,15)
-			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/lightleak/lightleak%02d.png", i)))
+			.mapToObj(i -> new ResourceLocation(DeadeyeMod.MOD_ID, String.format("textures/lightleak/lightleak%02d.png", i)))
 			.toList();
 
 	private static final List<ResourceLocation> DEADEYE_CORE_SPRITES = IntStream.rangeClosed(1, 16)
-			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/core/core%02d.png", i)))
+			.mapToObj(i -> new ResourceLocation(DeadeyeMod.MOD_ID, String.format("textures/core/core%02d.png", i)))
 			.toList();
 
 	private static final List<ResourceLocation> DEADEYE_METER_TRACK_SPRITES = IntStream.rangeClosed(1, 10)
-			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/metertrack/track%02d.png", i)))
+			.mapToObj(i -> new ResourceLocation(DeadeyeMod.MOD_ID, String.format("textures/metertrack/track%02d.png", i)))
 			.toList();
 
 	private static final List<ResourceLocation> DEADEYE_METER_SPRITES = IntStream.rangeClosed(1, 100)
-			.mapToObj(i -> ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, String.format("textures/meter/meter%02d.png", i)))
+			.mapToObj(i -> new ResourceLocation(DeadeyeMod.MOD_ID, String.format("textures/meter/meter%02d.png", i)))
 			.toList();
 
 	// Lightleak effect
@@ -62,30 +62,30 @@ public class DeadeyeHud {
 	private static float LEVEL_COUNTER = -1f;
 	private static int LEVEL_PERCENT = 0;
 
-	public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public static void render(GuiGraphics guiGraphics, float delta) {
 		Minecraft mc = Minecraft.getInstance();
 
 		if(!mc.options.hideGui && !mc.player.isSpectator()) {
 			if (!DeadeyeConfig.HUD.hudPosition.equals(DeadeyeConfig.HUD.HudPosition.DISABLED) && DeadeyeClient.DEADEYE_DATA.deadeyeSkill > 0) {
-				renderDeadeyeHUD(guiGraphics, deltaTracker);
+				renderDeadeyeHUD(guiGraphics, delta);
 			}
 
 			if(DeadeyeConfig.HUD.enableInfoToast) {
-				if (INFO_COUNTER != -1f) renderDeadeyeInfo(guiGraphics, deltaTracker);
-				if (LEVEL_COUNTER != -1f) renderDeadeyeLevelUp(guiGraphics, deltaTracker);
+				if (INFO_COUNTER != -1f) renderDeadeyeInfo(guiGraphics, delta);
+				if (LEVEL_COUNTER != -1f) renderDeadeyeLevelUp(guiGraphics, delta);
 			}
 		}
 		if(DeadeyeClient.DEADEYE_ENABLED) {
-			renderTargetMarks(guiGraphics, deltaTracker);
-			if(LIGHTLEAK_FRAME < 15) renderLightLeak(guiGraphics, deltaTracker);
+			renderTargetMarks(guiGraphics, delta);
+			if(LIGHTLEAK_FRAME < 15) renderLightLeak(guiGraphics, delta);
 		}
 	}
 
-	public static void renderTargetMarks(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		final float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+	public static void renderTargetMarks(GuiGraphics guiGraphics, float delta) {
+		final float partialTick = TickManager.getGameTimeDeltaPartialTick(Minecraft.getInstance(), false);
 		DeadeyeClient.DEADEYE_STATE.targets.forEach((mark) -> {
 			mark.incrementRenderTicks();
-			float deltaRenderTicks = mark.getRenderTicks() * deltaTracker.getRealtimeDeltaTicks()*2f;
+			float deltaRenderTicks = mark.getRenderTicks() * TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) * 2f;
 
 			float markSize = 5f*DeadeyeConfig.Client.targetMarkSize;
 			Vec2 markPos = Utils.worldToScreen(mark.getMarkPosition(partialTick), partialTick);
@@ -122,7 +122,7 @@ public class DeadeyeHud {
 		guiGraphics.setColor(1f, 1f, 1f, 1f);
 	}
 
-	public static void renderLightLeak(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public static void renderLightLeak(GuiGraphics guiGraphics, float delta) {
 		int width = guiGraphics.guiWidth();
 		int height = guiGraphics.guiHeight();
 
@@ -143,7 +143,7 @@ public class DeadeyeHud {
 		RenderSystem.disableBlend();
 		RenderSystem.enableDepthTest();
 
-		LIGHTLEAK_TIME += deltaTracker.getRealtimeDeltaTicks();
+		LIGHTLEAK_TIME += TickManager.getRealtimeDeltaTicks(Minecraft.getInstance());
 		LIGHTLEAK_FRAME = Mth.floor(LIGHTLEAK_TIME / 0.6f);
 	}
 
@@ -153,11 +153,11 @@ public class DeadeyeHud {
 		LIGHTLEAK_DIRECTION = Minecraft.getInstance().player.getRandom().nextBoolean();
 	}
 
-	public static void renderDeadeyeHUD(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		updateDeadeyeAnimations(deltaTracker);
+	public static void renderDeadeyeHUD(GuiGraphics guiGraphics, float delta) {
+		updateDeadeyeAnimations(delta);
 		renderDeadeyeBackground(guiGraphics);
-		renderDeadeyeCore(guiGraphics, deltaTracker);
-		renderDeadeyeMeter(guiGraphics, deltaTracker);
+		renderDeadeyeCore(guiGraphics, delta);
+		renderDeadeyeMeter(guiGraphics, delta);
 	}
 
 	public static void renderDeadeyeBackground(GuiGraphics guiGraphics) {
@@ -192,8 +192,8 @@ public class DeadeyeHud {
 		RenderSystem.disableBlend();
 	}
 
-	private static void updateDeadeyeAnimations(DeltaTracker deltaTracker) {
-		float realtimeDeltaTicks = deltaTracker.getRealtimeDeltaTicks();
+	private static void updateDeadeyeAnimations(float delta) {
+		float realtimeDeltaTicks = TickManager.getRealtimeDeltaTicks(Minecraft.getInstance());
 		float deltaSeconds = realtimeDeltaTicks / 20f;
 		boolean usingDeadeyeCore = DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeCore(DeadeyeClient.DEADEYE_DATA);
 		boolean usingDeadeyeMeter = DeadeyeClient.DEADEYE_ENABLED && PlayerSavedData.usingDeadeyeMeter(DeadeyeClient.DEADEYE_DATA);
@@ -236,7 +236,7 @@ public class DeadeyeHud {
 		}
 	}
 
-	public static void renderDeadeyeCore(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public static void renderDeadeyeCore(GuiGraphics guiGraphics, float delta) {
 		float currentCore = DeadeyeClient.DEADEYE_DATA.deadeyeCore;
 
 		if (LAST_DEADEYE_CORE > 20f) {
@@ -261,7 +261,7 @@ public class DeadeyeHud {
 
 		boolean hideCoreThisFrame = false;
 		if (DEADEYE_CORE_BLINK > 0f) {
-			DEADEYE_CORE_BLINK = Mth.clamp(DEADEYE_CORE_BLINK - deltaTracker.getRealtimeDeltaTicks() / 16f, 0f, 1f);
+			DEADEYE_CORE_BLINK = Mth.clamp(DEADEYE_CORE_BLINK - TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) / 16f, 0f, 1f);
 			int phase = (int)(DEADEYE_CORE_BLINK * 4f);
 			if((phase & 1) == 1) hideCoreThisFrame = true;
 		}
@@ -306,7 +306,7 @@ public class DeadeyeHud {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderDeadeyeMeter(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public static void renderDeadeyeMeter(GuiGraphics guiGraphics, float delta) {
 		float currentMeter = DeadeyeClient.DEADEYE_DATA.deadeyeMeter;
 		PlayerSavedData data = DeadeyeClient.DEADEYE_DATA;
 
@@ -335,7 +335,7 @@ public class DeadeyeHud {
 
 		boolean hideMeterThisFrame = false;
 		if (DEADEYE_METER_BLINK > 0f) {
-			DEADEYE_METER_BLINK = Mth.clamp(DEADEYE_METER_BLINK - deltaTracker.getRealtimeDeltaTicks() / 16f, 0f, 1f);
+			DEADEYE_METER_BLINK = Mth.clamp(DEADEYE_METER_BLINK - TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) / 16f, 0f, 1f);
 			int phase = (int)(DEADEYE_METER_BLINK * 4f);
 			if((phase & 1) == 1) hideMeterThisFrame = true;
 		}
@@ -369,8 +369,8 @@ public class DeadeyeHud {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderDeadeyeInfo(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		INFO_COUNTER += deltaTracker.getRealtimeDeltaTicks() / 20f;
+	public static void renderDeadeyeInfo(GuiGraphics guiGraphics, float delta) {
+		INFO_COUNTER += TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) / 20f;
 		float duration = 5.5f;
 		float fadeDuration = 0.25f;
 		float opacity;
@@ -412,8 +412,8 @@ public class DeadeyeHud {
 		return INFO_COUNTER >= 0;
 	}
 
-	public static void renderDeadeyeLevelUp(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		LEVEL_COUNTER += deltaTracker.getRealtimeDeltaTicks() / 20f;
+	public static void renderDeadeyeLevelUp(GuiGraphics guiGraphics, float delta) {
+		LEVEL_COUNTER += TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) / 20f;
 		float duration = 5.5f;
 		float fadeDuration = 0.25f;
 		float opacity;

@@ -17,6 +17,7 @@
     "BowItemMixin",
     "CrossbowItemMixin",
     "LivingEntityMixin",
+    "MinecraftServerMixin",
     "PlayerMixin",
     "ProjectileWeaponItemMixin",
     "ServerPlayerMixin"

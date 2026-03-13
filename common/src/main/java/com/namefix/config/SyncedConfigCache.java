@@ -1,6 +1,7 @@
 package com.namefix.config;
 
 import com.namefix.DeadeyeMod;
+import com.namefix.network.DeadeyeNetwork;
 import com.namefix.network.payload.ConfigSyncPayload;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.client.server.IntegratedServer;
@@ -17,7 +18,10 @@ public class SyncedConfigCache {
 	}
 
 	public static void sendConfigData(ServerPlayer player) {
-		NetworkManager.sendToPlayer(player, new ConfigSyncPayload(DeadeyeConfig.Server.bowPullCompensation, DeadeyeConfig.Server.instantGunReload));
+		ConfigSyncPayload payload = new ConfigSyncPayload(DeadeyeConfig.Server.bowPullCompensation, DeadeyeConfig.Server.instantGunReload);
+		var buffer = DeadeyeNetwork.createBuffer();
+		payload.write(buffer);
+		DeadeyeNetwork.sendToPlayer(player, DeadeyeNetwork.CONFIG_SYNC, buffer);
 		DeadeyeMod.LOGGER.debug("Sent config data to {}", player.getDisplayName());
 	}
 

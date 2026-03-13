@@ -20,11 +20,11 @@ public final class DeadeyeBowVisuals {
 	private DeadeyeBowVisuals() {}
 
 	public static void registerItemProperties() {
-		ItemPropertiesRegistry.register(Items.BOW, ResourceLocation.parse("pull"), (itemStack, world, entity, seed) -> resolvePullProperty(itemStack, entity, false));
-		ItemPropertiesRegistry.register(Items.BOW, ResourceLocation.parse("pulling"), (itemStack, world, entity, seed) -> resolvePullingProperty(itemStack, entity, false));
-		ItemPropertiesRegistry.register(Items.CROSSBOW, ResourceLocation.parse("pull"), (itemStack, world, entity, seed) -> resolvePullProperty(itemStack, entity, true));
-		ItemPropertiesRegistry.register(Items.CROSSBOW, ResourceLocation.parse("pulling"), (itemStack, world, entity, seed) -> resolvePullingProperty(itemStack, entity, true));
-		ItemPropertiesRegistry.register(Items.CROSSBOW, ResourceLocation.parse("charged"), (itemStack, world, entity, seed) -> resolveChargedProperty(itemStack, entity));
+		ItemPropertiesRegistry.register(Items.BOW, new ResourceLocation("pull"), (itemStack, world, entity, seed) -> resolvePullProperty(itemStack, entity, false));
+		ItemPropertiesRegistry.register(Items.BOW, new ResourceLocation("pulling"), (itemStack, world, entity, seed) -> resolvePullingProperty(itemStack, entity, false));
+		ItemPropertiesRegistry.register(Items.CROSSBOW, new ResourceLocation("pull"), (itemStack, world, entity, seed) -> resolvePullProperty(itemStack, entity, true));
+		ItemPropertiesRegistry.register(Items.CROSSBOW, new ResourceLocation("pulling"), (itemStack, world, entity, seed) -> resolvePullingProperty(itemStack, entity, true));
+		ItemPropertiesRegistry.register(Items.CROSSBOW, new ResourceLocation("charged"), (itemStack, world, entity, seed) -> resolveChargedProperty(itemStack, entity));
 	}
 
 	public static void reset() {
@@ -148,7 +148,7 @@ public final class DeadeyeBowVisuals {
 		int getForcedRemainingTicks(Player player) {
 			if(!shouldForceItemUse(player)) return -1;
 			ItemStack held = player.getItemInHand(hand);
-			int duration = held.getUseDuration(player);
+			int duration = held.getUseDuration();
 			int usedTicks = getForcedUsedTicks();
 			return Math.max(duration - usedTicks, 0);
 		}

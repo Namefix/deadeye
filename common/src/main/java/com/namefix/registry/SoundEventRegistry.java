@@ -25,7 +25,7 @@ public class SoundEventRegistry {
 	public static final RegistrySupplier<SoundEvent> UI_APPEAR = registerDefaultSound("ui_appear");
 
 	private static RegistrySupplier<SoundEvent> registerDefaultSound(String id) {
-		return SOUNDS.register(id, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, id)));
+		return SOUNDS.register(id, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(DeadeyeMod.MOD_ID, id)));
 	}
 
 	public static void register() {

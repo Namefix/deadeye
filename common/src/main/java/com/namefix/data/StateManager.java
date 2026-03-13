@@ -6,8 +6,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +18,7 @@ public class StateManager extends SavedData {
 	public HashMap<UUID, PlayerSavedData> players = new HashMap<>();
 
 	@Override
-	public @NotNull CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
+	public @NotNull CompoundTag save(CompoundTag compoundTag) {
 		CompoundTag playersTag = new CompoundTag();
 		players.forEach(((uuid, playerSavedData) -> {
 			CompoundTag playerTag = new CompoundTag();
@@ -40,7 +38,7 @@ public class StateManager extends SavedData {
 		return compoundTag;
 	}
 
-	public static StateManager createFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+	public static StateManager createFromNbt(CompoundTag compoundTag) {
 		StateManager state = new StateManager();
 		CompoundTag playersTag = compoundTag.getCompound("players");
 		playersTag.getAllKeys().forEach(key -> {
@@ -66,17 +64,11 @@ public class StateManager extends SavedData {
 		return new StateManager();
 	}
 
-	private static final Factory<StateManager> type = new Factory<>(
-			StateManager::createNew,
-			StateManager::createFromNbt,
-			null
-	);
-
 	public static StateManager getServerState(MinecraftServer server) {
 		ServerLevel world = server.getLevel(Level.OVERWORLD);
 		assert world != null;
 
-		StateManager state = world.getDataStorage().computeIfAbsent(type, DeadeyeMod.MOD_ID);
+		StateManager state = world.getDataStorage().computeIfAbsent(StateManager::createFromNbt, StateManager::new, DeadeyeMod.MOD_ID);
 
 		state.setDirty();
 		return state;

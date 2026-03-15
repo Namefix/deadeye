@@ -7,6 +7,13 @@ architectury {
     forge()
 }
 
+loom {
+    forge {
+        mixinConfig "deadeye.mixins.json"
+        mixinConfig "deadeye.forge.integrations.mixins.json"
+    }
+}
+
 configurations {
     common {
         canBeResolved = true
@@ -22,7 +29,47 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+
 }
+
+def rawGeckoLibJar = providers.provider {
+    def candidates = fileTree(new File(gradle.gradleUserHomeDir, "caches/modules-2/files-2.1/curse.maven/geckolib-388172/7553267")) {
+        include "**/geckolib-388172-7553267.jar"
+    }.files
+
+    if (candidates.isEmpty()) {
+        throw new GradleException("Could not locate raw GeckoLib jar in Gradle cache.")
+    }
+
+    candidates.iterator().next()
+}
+
+def patchedGeckoLibJar = layout.buildDirectory.file("generated/forge-runtime-libs/geckolib-with-mclib-dev.jar")
+def patchedGeckoLibTempDir = layout.buildDirectory.dir("tmp/geckolib-patched")
+
+def patchGeckoLibForForgeDev = tasks.register("patchGeckoLibForForgeDev") {
+    outputs.file(patchedGeckoLibJar)
+
+    doLast {
+        File targetJar = patchedGeckoLibJar.get().asFile
+        File tempDir = patchedGeckoLibTempDir.get().asFile
+
+        delete(tempDir)
+        delete(targetJar)
+        tempDir.mkdirs()
+        targetJar.parentFile.mkdirs()
+
+        copy {
+            from(zipTree(rawGeckoLibJar.get()))
+            into(tempDir)
+        }
+
+        ant.unzip(src: new File(tempDir, "META-INF/jarjar/mclib-20.jar"), dest: tempDir)
+        ant.zip(destfile: targetJar, basedir: tempDir)
+    }
+}
+
+def geckoLibPatchedRuntimeFiles = files(patchedGeckoLibJar).builtBy(patchGeckoLibForForgeDev)
 
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
@@ -35,6 +82,8 @@ dependencies {
 
     modCompileOnly "curse.maven:geckolib-388172:7553267"
     modCompileOnly "curse.maven:vics-point-blank-961053:7664533"
+    modLocalRuntime geckoLibPatchedRuntimeFiles
+    modLocalRuntime "curse.maven:vics-point-blank-961053:7664533"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')

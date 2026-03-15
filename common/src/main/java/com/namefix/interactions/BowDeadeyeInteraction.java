@@ -147,13 +147,23 @@ public class BowDeadeyeInteraction extends AbstractDeadeyeInteraction {
 		if(!CrossbowItem.isCharged(stack)) return;
 
 		ListTag chargedProjectiles = getChargedProjectiles(stack);
-		if(chargedProjectiles.isEmpty()) return;
+		if(chargedProjectiles.isEmpty()) {
+			resetCrossbowChargeState(stack);
+			return;
+		}
 
 		boolean hasFirework = containsFireworkProjectile(chargedProjectiles);
 		double projectileSpeed = hasFirework ? 1.6d : 3.15d;
 		double projectileGravity = hasFirework ? 0.0d : 0.05d;
 		alignPlayerForShot(targetData, target, projectileSpeed, projectileGravity);
 		CrossbowItem.performShooting(player.level(), player, InteractionHand.MAIN_HAND, stack, (float) projectileSpeed, 1.0f);
+		resetCrossbowChargeState(stack);
+	}
+
+	private static void resetCrossbowChargeState(ItemStack stack) {
+		CompoundTag tag = stack.getOrCreateTag();
+		tag.putBoolean("Charged", false);
+		tag.put("ChargedProjectiles", new ListTag());
 	}
 
 	private static ListTag getChargedProjectiles(ItemStack stack) {

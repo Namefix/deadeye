@@ -6,11 +6,6 @@ import net.minecraftforge.fml.ModList;
 public final class ForgeIntegrationMixinPlugin extends IntegrationMixinPluginBase {
 	@Override
 	protected boolean isModLoaded(String modId) {
-		ModList modList = ModList.get();
-		if (modList != null) {
-			return modList.isLoaded(modId);
-		}
-
 		try {
 			Class<?> fmlLoaderClass = Class.forName("net.minecraftforge.fml.loading.FMLLoader");
 			Object loadingModList = fmlLoaderClass.getMethod("getLoadingModList").invoke(null);
@@ -19,6 +14,11 @@ public final class ForgeIntegrationMixinPlugin extends IntegrationMixinPluginBas
 				return modFile != null;
 			}
 		} catch (Throwable ignored) {
+		}
+
+		ModList modList = ModList.get();
+		if (modList != null) {
+			return modList.isLoaded(modId);
 		}
 
 		return true;

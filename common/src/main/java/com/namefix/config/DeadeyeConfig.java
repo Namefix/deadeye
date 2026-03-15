@@ -10,13 +10,16 @@ import net.minecraft.client.Minecraft;
 public final class DeadeyeConfig {
 	@Category(id = "Server", translation = "Server")
 	public final static class Server {
-		/*@ConfigButton(text = "config.deadeye.reload")
-		public static final Runnable button = () -> {
+		@ConfigButton(
+				translation = "config.deadeye.reloadServerConfig",
+				text = "config.deadeye.reload"
+		)
+		public static void reloadServerConfig() {
 			Minecraft mc = Minecraft.getInstance();
 			if(mc.level == null) return;
 			if(mc.getSingleplayerServer() == null) return;
 			SyncedConfigCache.reloadAndSyncIntegratedServer(mc.getSingleplayerServer());
-		};*/
+		}
 
 		@ConfigEntry(
 				id = "deadeyeTickRate",

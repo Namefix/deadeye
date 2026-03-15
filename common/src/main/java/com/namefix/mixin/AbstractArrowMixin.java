@@ -1,6 +1,7 @@
 package com.namefix.mixin;
 
 import com.namefix.server.DeadeyeServer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.EntityHitResult;
@@ -14,16 +15,18 @@ public class AbstractArrowMixin {
 	// prevents invulnerability ticks when the entity gets hit by arrows in Dead Eye
 	@Inject(
 			method = "onHitEntity",
-			at = @At(
-					value = "INVOKE",
-					target = "Ljava/lang/Math;max(DD)D"
-			)
+			at = @At("TAIL")
 	)
 	private void deadeye$preventInvTime(EntityHitResult entityHitResult, CallbackInfo ci) {
 		AbstractArrow arrow = (AbstractArrow) (Object) this;
 
 		if(arrow.getOwner() instanceof Player player) {
-			if(DeadeyeServer.DeadeyeStates.containsKey(player)) entityHitResult.getEntity().invulnerableTime = 0;
+			boolean ownerInDeadeye = DeadeyeServer.DeadeyeStates.containsKey(player)
+				|| DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()));
+
+			if(ownerInDeadeye && entityHitResult.getEntity() instanceof LivingEntity livingEntity) {
+				livingEntity.invulnerableTime = 0;
+			}
 		}
 	}
 }

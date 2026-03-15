@@ -139,6 +139,6 @@ public class PointBlankGunMixin {
 	@Inject(method = "processServerReloadResponse", at = @At("TAIL"))
 	private void deadeye$syncHudAmmoNow(int correlationId, boolean success, ItemStack itemStack, GunClientState state, int ammo, FireModeInstance fireModeInstance, CallbackInfo ci) {
 		if(!success || state == null || fireModeInstance == null) return;
-		((PointBlankGunClientStateAccessor) state).deadeye$getAmmoCount().setAmmoCount(fireModeInstance, ammo);
+		PointBlankIntegrationImpl.setClientAmmoCount(state, fireModeInstance, ammo);
 	}
 }

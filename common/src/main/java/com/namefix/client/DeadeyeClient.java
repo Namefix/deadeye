@@ -138,7 +138,7 @@ public class DeadeyeClient {
 			if(interaction.clientSideShoot) interaction.shoot();
 			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
 			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
-			DEADEYE_STATE.targets.remove(0);
+			if(!DEADEYE_STATE.targets.isEmpty()) DEADEYE_STATE.targets.remove(0);
 
 			LAST_DEADEYE_LERP = System.currentTimeMillis();
 			LAST_DEADEYE_SHOT = System.currentTimeMillis();

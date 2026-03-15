@@ -23,10 +23,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.material.FogType;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 public class Utils {
 	public static Vec2 getHeadingFromTarget(Entity entity, EntityAnchorArgument.Anchor anchorPoint, Vec3 target) {
@@ -161,31 +158,52 @@ public class Utils {
 	// convert world space coordinates to screenspace
 	public static Vec2 worldToScreen(Vec3 worldPos, float partialTick) {
 		Minecraft minecraft = Minecraft.getInstance();
+		Window window = minecraft.getWindow();
+		return worldToScreen(worldPos, partialTick, window.getGuiScaledWidth(), window.getGuiScaledHeight());
+	}
+
+	public static Vec2 worldToScreen(Vec3 worldPos, float partialTick, int guiWidth, int guiHeight) {
+		Minecraft minecraft = Minecraft.getInstance();
 		GameRenderer renderer = minecraft.gameRenderer;
 		Camera camera = renderer.getMainCamera();
-		Window window = minecraft.getWindow();
-
-		int guiWidth = window.getGuiScaledWidth();
-		int guiHeight = window.getGuiScaledHeight();
 		if(guiWidth <= 0 || guiHeight <= 0) return null;
+		if(camera == null) return null;
+		Entity cameraEntity = camera.getEntity();
+		if(cameraEntity == null) return null;
 
 		Vec3 cameraPos = camera.getPosition();
-		Vector3f relative = new Vector3f((float)(worldPos.x - cameraPos.x), (float)(worldPos.y - cameraPos.y), (float)(worldPos.z - cameraPos.z));
+		Vec3 toTarget = worldPos.subtract(cameraPos);
+		if(toTarget.lengthSqr() <= 1.0e-7d) return null;
 
-		Quaternionf rotation = new Quaternionf(camera.rotation()).conjugate();
-		relative.rotate(rotation);
-		if(relative.z >= 0f) return null;
+		Vec3 lookVec = cameraEntity.getViewVector(partialTick).normalize();
+		if(lookVec.lengthSqr() <= 1.0e-7d) return null;
+
+		Vec3 worldUp = new Vec3(0.0d, 1.0d, 0.0d);
+		Vec3 rightVec = lookVec.cross(worldUp);
+		if(rightVec.lengthSqr() <= 1.0e-7d) {
+			rightVec = new Vec3(1.0d, 0.0d, 0.0d);
+		} else {
+			rightVec = rightVec.normalize();
+		}
+		Vec3 upVec = rightVec.cross(lookVec).normalize();
+
+		double depth = toTarget.dot(lookVec);
+		if(depth <= 0.0d) return null;
+
+		double viewX = toTarget.dot(rightVec);
+		double viewY = toTarget.dot(upVec);
 
 		double fov = resolveFov(minecraft, camera, partialTick);
-		Matrix4f projection = renderer.getProjectionMatrix(fov);
+		double verticalHalfFovRadians = Math.toRadians(fov * 0.5d);
+		double tanVerticalHalfFov = Math.tan(verticalHalfFovRadians);
+		if(!Double.isFinite(tanVerticalHalfFov) || tanVerticalHalfFov <= 0.0d) return null;
 
-		Vector4f clipSpace = new Vector4f(relative.x, relative.y, relative.z, 1.0f);
-		projection.transform(clipSpace);
+		double aspectRatio = (double) guiWidth / (double) guiHeight;
+		double tanHorizontalHalfFov = tanVerticalHalfFov * aspectRatio;
 
-		if(clipSpace.w <= 0f) return null;
-
-		float ndcX = clipSpace.x / clipSpace.w;
-		float ndcY = clipSpace.y / clipSpace.w;
+		float ndcX = (float) ((viewX / depth) / tanHorizontalHalfFov);
+		float ndcY = (float) ((viewY / depth) / tanVerticalHalfFov);
+		if(!Float.isFinite(ndcX) || !Float.isFinite(ndcY)) return null;
 
 		float screenX = (ndcX * 0.5f + 0.5f) * (float) guiWidth;
 		float screenY = (0.5f - ndcY * 0.5f) * (float) guiHeight;
@@ -227,16 +245,21 @@ public class Utils {
 	}
 
 	public static boolean isOnScreen(Vec2 screenPos) {
-		if(screenPos == null) return false;
 		Minecraft minecraft = Minecraft.getInstance();
 		Window window = minecraft.getWindow();
+		return isOnScreen(screenPos, window.getGuiScaledWidth(), window.getGuiScaledHeight());
+	}
 
-		float screenWidth = (float)window.getGuiScaledWidth();
-		float screenHeight = (float)window.getGuiScaledHeight();
+	public static boolean isOnScreen(Vec2 screenPos, int screenWidth, int screenHeight) {
+		if(screenPos == null) return false;
+		if(screenWidth <= 0 || screenHeight <= 0) return false;
+
+		float width = (float) screenWidth;
+		float height = (float) screenHeight;
 
 		if(Float.isNaN(screenPos.x) || Float.isNaN(screenPos.y)) return false;
 		if(Float.isInfinite(screenPos.x) || Float.isInfinite(screenPos.y)) return false;
 
-		return screenPos.x >= 0f && screenPos.x <= screenWidth && screenPos.y >= 0f && screenPos.y <= screenHeight;
+		return screenPos.x >= 0f && screenPos.x <= width && screenPos.y >= 0f && screenPos.y <= height;
 	}
 }

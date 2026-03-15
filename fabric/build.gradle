@@ -48,6 +48,8 @@ dependencies {
 
     // Resourceful Config
     modImplementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-fabric-$rconfig_version"
+    modCompileOnly "com.terraformersmc:modmenu:$rootProject.modmenu_version"
+    modLocalRuntime "com.terraformersmc:modmenu:$rootProject.modmenu_version"
 
     modCompileOnly "curse.maven:geckolib-388172:7553256"
     modCompileOnly "curse.maven:vics-point-blank-961053:7679728"

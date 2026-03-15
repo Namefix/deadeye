@@ -12,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,8 +55,27 @@ public final class PointBlankIntegrationImpl {
 		GunClientState state = GunClientState.getState(player, item, player.getInventory().selected, false);
 		if(state != null && fireMode != null) {
 			int maxAmmo = gun.getMaxAmmoCapacity(item, fireMode);
-			((PointBlankGunClientStateAccessor) state).deadeye$getAmmoCount().setAmmoCount(fireMode, maxAmmo);
+			setClientAmmoCount(state, fireMode, maxAmmo);
 		}
+	}
+
+	public static void setClientAmmoCount(GunClientState state, FireModeInstance fireMode, int ammo) {
+		if(state == null || fireMode == null) return;
+
+		if(state instanceof PointBlankGunClientStateAccessor accessor) {
+			accessor.deadeye$getAmmoCount().setAmmoCount(fireMode, ammo);
+			return;
+		}
+
+		try {
+			Field ammoCountField = state.getClass().getDeclaredField("ammoCount");
+			ammoCountField.setAccessible(true);
+			Object ammoCount = ammoCountField.get(state);
+			if(ammoCount == null) return;
+
+			Method setAmmoCount = ammoCount.getClass().getMethod("setAmmoCount", FireModeInstance.class, int.class);
+			setAmmoCount.invoke(ammoCount, fireMode, ammo);
+		} catch (Throwable ignored) {}
 	}
 
 	public static boolean consumePendingInstantReload(Player player) {

@@ -22,6 +22,9 @@
     "client": [
       "com.namefix.fabric.client.DeadeyeFabricClient"
     ],
+    "modmenu": [
+      "com.namefix.fabric.client.DeadeyeModMenuIntegration"
+    ],
     "fabric-datagen": [
       "com.namefix.fabric.datagen.DeadeyeDataGenerator"
     ]
@@ -39,6 +42,7 @@
     "fabric-api": "*"
   },
   "suggests": {
-    "another-mod": "*"
+    "another-mod": "*",
+    "modmenu": "*"
   }
 }

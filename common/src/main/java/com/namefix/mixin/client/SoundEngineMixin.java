@@ -3,11 +3,9 @@ package com.namefix.mixin.client;
 import com.namefix.DeadeyeMod;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.DeadeyeConfig;
-import com.namefix.util.TickManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
-import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,17 +16,20 @@ public class SoundEngineMixin {
 	@Inject(method = "calculatePitch", at = @At("RETURN"), cancellable = true)
 	private void deadeye$modifyPitch(SoundInstance instance, CallbackInfoReturnable<Float> cir) {
 		Minecraft mc = Minecraft.getInstance();
-		if(!DeadeyeConfig.Client.pitchShift || mc.player == null || mc.level == null | mc.isPaused()) return;
+		if(!DeadeyeConfig.Client.pitchShift || mc.player == null || mc.level == null || mc.isPaused()) return;
 		float originalPitch = cir.getReturnValue();
-		Player player = Minecraft.getInstance().player;
 
 		if(DeadeyeClient.DEADEYE_ENABLED) {
 			if(instance.getLocation().getNamespace().equals(DeadeyeMod.MOD_ID)) return;
 			if(instance.getLocation().toString().equals("pointblank:hit_light") || instance.getLocation().toString().equals("pointblank:hit_heavy") || instance.getLocation().toString().equals("pointblank:hit_headshot")) return;
-			float curTickRate = TickManager.getTickRate(player.level());
-			float prevTickRate = DeadeyeClient.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeClient.PREVIOUS_TICK_RATE;
+			float curTickRate = DeadeyeClient.getEffectiveCurrentTickRate();
+			float prevTickRate = DeadeyeClient.getEffectivePreviousTickRate();
+			if(curTickRate <= 0.0f || prevTickRate <= 0.0f) return;
 
-			cir.setReturnValue(originalPitch / (prevTickRate / curTickRate));
+			float pitchScale = prevTickRate / curTickRate;
+			if(!Float.isFinite(pitchScale) || pitchScale <= 0.0f) return;
+
+			cir.setReturnValue(originalPitch / pitchScale);
 		}
 	}
 }

@@ -83,13 +83,15 @@ public class DeadeyeHud {
 
 	public static void renderTargetMarks(GuiGraphics guiGraphics, float delta) {
 		final float partialTick = TickManager.getGameTimeDeltaPartialTick(Minecraft.getInstance(), false);
+		final int guiWidth = guiGraphics.guiWidth();
+		final int guiHeight = guiGraphics.guiHeight();
 		DeadeyeClient.DEADEYE_STATE.targets.forEach((mark) -> {
 			mark.incrementRenderTicks();
 			float deltaRenderTicks = mark.getRenderTicks() * TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) * 2f;
 
 			float markSize = 5f*DeadeyeConfig.Client.targetMarkSize;
-			Vec2 markPos = Utils.worldToScreen(mark.getMarkPosition(partialTick), partialTick);
-			if(!Utils.isOnScreen(markPos)) return;
+			Vec2 markPos = Utils.worldToScreen(mark.getMarkPosition(partialTick), partialTick, guiWidth, guiHeight);
+			if(!Utils.isOnScreen(markPos, guiWidth, guiHeight)) return;
 
 			float t = Math.min(deltaRenderTicks / 10f, 1f);
 			guiGraphics.setColor(1f - 0.22f * t, 1f - 0.91f * t, 1f - 0.91f * t, 1.0f);

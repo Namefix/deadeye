@@ -26,7 +26,13 @@ public final class ForgeIntegrationMixinPlugin extends IntegrationMixinPluginBas
 
 	@Override
 	protected void registerMixins() {
+		//pointblank
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
+
+		//tacz
+		registerIntegrationMixin("com.namefix.forg.emixin.integration.tacz.TACZInaccuracyTypeMixin", "tacz");
+		registerIntegrationMixin("com.namefix.forg.emixin.integration.tacz.TACZLivingEntityDrawGunMixin", "tacz");
+		registerIntegrationMixin("com.namefix.forg.emixin.integration.tacz.TACZModernKineticGunItemMixin", "tacz");
 	}
 }

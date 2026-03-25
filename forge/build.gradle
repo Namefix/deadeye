@@ -29,7 +29,10 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+}
 
+configurations.configureEach {
+    exclude group: 'io.github.llamalad7', module: 'mixinextras-forge'
 }
 
 def rawGeckoLibJar = providers.provider {
@@ -44,32 +47,103 @@ def rawGeckoLibJar = providers.provider {
     candidates.iterator().next()
 }
 
-def patchedGeckoLibJar = layout.buildDirectory.file("generated/forge-runtime-libs/geckolib-with-mclib-dev.jar")
-def patchedGeckoLibTempDir = layout.buildDirectory.dir("tmp/geckolib-patched")
+def rawMixinExtrasJar = providers.provider {
+    def candidates = fileTree(new File(gradle.gradleUserHomeDir, "caches/modules-2/files-2.1/io.github.llamalad7/mixinextras-forge/0.5.0")) {
+        include "**/mixinextras-forge-0.5.0.jar"
+    }.files
 
-def patchGeckoLibForForgeDev = tasks.register("patchGeckoLibForForgeDev") {
-    outputs.file(patchedGeckoLibJar)
+    if (candidates.isEmpty()) {
+        throw new GradleException("Could not locate raw MixinExtras forge jar in Gradle cache.")
+    }
 
-    doLast {
-        File targetJar = patchedGeckoLibJar.get().asFile
-        File tempDir = patchedGeckoLibTempDir.get().asFile
+    candidates.iterator().next()
+}
 
+def rawTaczJar = providers.provider {
+    def candidates = fileTree(new File(gradle.gradleUserHomeDir, "caches/modules-2/files-2.1/curse.maven/timeless-and-classics-zero-1028108/7745481")) {
+        include "**/timeless-and-classics-zero-1028108-7745481.jar"
+    }.files
+
+    if (candidates.isEmpty()) {
+        throw new GradleException("Could not locate raw TACZ jar in Gradle cache.")
+    }
+
+    candidates.iterator().next()
+}
+
+def ensurePatchedJarInDevCache = { String outputName, File sourceJar, List<String> nestedJarPaths ->
+    File devLibDir = rootProject.file('.gradle/devlibs')
+    File tempDir = rootProject.file('.gradle/devlibs-tmp/' + outputName.replace('.jar', ''))
+    File outputJar = new File(devLibDir, outputName)
+
+    boolean needsRebuild = !outputJar.exists() || outputJar.lastModified() < sourceJar.lastModified()
+    if (needsRebuild) {
         delete(tempDir)
-        delete(targetJar)
+        delete(outputJar)
         tempDir.mkdirs()
-        targetJar.parentFile.mkdirs()
+        devLibDir.mkdirs()
+
+        String sourceManifestText = null
+        new java.util.jar.JarFile(sourceJar).withCloseable { jarFile ->
+            def manifestEntry = jarFile.getJarEntry('META-INF/MANIFEST.MF')
+            if (manifestEntry != null) {
+                sourceManifestText = jarFile.getInputStream(manifestEntry).getText('UTF-8')
+            }
+        }
 
         copy {
-            from(zipTree(rawGeckoLibJar.get()))
+            from(zipTree(sourceJar))
             into(tempDir)
         }
 
-        ant.unzip(src: new File(tempDir, "META-INF/jarjar/mclib-20.jar"), dest: tempDir)
-        ant.zip(destfile: targetJar, basedir: tempDir)
+        nestedJarPaths.each { nestedPath ->
+            File nestedJar = new File(tempDir, nestedPath)
+            if (!nestedJar.exists()) {
+                throw new GradleException("Expected nested jar not found while patching ${sourceJar.name}: ${nestedPath}")
+            }
+            ant.unzip(src: nestedJar, dest: tempDir)
+            delete(nestedJar)
+        }
+
+        if (sourceManifestText != null) {
+            File manifestOut = new File(tempDir, 'META-INF/MANIFEST.MF')
+            manifestOut.parentFile.mkdirs()
+            manifestOut.setText(sourceManifestText, 'UTF-8')
+        }
+
+        ant.zip(destfile: outputJar, basedir: tempDir)
     }
+
+    return outputJar
 }
 
-def geckoLibPatchedRuntimeFiles = files(patchedGeckoLibJar).builtBy(patchGeckoLibForForgeDev)
+
+def patchedGeckoLibJar = ensurePatchedJarInDevCache(
+        'geckolib-with-mclib-dev.jar',
+        rawGeckoLibJar.get(),
+        ['META-INF/jarjar/mclib-20.jar']
+)
+
+def patchedMixinExtrasJar = ensurePatchedJarInDevCache(
+    'mixinextras-forge-with-bootstrap-fixed.jar',
+        rawMixinExtrasJar.get(),
+    ['META-INF/jars/MixinExtras-0.5.0.jar']
+)
+
+def patchedTaczJar = ensurePatchedJarInDevCache(
+        'tacz-with-jarjar.jar',
+        rawTaczJar.get(),
+        [
+                'META-INF/jarjar/luaj-jse-3.0.8-figura.jar',
+                'META-INF/jarjar/luaj-core-3.0.8-figura.jar',
+                'META-INF/jarjar/commons-math3-3.6.1.jar',
+                'META-INF/jarjar/bcel-6.6.1.jar'
+        ]
+)
+
+def geckoLibPatchedRuntimeFiles = files(patchedGeckoLibJar)
+def mixinExtrasPatchedRuntimeFiles = files(patchedMixinExtrasJar)
+def taczPatchedRuntimeFiles = files(patchedTaczJar)
 
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
@@ -80,10 +154,17 @@ dependencies {
     // Resourceful Config
     modImplementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-forge-$rconfig_version"
 
-    modCompileOnly "curse.maven:geckolib-388172:7553267"
-    modCompileOnly "curse.maven:vics-point-blank-961053:7664533"
+    // Vic's Point Blank
+    modCompileOnly("curse.maven:geckolib-388172:7553267") { transitive = false }
+    modCompileOnly("curse.maven:vics-point-blank-961053:7664533") { transitive = false }
     modLocalRuntime geckoLibPatchedRuntimeFiles
-    modLocalRuntime "curse.maven:vics-point-blank-961053:7664533"
+    modLocalRuntime("curse.maven:vics-point-blank-961053:7664533") { transitive = false }
+
+    // Timeless and Classics Zero
+    modCompileOnly("curse.maven:timeless-and-classics-zero-1028108:7745481") { transitive = false }
+    modLocalRuntime taczPatchedRuntimeFiles
+
+    modLocalRuntime mixinExtrasPatchedRuntimeFiles
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')

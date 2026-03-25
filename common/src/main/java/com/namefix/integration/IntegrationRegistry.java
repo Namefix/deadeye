@@ -19,6 +19,7 @@ public final class IntegrationRegistry {
 
 	static {
 		register(PointBlankModIntegration.INSTANCE);
+		register(TACZModIntegration.INSTANCE);
 	}
 
 	public static void register(DeadeyeIntegration integration) {

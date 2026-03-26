@@ -51,8 +51,12 @@ dependencies {
     modCompileOnly "com.terraformersmc:modmenu:$rootProject.modmenu_version"
     modLocalRuntime "com.terraformersmc:modmenu:$rootProject.modmenu_version"
 
+    // Vic's Point Blank
     modCompileOnly "curse.maven:geckolib-388172:7553256"
     modCompileOnly "curse.maven:vics-point-blank-961053:7679728"
+
+    // Simple Animated Guns
+    modCompileOnly "curse.maven:fabric-simple-animated-guns-664917:6995435"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')

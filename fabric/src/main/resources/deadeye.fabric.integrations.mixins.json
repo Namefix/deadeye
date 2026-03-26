@@ -7,7 +7,8 @@
   "mixins": [
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",
-    "pointblank.PointBlankGunMixin"
+    "pointblank.PointBlankGunMixin",
+    "sag.SAGGunItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

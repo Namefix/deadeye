@@ -8,9 +8,11 @@ import com.namefix.data.PlayerDeadeyeState.Phase;
 import com.namefix.data.PlayerSavedData;
 import com.namefix.data.StateManager;
 import com.namefix.interactions.AbstractDeadeyeInteraction;
+import com.namefix.interactions.SAGDeadeyeInteraction;
 import com.namefix.interactions.TACZDeadeyeInteraction;
 import com.namefix.network.DeadeyeNetwork;
 import com.namefix.network.payload.*;
+import com.namefix.platform.SAGIntegration;
 import com.namefix.platform.TACZIntegration;
 import com.namefix.util.ServerUtils;
 import com.namefix.util.TickManager;
@@ -175,6 +177,7 @@ public class DeadeyeServer {
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DeadeyeStates.get(player), player, player.getMainHandItem());
 		if(interaction != null && interaction.isGun) {
 			if(interaction instanceof TACZDeadeyeInteraction) TACZIntegration.refillAmmo(player, player.getMainHandItem());
+			if(interaction instanceof SAGDeadeyeInteraction) SAGIntegration.refillAmmo(player, player.getMainHandItem());
 		}
 
 		DeadeyeStatePayload payload = new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal());

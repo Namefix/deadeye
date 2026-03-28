@@ -1,10 +1,8 @@
 package com.namefix.forge.mixin.integration.sg;
 
 import com.namefix.client.DeadeyeClient;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -16,11 +14,13 @@ public class SGShootingHandlerCooldownMixin {
 		method = "fire",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/item/ItemCooldowns;addCooldown(Lnet/minecraft/world/item/Item;I)V"
+			target = "Lnet/minecraft/world/item/ItemCooldowns;addCooldown(Lnet/minecraft/world/item/Item;I)V",
+			remap = true
 		),
-		remap = false
+		remap = false,
+		require = 0
 	)
-	private void deadeye$compensateClientCooldown(ItemCooldowns cooldowns, Item item, int cooldown, Player player, ItemStack itemStack) {
+	private void deadeye$compensateClientCooldown(ItemCooldowns cooldowns, Item item, int cooldown) {
 		if(!DeadeyeClient.DEADEYE_ENABLED) {
 			cooldowns.addCooldown(item, cooldown);
 			return;

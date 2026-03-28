@@ -10,28 +10,11 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ttv.migami.jeg.item.AnimatedGunItem;
-import ttv.migami.jeg.util.GunEnchantmentHelper;
 
 @Mixin(value = AnimatedGunItem.class, remap = false)
 public class JEGAnimatedGunItemMixin {
-	@Redirect(
-		method = "inventoryTick",
-		at = @At(
-			value = "INVOKE",
-			target = "Lttv/migami/jeg/util/GunEnchantmentHelper;getModifiedDrawTick(Lnet/minecraft/world/item/ItemStack;I)I"
-		),
-		remap = false
-	)
-	private int deadeye$skipDrawCooldown(ItemStack itemStack, int drawTick, ItemStack tickingStack, Level level, Entity entity, int slotId, boolean isSelected) {
-		if(entity instanceof Player player && deadeye$isServerDeadeye(player)) {
-			return 0;
-		}
-		return GunEnchantmentHelper.getModifiedDrawTick(itemStack, drawTick);
-	}
-
 	@Inject(method = "inventoryTick", at = @At("HEAD"), remap = false)
 	private void deadeye$clearDrawState(ItemStack itemStack, Level level, Entity entity, int slotId, boolean isSelected, CallbackInfo ci) {
 		if(!(entity instanceof Player player)) return;

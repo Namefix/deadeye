@@ -38,11 +38,13 @@ public final class ForgeIntegrationMixinPlugin extends IntegrationMixinPluginBas
 		//jeg
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGShootingHandlerCooldownMixin", "jeg");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGAnimatedGunItemMixin", "jeg");
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGGunEnchantmentHelperMixin", "jeg");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGProjectileEntityMixin", "jeg");
 
 		//sg
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.sg.SGShootingHandlerCooldownMixin", "scguns");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.sg.SGAnimatedGunItemMixin", "scguns");
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.sg.SGGunModifierHelperMixin", "scguns");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.sg.SGProjectileEntityMixin", "scguns");
 	}
 }

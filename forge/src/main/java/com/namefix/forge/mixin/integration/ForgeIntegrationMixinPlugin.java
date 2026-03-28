@@ -30,14 +30,14 @@ public final class ForgeIntegrationMixinPlugin extends IntegrationMixinPluginBas
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
 
+		//tacz
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.tacz.TACZInaccuracyTypeMixin", "tacz");
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.tacz.TACZLivingEntityDrawGunMixin", "tacz");
+		registerIntegrationMixin("com.namefix.forge.mixin.integration.tacz.TACZModernKineticGunItemMixin", "tacz");
+
 		//jeg
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGShootingHandlerCooldownMixin", "jeg");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGAnimatedGunItemMixin", "jeg");
 		registerIntegrationMixin("com.namefix.forge.mixin.integration.jeg.JEGProjectileEntityMixin", "jeg");
-
-		//tacz
-		registerIntegrationMixin("com.namefix.forg.emixin.integration.tacz.TACZInaccuracyTypeMixin", "tacz");
-		registerIntegrationMixin("com.namefix.forg.emixin.integration.tacz.TACZLivingEntityDrawGunMixin", "tacz");
-		registerIntegrationMixin("com.namefix.forg.emixin.integration.tacz.TACZModernKineticGunItemMixin", "tacz");
 	}
 }

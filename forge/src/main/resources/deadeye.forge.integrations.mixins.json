@@ -5,6 +5,9 @@
   "minVersion": "0.8",
   "plugin": "com.namefix.forge.mixin.integration.ForgeIntegrationMixinPlugin",
   "mixins": [
+    "jeg.JEGAnimatedGunItemMixin",
+    "jeg.JEGProjectileEntityMixin",
+    "jeg.JEGShootingHandlerCooldownMixin",
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",
     "pointblank.PointBlankGunMixin",

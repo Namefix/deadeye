@@ -21,6 +21,7 @@ public final class IntegrationRegistry {
 		register(PointBlankModIntegration.INSTANCE);
 		register(TACZModIntegration.INSTANCE);
 		register(SAGModIntegration.INSTANCE);
+		register(JEGModIntegration.INSTANCE);
 	}
 
 	public static void register(DeadeyeIntegration integration) {

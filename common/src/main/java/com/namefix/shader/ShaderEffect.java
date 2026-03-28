@@ -142,7 +142,6 @@ public class ShaderEffect {
 		} else {
 			return;
 		}
-		uniform.upload();
 	}
 
 	@SuppressWarnings("unchecked")

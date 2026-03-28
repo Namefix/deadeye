@@ -22,6 +22,7 @@ public final class IntegrationRegistry {
 		register(TACZModIntegration.INSTANCE);
 		register(SAGModIntegration.INSTANCE);
 		register(JEGModIntegration.INSTANCE);
+		register(SGModIntegration.INSTANCE);
 	}
 
 	public static void register(DeadeyeIntegration integration) {

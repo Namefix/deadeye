@@ -170,6 +170,11 @@ dependencies {
     modLocalRuntime("curse.maven:framework-549225:7573740")
     modLocalRuntime("curse.maven:just-enough-guns-820727:6808139")
 
+    // Scorched Guns
+    modCompileOnly("curse.maven:scorched-guns-802940:7232063")
+    modLocalRuntime("curse.maven:scorched-guns-802940:7232063")
+    modLocalRuntime("curse.maven:curios-309927:6418456")
+
     modLocalRuntime mixinExtrasPatchedRuntimeFiles
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }

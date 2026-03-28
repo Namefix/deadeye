@@ -11,6 +11,9 @@
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",
     "pointblank.PointBlankGunMixin",
+    "sg.SGAnimatedGunItemMixin",
+    "sg.SGProjectileEntityMixin",
+    "sg.SGShootingHandlerCooldownMixin",
     "tacz.TACZInaccuracyTypeMixin",
     "tacz.TACZLivingEntityDrawGunMixin",
     "tacz.TACZModernKineticGunItemMixin"

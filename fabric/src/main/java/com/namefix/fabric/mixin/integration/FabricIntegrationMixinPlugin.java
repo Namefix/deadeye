@@ -13,5 +13,7 @@ public final class FabricIntegrationMixinPlugin extends IntegrationMixinPluginBa
 	protected void registerMixins() {
 		registerIntegrationMixin("com.namefix.fabric.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
 		registerIntegrationMixin("com.namefix.fabric.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.fabric.mixin.integration.pointblank.PointBlankGunClientMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.fabric.mixin.integration.pointblank.PointBlankGunClientStateAccessor", "pointblank");
 	}
 }

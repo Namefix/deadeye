@@ -4,9 +4,12 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "plugin": "com.namefix.fabric.mixin.integration.FabricIntegrationMixinPlugin",
-  "mixins": [
+  "client": [
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",
+    "pointblank.PointBlankGunClientMixin"
+  ],
+  "mixins": [
     "pointblank.PointBlankGunMixin"
   ],
   "injectors": {

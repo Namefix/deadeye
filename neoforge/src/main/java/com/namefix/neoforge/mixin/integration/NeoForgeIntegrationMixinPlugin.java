@@ -28,5 +28,7 @@ public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPlugin
 	protected void registerMixins() {
 		registerIntegrationMixin("com.namefix.neoforge.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
 		registerIntegrationMixin("com.namefix.neoforge.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.neoforge.mixin.integration.pointblank.PointBlankGunClientMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.neoforge.mixin.integration.pointblank.PointBlankGunClientStateAccessor", "pointblank");
 	}
 }

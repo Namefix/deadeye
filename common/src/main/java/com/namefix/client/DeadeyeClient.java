@@ -338,6 +338,16 @@ public class DeadeyeClient {
 		calculateDeadeyeEnding();
 	}
 
+	public static void handleThresholdToast(DeadeyeThresholdPayload payload, NetworkManager.PacketContext packetContext) {
+		if(DeadeyeConfig.HUD.enableInfoToast) {
+			DeadeyeHud.showDeadeyeLevelUp(payload.threshold());
+			DeadeyeSound.playUIAppear();
+		}
+		if(payload.threshold() == 100) {
+			DeadeyeSound.playUILevelUp();
+		}
+	}
+
 	private static void updateShaderVisuals() {
 		boolean shadersAllowed = DeadeyeConfig.Client.enableShaders;
 		float desiredFade = (shadersAllowed && DEADEYE_ENABLED) ? 1.0f : 0.0f;

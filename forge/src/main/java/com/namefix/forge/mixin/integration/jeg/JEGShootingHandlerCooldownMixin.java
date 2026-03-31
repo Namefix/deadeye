@@ -1,6 +1,8 @@
 package com.namefix.forge.mixin.integration.jeg;
 
 import com.namefix.client.DeadeyeClient;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,7 +23,7 @@ public class JEGShootingHandlerCooldownMixin {
 		require = 0
 	)
 	private void deadeye$compensateClientCooldown(ItemCooldowns cooldowns, Item item, int cooldown) {
-		if(!DeadeyeClient.DEADEYE_ENABLED) {
+		if(Platform.getEnvironment() != Env.CLIENT || !DeadeyeClient.DEADEYE_ENABLED) {
 			cooldowns.addCooldown(item, cooldown);
 			return;
 		}

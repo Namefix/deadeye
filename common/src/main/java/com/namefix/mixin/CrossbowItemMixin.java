@@ -3,6 +3,8 @@ package com.namefix.mixin;
 import com.namefix.client.DeadeyeClient;
 import com.namefix.config.DeadeyeConfig;
 import com.namefix.server.DeadeyeServer;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +21,7 @@ public class CrossbowItemMixin {
 	)
 	private static void deadeye$modifyChargeDuration(ItemStack itemStack, CallbackInfoReturnable<Integer> cir) {
 		boolean serverSide = !DeadeyeServer.DeadeyeStates.isEmpty();
-		boolean clientSide = DeadeyeClient.DEADEYE_ENABLED;
+		boolean clientSide = Platform.getEnvironment() == Env.CLIENT && DeadeyeClient.DEADEYE_ENABLED;
 		if(!serverSide && !clientSide) return;
 
 		float curTickRate = DeadeyeConfig.Server.deadeyeTickRate;

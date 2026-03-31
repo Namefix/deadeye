@@ -1,6 +1,5 @@
 package com.namefix.forge.mixin.integration.sg;
 
-import com.namefix.client.DeadeyeClient;
 import com.namefix.server.DeadeyeServer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -26,10 +25,6 @@ public class SGAnimatedGunItemMixin {
 	}
 
 	private static boolean deadeye$isServerDeadeye(Player player) {
-		if(player.level().isClientSide) {
-			return DeadeyeClient.DEADEYE_ENABLED;
-		}
-
 		return DeadeyeServer.DeadeyeStates.containsKey(player)
 			|| DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()));
 	}

@@ -1,11 +1,9 @@
 package com.namefix.data;
 
 import com.google.common.collect.Lists;
-import com.namefix.client.DeadeyeHud;
-import com.namefix.client.DeadeyeSound;
-import com.namefix.config.DeadeyeConfig;
+import com.namefix.network.DeadeyeNetwork;
+import com.namefix.network.payload.DeadeyeThresholdPayload;
 import com.namefix.server.DeadeyeServer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
@@ -93,7 +91,7 @@ public class PlayerSavedData {
 			float add = Math.min(remaining, xpToLevel);
 			float newXp = oldXp + add;
 
-			triggerThresholds(oldXp, newXp, levelup);
+			triggerThresholds(player, oldXp, newXp, levelup);
 
 			if(newXp >= levelup) {
 				data.deadeyeXp = 0f;
@@ -108,16 +106,15 @@ public class PlayerSavedData {
 		DeadeyeServer.updatePlayerLevelData(player, data);
 	}
 
-	private static void triggerThresholds(float oldXp, float newXp, float levelup) {
+	private static void triggerThresholds(ServerPlayer player, float oldXp, float newXp, float levelup) {
 		float oldPercent = (oldXp / levelup) * 100f;
 		float newPercent = (newXp / levelup) * 100f;
 		for(int threshold : LEVEL_THRESHOLDS) {
 			if(oldPercent < threshold && newPercent >= threshold) {
-				if(DeadeyeConfig.HUD.enableInfoToast) {
-					DeadeyeHud.showDeadeyeLevelUp(threshold);
-					DeadeyeSound.playUIAppear();
-				}
-				if(threshold == 100) DeadeyeSound.playUILevelUp();
+				DeadeyeThresholdPayload payload = new DeadeyeThresholdPayload(threshold);
+				var thresholdBuffer = DeadeyeNetwork.createBuffer();
+				payload.write(thresholdBuffer);
+				DeadeyeNetwork.sendToPlayer(player, DeadeyeNetwork.DEADEYE_THRESHOLD, thresholdBuffer);
 			}
 		}
 	}

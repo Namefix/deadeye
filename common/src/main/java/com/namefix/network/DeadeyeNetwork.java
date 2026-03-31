@@ -24,20 +24,22 @@ public class DeadeyeNetwork {
 	public static final PacketType<InformShootingPhasePayload> INFORM_SHOOTING_PHASE = new PacketType<>(new ResourceLocation(DeadeyeMod.MOD_ID, "inform_shooting_phase"));
 	public static final PacketType<LevelDataPayload> LEVEL_DATA = new PacketType<>(new ResourceLocation(DeadeyeMod.MOD_ID, "skill_data"));
 	public static final PacketType<MeterDataPayload> METER_DATA = new PacketType<>(new ResourceLocation(DeadeyeMod.MOD_ID, "meter_data"));
+	public static final PacketType<DeadeyeThresholdPayload> DEADEYE_THRESHOLD = new PacketType<>(new ResourceLocation(DeadeyeMod.MOD_ID, "deadeye_threshold"));
 
 	public static void initialize() {
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_DEADEYE.id(), (buffer, context) -> DeadeyeServer.handleDeadeyeRequest(new RequestDeadeyePayload(buffer), context));
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_MARK_C2S.id(), (buffer, context) -> DeadeyeServer.handleMarkRequest(new RequestMarkPayload(buffer), context));
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOT.id(), (buffer, context) -> DeadeyeServer.handleShotInfo(new InformShotPayload(buffer), context));
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOOTING_PHASE.id(), (buffer, context) -> DeadeyeServer.handleShootingPhase(new InformShootingPhasePayload(buffer), context));
+	}
+
+	public static void initializeClient() {
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_STATE.id(), (buffer, context) -> DeadeyeClient.handleDeadeyeState(new DeadeyeStatePayload(buffer), context));
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, CONFIG_SYNC.id(), (buffer, context) -> SyncedConfigCache.receiveConfigData(new ConfigSyncPayload(buffer), context));
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, REQUEST_MARK_S2C.id(), (buffer, context) -> DeadeyeClient.handleDeadeyeMark(new RequestMarkPayload(buffer), context));
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, LEVEL_DATA.id(), (buffer, context) -> DeadeyeClient.handleLevelData(new LevelDataPayload(buffer), context));
 		NetworkManager.registerReceiver(NetworkManager.Side.S2C, METER_DATA.id(), (buffer, context) -> DeadeyeClient.handleMeterData(new MeterDataPayload(buffer), context));
-	}
-
-	public static void initializeClient() {
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_DEADEYE.id(), (buffer, context) -> DeadeyeServer.handleDeadeyeRequest(new RequestDeadeyePayload(buffer), context));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_MARK_C2S.id(), (buffer, context) -> DeadeyeServer.handleMarkRequest(new RequestMarkPayload(buffer), context));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOT.id(), (buffer, context) -> DeadeyeServer.handleShotInfo(new InformShotPayload(buffer), context));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOOTING_PHASE.id(), (buffer, context) -> DeadeyeServer.handleShootingPhase(new InformShootingPhasePayload(buffer), context));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_THRESHOLD.id(), (buffer, context) -> DeadeyeClient.handleThresholdToast(new DeadeyeThresholdPayload(buffer), context));
 	}
 
 	public static FriendlyByteBuf createBuffer() {

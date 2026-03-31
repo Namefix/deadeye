@@ -2,12 +2,10 @@ package com.namefix.forge.mixin.integration.pointblank;
 
 import com.mojang.datafixers.util.Pair;
 import com.namefix.client.DeadeyeClient;
-import com.namefix.server.DeadeyeServer;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.item.FireModeInstance;
 import com.vicmatskiv.pointblank.item.GunItem;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,11 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PointBlankFireModeFeatureMixin {
 	@Inject(method = "getPelletCountAndSpread", at = @At("HEAD"), cancellable = true)
 	private static void deadeye$modifyPelletAmount(LivingEntity player, GunClientState state, ItemStack itemStack, CallbackInfoReturnable<Pair<Integer, Double>> cir) {
-		if(!player.level().isClientSide) {
-			if(!DeadeyeServer.DeadeyeStates.containsKey((Player) player)) return;
-		} else {
-			if(!DeadeyeClient.DEADEYE_ENABLED) return;
-		}
+		if(!player.level().isClientSide || !DeadeyeClient.DEADEYE_ENABLED) return;
 
 		Item var4 = itemStack.getItem();
 		if (var4 instanceof GunItem gunItem) {

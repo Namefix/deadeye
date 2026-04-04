@@ -1,9 +1,9 @@
 {
   "required": false,
-  "package": "com.namefix.neoforge.mixin.integration",
+  "package": "com.namefix.deadeye.neoforge.mixin.integration",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
-  "plugin": "com.namefix.neoforge.mixin.integration.NeoForgeIntegrationMixinPlugin",
+  "plugin": "com.namefix.deadeye.neoforge.mixin.integration.NeoForgeIntegrationMixinPlugin",
   "client": [
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",

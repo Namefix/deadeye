@@ -8,11 +8,7 @@ import com.namefix.deadeye.config.DeadeyeConfig;
 import com.namefix.deadeye.integration.IntegrationRegistry;
 import com.namefix.deadeye.network.DeadeyeNetwork;
 import com.namefix.deadeye.platform.RenderLayers;
-import com.namefix.deadeye.registry.BlockRegistry;
-import com.namefix.deadeye.registry.FeatureRegistry;
-import com.namefix.deadeye.registry.ItemRegistry;
-import com.namefix.deadeye.registry.KeybindRegistry;
-import com.namefix.deadeye.registry.SoundEventRegistry;
+import com.namefix.deadeye.registry.*;
 import com.namefix.deadeye.server.DeadeyeServer;
 import com.namefix.deadeye.shader.ShaderManager;
 import com.teamresourceful.resourcefulconfig.common.config.Configurator;
@@ -39,6 +35,7 @@ public final class DeadeyeMod {
         BlockRegistry.register();
         ItemRegistry.register();
         FeatureRegistry.register();
+        TabRegistry.register();
 
         DeadeyeNetwork.initialize();
 

@@ -1,9 +1,9 @@
 {
   "required": false,
-  "package": "com.namefix.forge.mixin.integration",
+  "package": "com.namefix.deadeye.forge.mixin.integration",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
-  "plugin": "com.namefix.forge.mixin.integration.ForgeIntegrationMixinPlugin",
+  "plugin": "com.namefix.deadeye.forge.mixin.integration.ForgeIntegrationMixinPlugin",
   "client": [
     "jeg.JEGGunEnchantmentHelperMixin",
     "jeg.JEGShootingHandlerCooldownMixin",

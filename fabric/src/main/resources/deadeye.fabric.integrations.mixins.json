@@ -1,9 +1,9 @@
 {
   "required": false,
-  "package": "com.namefix.fabric.mixin.integration",
+  "package": "com.namefix.deadeye.fabric.mixin.integration",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
-  "plugin": "com.namefix.fabric.mixin.integration.FabricIntegrationMixinPlugin",
+  "plugin": "com.namefix.deadeye.fabric.mixin.integration.FabricIntegrationMixinPlugin",
   "client": [
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",

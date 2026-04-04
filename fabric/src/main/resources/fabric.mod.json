@@ -17,16 +17,16 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.namefix.fabric.DeadeyeFabric"
+      "com.namefix.deadeye.fabric.DeadeyeFabric"
     ],
     "client": [
-      "com.namefix.fabric.client.DeadeyeFabricClient"
+      "com.namefix.deadeye.fabric.client.DeadeyeFabricClient"
     ],
     "modmenu": [
-      "com.namefix.fabric.client.DeadeyeModMenuIntegration"
+      "com.namefix.deadeye.fabric.client.DeadeyeModMenuIntegration"
     ],
     "fabric-datagen": [
-      "com.namefix.fabric.datagen.DeadeyeDataGenerator"
+      "com.namefix.deadeye.fabric.datagen.DeadeyeDataGenerator"
     ]
   },
   "mixins": [

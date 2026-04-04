@@ -43,10 +43,10 @@ public class ItemRegistry {
 		return registerItem(name, Item::new);
 	}
 	public static RegistrySupplier<Item> registerItem(String name, ItemFactory<Item> factory, ResourceKey<CreativeModeTab> tab) {
-		return ITEMS.register(name, () -> factory.create(new Item.Properties().arch$tab(tab)));
+		return ITEMS.register(name, () -> factory.create(new Item.Properties().arch$tab(TabRegistry.DEADEYE_TAB)));
 	}
 	public static RegistrySupplier<Item> registerItem(String name, RegistrySupplier<? extends Block> block, ResourceKey<CreativeModeTab> tab) {
-		return ITEMS.register(name, () -> new ItemNameBlockItem(block.get(), new Item.Properties().arch$tab(tab)));
+		return ITEMS.register(name, () -> new ItemNameBlockItem(block.get(), new Item.Properties().arch$tab(TabRegistry.DEADEYE_TAB)));
 	}
 	public static <T extends Item> RegistrySupplier<T> registerItem(String name, ItemFactory<T> factory) {
 		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(DeadeyeMod.MOD_ID, name));

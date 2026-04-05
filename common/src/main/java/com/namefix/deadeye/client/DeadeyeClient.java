@@ -56,7 +56,7 @@ public class DeadeyeClient {
 	}
 
 	public static float getEffectiveCurrentTickRate() {
-		if(!DEADEYE_ENABLED) return 20.0f;
+		if(!shouldApplyTickRate()) return 20.0f;
 		return DeadeyeConfig.Server.deadeyeTickRate <= 0.0f ? 20.0f : DeadeyeConfig.Server.deadeyeTickRate;
 	}
 
@@ -66,8 +66,12 @@ public class DeadeyeClient {
 	}
 
 	public static float getClientTickScale() {
-		if(!DEADEYE_ENABLED) return 1.0f;
+		if(!shouldApplyTickRate()) return 1.0f;
 		return TickManager.getTickScale(getEffectiveCurrentTickRate(), getEffectivePreviousTickRate());
+	}
+
+	public static boolean shouldApplyTickRate() {
+		return DEADEYE_ENABLED && PREVIOUS_TICK_RATE > 0.0f;
 	}
 
 	public static void render() {

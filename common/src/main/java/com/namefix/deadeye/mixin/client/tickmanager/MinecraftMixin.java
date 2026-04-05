@@ -26,7 +26,7 @@ public abstract class MinecraftMixin {
 		Minecraft minecraft = (Minecraft) (Object) this;
 		TickManager.beginClientFrame(minecraft);
 
-		float targetTickRate = DeadeyeClient.DEADEYE_ENABLED
+		float targetTickRate = DeadeyeClient.shouldApplyTickRate()
 			? DeadeyeClient.getEffectiveCurrentTickRate()
 			: 20.0f;
 

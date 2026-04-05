@@ -116,9 +116,9 @@ public class DeadeyeClient {
 			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
 
 			if(interaction.clientSideShoot) interaction.shoot();
-			boolean hasMoreTargets = DEADEYE_STATE.targets.size() > 1;
-			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
 			DEADEYE_STATE.targets.removeFirst();
+			boolean hasMoreTargets = !DEADEYE_STATE.targets.isEmpty();
+			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
 
 			LAST_DEADEYE_LERP = System.currentTimeMillis();
 			LAST_DEADEYE_SHOT = System.currentTimeMillis();
@@ -256,6 +256,7 @@ public class DeadeyeClient {
 
 	public static void requestMark() {
 		Minecraft mc = Minecraft.getInstance();
+		if(DEADEYE_STATE.phase == Phase.SHOOTING) return;
 		Player player = mc.player;
 		if(player == null) return;
 		ItemStack markingItem = player.getMainHandItem();

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.namefix.deadeye.DeadeyeMod;
 import com.namefix.deadeye.config.DeadeyeConfig;
+import com.namefix.deadeye.data.DeadeyeTargetData;
 import com.namefix.deadeye.data.PlayerSavedData;
 import com.namefix.deadeye.util.ClientUtils;
 import com.namefix.deadeye.util.TickManager;
@@ -85,7 +86,8 @@ public class DeadeyeHud {
 		final float partialTick = TickManager.getGameTimeDeltaPartialTick(Minecraft.getInstance(), false);
 		final int guiWidth = guiGraphics.guiWidth();
 		final int guiHeight = guiGraphics.guiHeight();
-		DeadeyeClient.DEADEYE_STATE.targets.forEach((mark) -> {
+		List<DeadeyeTargetData> targetsSnapshot = List.copyOf(DeadeyeClient.DEADEYE_STATE.targets);
+		targetsSnapshot.forEach((mark) -> {
 			mark.incrementRenderTicks();
 			float deltaRenderTicks = mark.getRenderTicks() * TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) * 2f;
 

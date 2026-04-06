@@ -1,0 +1,44 @@
+# Automatically build the project and run any configured tests for every push
+# and submitted pull request. This can help catch issues that only occur on
+# certain platforms or Java versions, and provides a first line of defence
+# against bad commits.
+
+name: build
+on: [pull_request, push]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        java: [21]    # Current Java LTS
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v2
+
+      - name: Setup JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'microsoft'
+
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build project
+        run: ./gradlew clean build
+
+      - name: Upload Fabric
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fabric
+          path: fabric/build/libs/*fabric*.jar
+
+      - name: Upload Forge
+        uses: actions/upload-artifact@v4
+        with:
+          name: Forge
+          path: forge/build/libs/*forge*.jar

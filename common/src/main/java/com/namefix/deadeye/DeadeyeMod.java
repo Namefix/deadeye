@@ -51,7 +51,6 @@ public final class DeadeyeMod {
     // CLIENT INIT
     public static void initClient() {
         RenderLayers.registerCutout(BlockRegistry.TOBACCO_CROP.get(), BlockRegistry.WILD_TOBACCO.get());
-        KeybindRegistry.register();
         DeadeyeNetwork.initializeClient();
         DeadeyeClient.initialize();
         DeadeyeSound.initialize();

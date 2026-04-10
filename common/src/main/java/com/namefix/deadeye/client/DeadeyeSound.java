@@ -39,8 +39,8 @@ public class DeadeyeSound {
 	}
 
 	public static void resetBackgroundSounds() {
-		SOUND_BACKGROUND = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND.getOrNull(), SoundSource.PLAYERS, RandomSource.create(), 0.4f, true);
-		SOUND_BACKGROUND2 = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND2.getOrNull(), SoundSource.PLAYERS, RandomSource.create(), 0.1f, false);
+		SOUND_BACKGROUND = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND.getOrNull(), SoundSource.PLAYERS, RandomSource.create(), 0.2f, true);
+		SOUND_BACKGROUND2 = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND2.getOrNull(), SoundSource.PLAYERS, RandomSource.create(), 0.05f, false);
 	}
 
 	public static void tick() {
@@ -55,10 +55,10 @@ public class DeadeyeSound {
 
 		while(HEARTBEAT_PHASE_TIME >= threshold) {
 			if(WAITING_FOR_HEARTBEAT_IN) {
-				play2D(SOUND_HEARTBEAT_IN, 2.0f, 1.0f);
+				play2D(SOUND_HEARTBEAT_IN, 1.0f, 1.0f);
 				WAITING_FOR_HEARTBEAT_IN = false;
 			} else {
-				play2D(SOUND_HEARTBEAT_OUT, 2.0f, 1.0f);
+				play2D(SOUND_HEARTBEAT_OUT, 1.0f, 1.0f);
 				WAITING_FOR_HEARTBEAT_IN = true;
 			}
 
@@ -81,7 +81,9 @@ public class DeadeyeSound {
 	}
 
 	public static void playMarkSound() {
-		play2D(SOUND_MARK, 1.0f, 1.0f);
+		Minecraft mc = Minecraft.getInstance();
+		if(mc == null) return;
+		play2D(SOUND_MARK, 0.7f, mc.level.getRandom().nextFloat() * 0.2f + 0.9f);
 	}
 
 	public static void playEnterSound() {
@@ -97,7 +99,7 @@ public class DeadeyeSound {
 	}
 
 	public static void playUIAppear() {
-		play2D(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.5f, 1.0f);
+		play2D(SoundEventRegistry.UI_APPEAR.getOrNull(), 0.3f, 1.0f);
 	}
 
 	public static void playUILevelUp() {

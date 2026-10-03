@@ -1,5 +1,6 @@
 package com.namefix.deadeye.client;
 
+import com.namefix.deadeye.config.DeadeyeConfig;
 import com.namefix.deadeye.registry.SoundEventRegistry;
 import com.namefix.deadeye.sound.DeadeyeLoopingSound;
 import net.minecraft.client.Minecraft;
@@ -39,8 +40,8 @@ public class DeadeyeSound {
 	}
 
 	public static void resetBackgroundSounds() {
-		SOUND_BACKGROUND = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND.getOrNull(), SoundSource.PLAYERS, RandomSource.create(), 0.2f, true);
-		SOUND_BACKGROUND2 = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND2.getOrNull(), SoundSource.PLAYERS, RandomSource.create(), 0.05f, false);
+		SOUND_BACKGROUND = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND.getOrNull(), SoundSource.MASTER, RandomSource.create(), 0.2f * DeadeyeConfig.Client.soundVolume, true);
+		SOUND_BACKGROUND2 = new DeadeyeLoopingSound(SoundEventRegistry.DEADEYE_JOHN_BACKGROUND2.getOrNull(), SoundSource.MASTER, RandomSource.create(), 0.05f * DeadeyeConfig.Client.soundVolume, false);
 	}
 
 	public static void tick() {
@@ -83,7 +84,7 @@ public class DeadeyeSound {
 	public static void playMarkSound() {
 		Minecraft mc = Minecraft.getInstance();
 		if(mc == null) return;
-		play2D(SOUND_MARK, 0.7f, mc.level.getRandom().nextFloat() * 0.2f + 0.9f);
+		play2D(SOUND_MARK, 0.7f, mc.level.getRandom().nextFloat() * 0.1f + 1.0f);
 	}
 
 	public static void playEnterSound() {
@@ -115,8 +116,8 @@ public class DeadeyeSound {
 		if(sound == null || mc == null) return;
 		mc.getSoundManager().play(new SimpleSoundInstance(
 			sound.getLocation(),
-			SoundSource.PLAYERS,
-			volume,
+			SoundSource.MASTER,
+			volume * DeadeyeConfig.Client.soundVolume,
 			pitch,
 			SoundInstance.createUnseededRandom(),
 			false,

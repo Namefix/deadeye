@@ -30,6 +30,8 @@
   "config.deadeye.naturalDeadeyeRegeneration.desc": "Sets the amount of Dead Eye meter to be regenerated naturally.",
   "config.deadeye.deadeyeInvulnerability.name": "Dead Eye Invulnerability",
   "config.deadeye.deadeyeInvulnerability.desc": "Grants invulnerability to certain damage sources in Dead Eye.",
+  "config.deadeye.soundVolume": "Dead Eye Sound Volume",
+  "config.deadeye.soundVolume.desc": "Controls the sound volume of all Dead Eye sounds.",
   "config.deadeye.enableShaders": "Enable Shader Effects",
   "config.deadeye.enableShaders.desc": "Enable visual shader effects for Dead Eye.",
   "config.deadeye.enableLightLeak": "Enable Light Leak Effect",

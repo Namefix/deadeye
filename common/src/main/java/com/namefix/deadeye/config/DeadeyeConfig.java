@@ -72,6 +72,15 @@ public class DeadeyeConfig {
 	@Category(value = "Client")
 	public static class Client {
 		@ConfigEntry(
+				id = "soundVolume",
+				translation = "config.deadeye.soundVolume"
+		)
+		@Comment(value = "soundVolumeDesc", translation = "config.deadeye.soundVolume.desc")
+		@ConfigOption.Range(min = 0.0f, max = 1.0f)
+		@ConfigOption.Slider()
+		public static float soundVolume = 1.0f;
+
+		@ConfigEntry(
 				id = "enableShaders",
 				translation = "config.deadeye.enableShaders"
 		)

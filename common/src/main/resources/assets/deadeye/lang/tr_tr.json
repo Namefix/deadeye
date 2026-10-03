@@ -30,6 +30,8 @@
   "config.deadeye.naturalDeadeyeRegeneration.desc": "Dead Eye metresinin doğal olarak yenileneceği miktarı ayarlar.",
   "config.deadeye.deadeyeInvulnerability.name": "Dead Eye Ölümsüzlük",
   "config.deadeye.deadeyeInvulnerability.desc": "Dead Eye aktifken bazı hasar kaynaklarına karşı ölümsüzlük kazandırır.",
+  "config.deadeye.soundVolume": "Dead Eye Ses Seviyesi",
+  "config.deadeye.soundVolume.desc": "Tüm Dead Eye seslerinin seviyesini ayarlar.",
   "config.deadeye.enableShaders": "Shader Efektlerini Etkinleştir",
   "config.deadeye.enableShaders.desc": "Dead Eye için görsel shader efektlerini etkinleştir.",
   "config.deadeye.enableLightLeak": "Işık Süzmesi Efektini Etkinleştir",

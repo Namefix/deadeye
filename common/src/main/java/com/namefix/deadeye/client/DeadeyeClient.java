@@ -104,7 +104,12 @@ public class DeadeyeClient {
 		float pPitch = mc.player.getXRot();
 		float pYaw = mc.player.getYRot();
 
-		float interpolationFactor = (TickManager.getRealtimeDeltaTicks(mc) / 2.0f);
+		double targetDeltaX = target.target.getX() - target.target.xo;
+		double targetDeltaY = target.target.getY() - target.target.yo;
+		double targetDeltaZ = target.target.getZ() - target.target.zo;
+
+		double targetVelocityFactor = Mth.clamp(Math.sqrt(targetDeltaX * targetDeltaX + targetDeltaY * targetDeltaY + targetDeltaZ * targetDeltaZ) * 5, 1.0, 7.0);
+		float interpolationFactor = (float) ((TickManager.getRealtimeDeltaTicks(mc) / 2.0f) * targetVelocityFactor);
 		if(System.currentTimeMillis() - DEADEYE_LERP_START > 3_000) interpolationFactor *= 4;
 
 		Vec2 targetHeading = Utils.getHeadingFromTarget(mc.player, EntityAnchorArgument.Anchor.EYES, target.getMarkPosition(TickManager.getGameTimeDeltaPartialTick(mc, false)));

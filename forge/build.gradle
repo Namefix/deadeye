@@ -54,11 +54,11 @@ def rawGeckoLibJar = providers.provider {
 }
 
 def rawMixinExtrasJar = providers.provider {
-    resolveRawJar("io.github.llamalad7:mixinextras-forge:0.5.0", "mixinextras-forge-0.5.0.jar", "MixinExtras forge")
+    resolveRawJar("io.github.llamalad7:mixinextras-forge:0.5.5", "mixinextras-forge-0.5.5.jar", "MixinExtras forge")
 }
 
 def rawTaczJar = providers.provider {
-    resolveRawJar("curse.maven:timeless-and-classics-zero-1028108:7745481", "timeless-and-classics-zero-1028108-7745481.jar", "TACZ")
+    resolveRawJar("curse.maven:timeless-and-classics-zero-1028108:9037989", "timeless-and-classics-zero-1028108-9037989.jar", "TACZ")
 }
 
 def ensurePatchedJarInDevCache = { String outputName, File sourceJar, List<String> nestedJarPaths ->
@@ -120,7 +120,7 @@ def patchedMixinExtrasJar = providers.provider {
     ensurePatchedJarInDevCache(
         'mixinextras-forge-with-bootstrap-fixed.jar',
         rawMixinExtrasJar.get(),
-        ['META-INF/jars/MixinExtras-0.5.0.jar']
+        ['META-INF/jars/MixinExtras-0.5.5.jar']
     )
 }
 
@@ -137,9 +137,58 @@ def patchedTaczJar = providers.provider {
     )
 }
 
+def extractNestedJar = { String outputName, File sourceJar, String nestedJarPath, List<String> subNestedJarPaths ->
+    File devLibDir = rootProject.file('.gradle/devlibs')
+    File tempDir = rootProject.file('.gradle/devlibs-tmp/' + outputName.replace('.jar', ''))
+    File outputJar = new File(devLibDir, outputName)
+
+    boolean needsRebuild = !outputJar.exists() || outputJar.lastModified() < sourceJar.lastModified()
+    if (needsRebuild) {
+        delete(tempDir)
+        delete(outputJar)
+        tempDir.mkdirs()
+        devLibDir.mkdirs()
+
+        File nestedZip = new File(tempDir, 'nested.jar')
+        new java.util.zip.ZipFile(sourceJar).withCloseable { zip ->
+            def entry = zip.getEntry(nestedJarPath)
+            if (entry == null) throw new GradleException("Nested jar not found in ${sourceJar.name}: ${nestedJarPath}")
+            nestedZip.withOutputStream { it << zip.getInputStream(entry) }
+        }
+
+        copy {
+            from(zipTree(nestedZip))
+            into(tempDir)
+        }
+        delete(nestedZip)
+
+        subNestedJarPaths.each { subPath ->
+            File subJar = new File(tempDir, subPath)
+            if (subJar.exists()) {
+                ant.unzip(src: subJar, dest: tempDir)
+                delete(subJar)
+            }
+        }
+
+        ant.zip(destfile: outputJar, basedir: tempDir)
+    }
+
+    return outputJar
+}
+
+def patchedSimpleBedrockModelJar = providers.provider {
+    extractNestedJar(
+        'simplebedrockmodel-with-mae-dev.jar',
+        rawTaczJar.get(),
+        'META-INF/jarjar/simplebedrockmodel-2.2.2-forge+mc1.20.1.jar',
+        ['META-INF/jarjar/mae-1.1.2.jar']
+    )
+}
+
 def geckoLibPatchedRuntimeFiles = files(patchedGeckoLibJar)
 def mixinExtrasPatchedRuntimeFiles = files(patchedMixinExtrasJar)
 def taczPatchedRuntimeFiles = files(patchedTaczJar)
+def simpleBedrockModelPatchedRuntimeFiles = files(patchedSimpleBedrockModelJar)
 
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
@@ -152,19 +201,20 @@ dependencies {
 
     // Vic's Point Blank
     modCompileOnly("curse.maven:geckolib-388172:7553267") { transitive = false }
-    modCompileOnly("curse.maven:vics-point-blank-961053:7664533") { transitive = false }
+    modCompileOnly("curse.maven:vics-point-blank-961053:8855556") { transitive = false }
     modLocalRuntime geckoLibPatchedRuntimeFiles
-    modLocalRuntime("curse.maven:vics-point-blank-961053:7664533") { transitive = false }
+    modLocalRuntime("curse.maven:vics-point-blank-961053:8855556") { transitive = false }
 
     // Timeless and Classics Zero
-    modCompileOnly("curse.maven:timeless-and-classics-zero-1028108:7745481") { transitive = false }
+    modCompileOnly("curse.maven:timeless-and-classics-zero-1028108:9037989") { transitive = false }
     modLocalRuntime taczPatchedRuntimeFiles
+    modLocalRuntime simpleBedrockModelPatchedRuntimeFiles
 
     // Just Enough Guns
     modCompileOnly("curse.maven:framework-549225:7573740")
-    modCompileOnly("curse.maven:just-enough-guns-820727:6808139")
+    modCompileOnly("curse.maven:just-enough-guns-820727:8873359")
     modLocalRuntime("curse.maven:framework-549225:7573740")
-    modLocalRuntime("curse.maven:just-enough-guns-820727:6808139")
+    modLocalRuntime("curse.maven:just-enough-guns-820727:8873359")
 
     // Scorched Guns
     modCompileOnly("curse.maven:scorched-guns-802940:7232063")

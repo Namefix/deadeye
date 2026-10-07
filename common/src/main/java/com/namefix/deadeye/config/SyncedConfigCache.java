@@ -5,10 +5,18 @@ import com.namefix.deadeye.network.payload.ConfigSyncPayload;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public class SyncedConfigCache {
 	public static boolean bowPullCompensation;
 	public static boolean instantGunReload;
+
+	public static boolean isInstantGunReload(Player player) {
+		if (player != null && !player.level().isClientSide) {
+			return DeadeyeConfig.Server.instantGunReload;
+		}
+		return instantGunReload;
+	}
 
 	public static void receiveConfigData(ConfigSyncPayload payload, NetworkManager.PacketContext context) {
 		bowPullCompensation = payload.bowPullCompensation();

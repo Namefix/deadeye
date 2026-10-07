@@ -1,6 +1,8 @@
 package com.namefix.deadeye.neoforge.mixin.integration.pointblank;
 
 import com.namefix.deadeye.client.DeadeyeClient;
+import com.namefix.deadeye.config.SyncedConfigCache;
+import com.namefix.deadeye.data.PlayerDeadeyeState;
 import com.namefix.deadeye.integration.pointblank.PointBlankPendingShotAim;
 import com.namefix.deadeye.platform.neoforge.PointBlankIntegrationImpl;
 import com.vicmatskiv.pointblank.client.GunClientState;
@@ -43,9 +45,23 @@ public abstract class PointBlankGunClientMixin {
 		}
 	}
 
+	@Inject(method = "tryReload(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)Z", at = @At("HEAD"), cancellable = true)
+	private void deadeye$suppressReloadClientStack(Player player, ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
+		if(DeadeyeClient.DEADEYE_ENABLED && DeadeyeClient.DEADEYE_STATE.phase == PlayerDeadeyeState.Phase.SHOOTING) {
+			cir.setReturnValue(false);
+		}
+	}
+
+	@Inject(method = "tryReload(Lnet/minecraft/world/entity/player/Player;Lcom/vicmatskiv/pointblank/item/GunItem$OperableGunContext;)Z", at = @At("HEAD"), cancellable = true)
+	private void deadeye$suppressReloadClientContext(Player player, GunItem.OperableGunContext context, CallbackInfoReturnable<Boolean> cir) {
+		if(DeadeyeClient.DEADEYE_ENABLED && DeadeyeClient.DEADEYE_STATE.phase == PlayerDeadeyeState.Phase.SHOOTING) {
+			cir.setReturnValue(false);
+		}
+	}
+
 	@Inject(method = "getReloadingCooldownTime", at = @At("HEAD"), cancellable = true)
 	private void deadeye$modifyReloadCooldownDuration(GunItem.ReloadPhase phase, LivingEntity player, GunClientState state, ItemStack itemStack, CallbackInfoReturnable<Long> cir) {
-		if(DeadeyeClient.DEADEYE_ENABLED && player instanceof Player localPlayer && PointBlankIntegrationImpl.consumePendingInstantReload(localPlayer)) {
+		if(DeadeyeClient.DEADEYE_ENABLED && player instanceof Player localPlayer && SyncedConfigCache.isInstantGunReload(localPlayer) && PointBlankIntegrationImpl.consumePendingInstantReload(localPlayer)) {
 			cir.setReturnValue(0L);
 		}
 	}

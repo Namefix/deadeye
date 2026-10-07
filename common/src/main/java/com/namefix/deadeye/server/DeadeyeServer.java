@@ -50,8 +50,11 @@ public class DeadeyeServer {
 					}
 				}
 			} else {
-				if(state.markItem != null && !state.markItem.getItem().equals(player.getMainHandItem().getItem())) {
-					toRemove.add(player);
+				if(state.markItem != null) {
+					AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, state.markItem);
+					if(interaction == null || !interaction.isHoldingWeapon()) {
+						toRemove.add(player);
+					}
 				}
 			}
 
@@ -122,6 +125,14 @@ public class DeadeyeServer {
 	}
 
 	public static void disableDeadeye(Player player) {
+		PlayerDeadeyeState state = DeadeyeStates.get(player);
+		if(state != null) {
+			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, player.getMainHandItem());
+			if(interaction != null) {
+				interaction.onExitDeadeye();
+			}
+		}
+
 		var level = player.level();
 		DeadeyeStates.remove(player);
 
@@ -160,6 +171,11 @@ public class DeadeyeServer {
 		POINTBLANK_PENDING_SHOT_MARKS.remove(player.getUUID());
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
 
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DeadeyeStates.get(player), player, player.getMainHandItem());
+		if(interaction != null) {
+			interaction.onEnterDeadeye();
+		}
+
 		if(ServerUtils.canModifyTickRate(level.getServer())) {
 			if(DeadeyeStates.size() == 1) PREVIOUS_TICK_RATE = level.tickRateManager().tickrate();
 			level.tickRateManager().setTickRate(DeadeyeConfig.Server.deadeyeTickRate);
@@ -194,9 +210,7 @@ public class DeadeyeServer {
 		PlayerDeadeyeState state = DeadeyeStates.get(player);
 		if(state.targets.size() > 50) return;
 
-		ItemStack markItem = player.getMainHandItem();
-		if(markItem.isEmpty()) return;
-		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, markItem);
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, player.getMainHandItem());
 		if(interaction == null) return;
 		if(!interaction.preMark()) return;
 
@@ -207,7 +221,7 @@ public class DeadeyeServer {
 		updatePlayerPhase(player, Phase.MARKED);
 		Vec3 pos = new Vec3(payload.markPos());
 		state.targets.add(new DeadeyeTargetData(entity, pos));
-		state.markItem = player.getMainHandItem().copy();
+		state.markItem = interaction.getItemStack().copy();
 		NetworkManager.sendToPlayer(player, RequestMarkPayload.forServerToClient(payload.markPos(), payload.entityId()));
 
 		interaction.postMark();
@@ -231,7 +245,7 @@ public class DeadeyeServer {
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
 		if(!interaction.clientSideShoot) interaction.shoot();
 
-		state.targets.removeFirst();
+		state.targets.remove(0);
 		boolean hasMoreTargets = !state.targets.isEmpty();
 
 		interaction.postShot(hasMoreTargets);
@@ -245,5 +259,9 @@ public class DeadeyeServer {
 		PlayerDeadeyeState state = DeadeyeStates.get(packetContext.getPlayer());
 		if(state.phase != Phase.MARKED) return;
 		state.phase = Phase.SHOOTING;
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
+		if(interaction != null) {
+			interaction.onEnterShootingPhase();
+		}
 	}
 }

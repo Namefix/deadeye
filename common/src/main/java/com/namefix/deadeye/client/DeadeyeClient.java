@@ -5,9 +5,7 @@ import com.namefix.deadeye.data.DeadeyeTargetData;
 import com.namefix.deadeye.data.PlayerDeadeyeState;
 import com.namefix.deadeye.data.PlayerSavedData;
 import com.namefix.deadeye.interactions.AbstractDeadeyeInteraction;
-import com.namefix.deadeye.interactions.PointBlankDeadeyeInteraction;
 import com.namefix.deadeye.network.payload.*;
-import com.namefix.deadeye.platform.PointBlankIntegration;
 import com.namefix.deadeye.registry.KeybindRegistry;
 import com.namefix.deadeye.shader.ShaderManager;
 import com.namefix.deadeye.util.ClientUtils;
@@ -67,9 +65,10 @@ public class DeadeyeClient {
 				mc.player == null || System.currentTimeMillis() - LAST_DEADEYE_LERP < 100
 		) return;
 
-		if(CURRENT_PHASE_INTERACTION == null) return;
+		AbstractDeadeyeInteraction interaction = CURRENT_PHASE_INTERACTION;
+		if(interaction == null) return;
 
-		if(!mc.player.getMainHandItem().getItem().equals(DEADEYE_STATE.markItem.getItem())) {
+		if(!interaction.isHoldingWeapon()) {
 			requestDeadeye();
 			return;
 		}
@@ -87,7 +86,7 @@ public class DeadeyeClient {
 		double targetDeltaY = target.target.getY() - target.target.yo;
 		double targetDeltaZ = target.target.getZ() - target.target.zo;
 
-		double targetVelocityFactor = Math.clamp(Math.sqrt(targetDeltaX * targetDeltaX + targetDeltaY * targetDeltaY + targetDeltaZ * targetDeltaZ) * 5, 1.0, 7.0);
+		double targetVelocityFactor = Mth.clamp(Math.sqrt(targetDeltaX * targetDeltaX + targetDeltaY * targetDeltaY + targetDeltaZ * targetDeltaZ) * 5, 1.0, 7.0);
 		float interpolationFactor = (float) ((mc.getTimer().getRealtimeDeltaTicks() / 2.0f) * targetVelocityFactor);
 		if(System.currentTimeMillis() - DEADEYE_LERP_START > 3_000) interpolationFactor *= 4;
 
@@ -115,15 +114,19 @@ public class DeadeyeClient {
 		if(Mth.abs(wrappedTargetPitch - wrappedFinalPitch) < 1f && Math.abs(wrappedTargetYaw - wrappedFinalYaw) < 1f) {
 			if(System.currentTimeMillis() - LAST_DEADEYE_SHOT < 250) return;
 
-			if(!CURRENT_PHASE_INTERACTION.preShot()) return;
+			if(!interaction.hasAmmo()) {
+				requestDeadeye();
+				return;
+			}
 
-			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, mc.player, mc.player.getMainHandItem());
+			if(!interaction.preShot()) return;
+
 			NetworkManager.sendToServer(new InformShotPayload(target.getMarkPosition(mc.getTimer().getGameTimeDeltaPartialTick(false)).toVector3f()));
 
 			if(interaction.clientSideShoot) interaction.shoot();
-			DEADEYE_STATE.targets.removeFirst();
+			DEADEYE_STATE.targets.remove(target);
 			boolean hasMoreTargets = !DEADEYE_STATE.targets.isEmpty();
-			CURRENT_PHASE_INTERACTION.postShot(hasMoreTargets);
+			interaction.postShot(hasMoreTargets);
 
 			LAST_DEADEYE_LERP = System.currentTimeMillis();
 			LAST_DEADEYE_SHOT = System.currentTimeMillis();
@@ -145,12 +148,24 @@ public class DeadeyeClient {
 		DEADEYE_LERP_START = System.currentTimeMillis();
 
 		DEADEYE_STATE.phase = Phase.SHOOTING;
+		if(CURRENT_PHASE_INTERACTION != null) {
+			CURRENT_PHASE_INTERACTION.onEnterShootingPhase();
+		}
 		NetworkManager.sendToServer(new InformShootingPhasePayload());
 	}
 
 	public static void onQuit(LocalPlayer localPlayer) {
+		if(CURRENT_PHASE_INTERACTION != null) {
+			CURRENT_PHASE_INTERACTION.onExitDeadeye();
+		} else if(localPlayer != null) {
+			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, localPlayer, localPlayer.getMainHandItem());
+			if(interaction != null) {
+				interaction.onExitDeadeye();
+			}
+		}
 		DEADEYE_ENABLED = false;
 		DEADEYE_STATE = new PlayerDeadeyeState();
+		CURRENT_PHASE_INTERACTION = null;
 		DeadeyeBowVisuals.reset(); // reset fake bow animation thingy
 		hardStopShader();
 	}
@@ -234,13 +249,22 @@ public class DeadeyeClient {
 			calculateDeadeyeEnding();
 
 			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, player, player.getMainHandItem());
-			if(interaction != null && interaction.isGun) {
-				if(interaction instanceof PointBlankDeadeyeInteraction) PointBlankIntegration.refillAmmo(player, player.getMainHandItem());
+			if(interaction != null) {
+				interaction.onEnterDeadeye();
 			}
 		} else {
+			if(CURRENT_PHASE_INTERACTION != null) {
+				CURRENT_PHASE_INTERACTION.onExitDeadeye();
+			} else if(player != null) {
+				AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, player, player.getMainHandItem());
+				if(interaction != null) {
+					interaction.onExitDeadeye();
+				}
+			}
 			DEADEYE_STATE.phase = Phase.IDLE;
 			DEADEYE_STATE.targets.clear();
 			DEADEYE_STATE.markItem = null;
+			CURRENT_PHASE_INTERACTION = null;
 			DeadeyeBowVisuals.reset(); // reset fake bow thingy
 			DeadeyeSound.playExitSound();
 			DeadeyeSound.stopBackgroundSounds();
@@ -264,10 +288,9 @@ public class DeadeyeClient {
 		if(DEADEYE_STATE.phase == Phase.SHOOTING) return;
 		Player player = mc.player;
 		if(player == null) return;
-		ItemStack markingItem = player.getMainHandItem();
 		if(System.currentTimeMillis() - LAST_DEADEYE_MARK < 250) return;
 
-		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, player, markingItem);
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DEADEYE_STATE, player, player.getMainHandItem());
 		if(interaction == null) return;
 		if(DEADEYE_STATE.targets.size() > 50) return;
 		if(!interaction.preMark()) return;
@@ -297,7 +320,7 @@ public class DeadeyeClient {
 		if(target == null) return;
 		LAST_DEADEYE_MARK = System.currentTimeMillis();
 		DEADEYE_STATE.targets.add(new DeadeyeTargetData(target, new Vec3(payload.markPos())));
-		DEADEYE_STATE.markItem = mc.player.getMainHandItem();
+		DEADEYE_STATE.markItem = interaction.getItemStack();
 		DeadeyeSound.playMarkSound();
 
 		interaction.postMark();

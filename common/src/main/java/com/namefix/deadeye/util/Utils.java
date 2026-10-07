@@ -125,15 +125,31 @@ public class Utils {
 	}
 
 	public static AbstractDeadeyeInteraction getDeadeyeInteraction(PlayerDeadeyeState state, Player player, ItemStack itemStack) {
-		AbstractDeadeyeInteraction integrationInteraction = IntegrationRegistry.resolveInteraction(state, player, itemStack);
+		if (itemStack != null && !itemStack.isEmpty()) {
+			AbstractDeadeyeInteraction interaction = resolveInteractionForStack(state, player, itemStack);
+			if (interaction != null) return interaction;
+		}
+
+		if (player != null && !player.getOffhandItem().isEmpty()) {
+			AbstractDeadeyeInteraction offhandInteraction = resolveInteractionForStack(state, player, player.getOffhandItem());
+			if (offhandInteraction != null && offhandInteraction.supportsOffhand()) {
+				return offhandInteraction;
+			}
+		}
+
+		return null;
+	}
+
+	private static AbstractDeadeyeInteraction resolveInteractionForStack(PlayerDeadeyeState state, Player player, ItemStack stack) {
+		AbstractDeadeyeInteraction integrationInteraction = IntegrationRegistry.resolveInteraction(state, player, stack);
 		if (integrationInteraction != null) return integrationInteraction;
 
-		Item item = itemStack.getItem();
+		Item item = stack.getItem();
 
-		if(item instanceof BowItem || item instanceof CrossbowItem) return new BowDeadeyeInteraction(state, player, itemStack);
+		if(item instanceof BowItem || item instanceof CrossbowItem) return new BowDeadeyeInteraction(state, player, stack);
 		else if(item instanceof ProjectileItem) {
 			if(item instanceof ArrowItem || item instanceof FireworkRocketItem || item instanceof FireChargeItem) return null;
-			return new ProjectileDeadeyeInteraction(state, player, itemStack);
+			return new ProjectileDeadeyeInteraction(state, player, stack);
 		}
 		else return null;
 	}

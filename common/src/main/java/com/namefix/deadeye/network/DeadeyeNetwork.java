@@ -33,18 +33,18 @@ public class DeadeyeNetwork {
 			NetworkManager.registerS2CPayloadType(DEADEYE_THRESHOLD, DeadeyeThresholdPayload.CODEC);
 		}
 
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_DEADEYE, RequestDeadeyePayload.CODEC, DeadeyeServer::handleDeadeyeRequest);
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_MARK_C2S, RequestMarkPayload.CODEC, DeadeyeServer::handleMarkRequest);
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOT, InformShotPayload.CODEC, DeadeyeServer::handleShotInfo);
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOOTING_PHASE, InformShootingPhasePayload.CODEC, DeadeyeServer::handleShootingPhase);
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_DEADEYE, RequestDeadeyePayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeServer.handleDeadeyeRequest(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, REQUEST_MARK_C2S, RequestMarkPayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeServer.handleMarkRequest(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOT, InformShotPayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeServer.handleShotInfo(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, INFORM_SHOOTING_PHASE, InformShootingPhasePayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeServer.handleShootingPhase(payload, context)));
 	}
 
 	public static void initializeClient() {
-		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_STATE, DeadeyeStatePayload.CODEC, DeadeyeClient::handleDeadeyeState);
-		NetworkManager.registerReceiver(NetworkManager.Side.S2C, CONFIG_SYNC, ConfigSyncPayload.CODEC, SyncedConfigCache::receiveConfigData);
-		NetworkManager.registerReceiver(NetworkManager.Side.S2C, REQUEST_MARK_S2C, RequestMarkPayload.CODEC, DeadeyeClient::handleDeadeyeMark);
-		NetworkManager.registerReceiver(NetworkManager.Side.S2C, LEVEL_DATA, LevelDataPayload.CODEC, DeadeyeClient::handleLevelData);
-		NetworkManager.registerReceiver(NetworkManager.Side.S2C, METER_DATA, MeterDataPayload.CODEC, DeadeyeClient::handleMeterData);
-		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_THRESHOLD, DeadeyeThresholdPayload.CODEC, DeadeyeClient::handleThresholdToast);
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_STATE, DeadeyeStatePayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeClient.handleDeadeyeState(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, CONFIG_SYNC, ConfigSyncPayload.CODEC, (payload, context) -> context.queue(() -> SyncedConfigCache.receiveConfigData(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, REQUEST_MARK_S2C, RequestMarkPayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeClient.handleDeadeyeMark(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, LEVEL_DATA, LevelDataPayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeClient.handleLevelData(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, METER_DATA, MeterDataPayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeClient.handleMeterData(payload, context)));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DEADEYE_THRESHOLD, DeadeyeThresholdPayload.CODEC, (payload, context) -> context.queue(() -> DeadeyeClient.handleThresholdToast(payload, context)));
 	}
 }

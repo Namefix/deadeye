@@ -43,6 +43,37 @@ public abstract class AbstractDeadeyeInteraction {
 	// After the shooting request, flag indicates whether more targets remain client-side.
 	public abstract void postShot(boolean hasMoreTargets);
 
+	// Called when player enters Dead Eye
+	public void onEnterDeadeye() {}
+
+	// Called when player exits Dead Eye
+	public void onExitDeadeye() {}
+
+	// Called when shooting phase begins
+	public void onEnterShootingPhase() {}
+
+	// Returns the item stack this interaction was created for
+	public ItemStack getItemStack() {
+		return itemStack;
+	}
+
+	// Whether this weapon/interaction supports being used from or supplemented by the offhand
+	public boolean supportsOffhand() {
+		return false;
+	}
+
+	// Returns whether the player is still holding a valid weapon for this interaction
+	public boolean isHoldingWeapon() {
+		if(player == null || itemStack == null) return false;
+		if(player.getMainHandItem().getItem().equals(itemStack.getItem())) return true;
+		return supportsOffhand() && player.getOffhandItem().getItem().equals(itemStack.getItem());
+	}
+
+	// Returns whether there is available ammo for shooting
+	public boolean hasAmmo() {
+		return true;
+	}
+
 	protected void alignPlayerForShot(DeadeyeTargetData targetData, Entity target, double projectileSpeed, double projectileGravity) {
 		Vec3 shooterPos = player.getEyePosition();
 		Vec3 currentMark = targetData.getMarkPosition(0.0f);

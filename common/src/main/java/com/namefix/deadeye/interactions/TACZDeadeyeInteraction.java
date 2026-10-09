@@ -19,6 +19,11 @@ public class TACZDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	}
 
 	@Override
+	public void onEnterDeadeye() {
+		TACZIntegration.refillAmmo(player, itemStack);
+	}
+
+	@Override
 	public boolean preMark() {
 		return TACZIntegration.getGunAmmo(itemStack) > state.targets.size();
 	}

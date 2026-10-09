@@ -19,6 +19,11 @@ public class SGDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	}
 
 	@Override
+	public void onEnterDeadeye() {
+		SGIntegration.refillAmmo(player, itemStack);
+	}
+
+	@Override
 	public boolean preMark() {
 		return SGIntegration.getGunAmmo(itemStack) > state.targets.size();
 	}

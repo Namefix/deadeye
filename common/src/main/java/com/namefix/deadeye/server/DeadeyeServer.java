@@ -8,16 +8,8 @@ import com.namefix.deadeye.data.PlayerDeadeyeState.Phase;
 import com.namefix.deadeye.data.PlayerSavedData;
 import com.namefix.deadeye.data.StateManager;
 import com.namefix.deadeye.interactions.AbstractDeadeyeInteraction;
-import com.namefix.deadeye.interactions.JEGDeadeyeInteraction;
-import com.namefix.deadeye.interactions.SGDeadeyeInteraction;
-import com.namefix.deadeye.interactions.SAGDeadeyeInteraction;
-import com.namefix.deadeye.interactions.TACZDeadeyeInteraction;
 import com.namefix.deadeye.network.DeadeyeNetwork;
 import com.namefix.deadeye.network.payload.*;
-import com.namefix.deadeye.platform.JEGIntegration;
-import com.namefix.deadeye.platform.SGIntegration;
-import com.namefix.deadeye.platform.SAGIntegration;
-import com.namefix.deadeye.platform.TACZIntegration;
 import com.namefix.deadeye.util.ServerUtils;
 import com.namefix.deadeye.util.TickManager;
 import com.namefix.deadeye.util.Utils;
@@ -60,8 +52,11 @@ public class DeadeyeServer {
 					}
 				}
 			} else {
-				if(state.markItem != null && !state.markItem.getItem().equals(player.getMainHandItem().getItem())) {
-					toRemove.add(player);
+				if(state.markItem != null) {
+					AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, state.markItem);
+					if(interaction == null || !interaction.isHoldingWeapon()) {
+						toRemove.add(player);
+					}
 				}
 			}
 
@@ -132,6 +127,14 @@ public class DeadeyeServer {
 	}
 
 	public static void disableDeadeye(Player player) {
+		PlayerDeadeyeState state = DeadeyeStates.get(player);
+		if(state != null) {
+			AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, player.getMainHandItem());
+			if(interaction != null) {
+				interaction.onExitDeadeye();
+			}
+		}
+
 		var level = player.level();
 		DeadeyeStates.remove(player);
 
@@ -179,11 +182,8 @@ public class DeadeyeServer {
 		}
 
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DeadeyeStates.get(player), player, player.getMainHandItem());
-		if(interaction != null && interaction.isGun) {
-			if(interaction instanceof TACZDeadeyeInteraction) TACZIntegration.refillAmmo(player, player.getMainHandItem());
-			if(interaction instanceof SAGDeadeyeInteraction) SAGIntegration.refillAmmo(player, player.getMainHandItem());
-			if(interaction instanceof JEGDeadeyeInteraction) JEGIntegration.refillAmmo(player, player.getMainHandItem());
-			if(interaction instanceof SGDeadeyeInteraction) SGIntegration.refillAmmo(player, player.getMainHandItem());
+		if(interaction != null) {
+			interaction.onEnterDeadeye();
 		}
 
 		DeadeyeStatePayload payload = new DeadeyeStatePayload(true, PREVIOUS_TICK_RATE, Phase.IDLE.ordinal());
@@ -227,9 +227,7 @@ public class DeadeyeServer {
 		PlayerDeadeyeState state = DeadeyeStates.get(player);
 		if(state.targets.size() > 50) return;
 
-		ItemStack markItem = player.getMainHandItem();
-		if(markItem.isEmpty()) return;
-		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, markItem);
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, player, player.getMainHandItem());
 		if(interaction == null) return;
 		if(!interaction.preMark()) return;
 
@@ -240,7 +238,7 @@ public class DeadeyeServer {
 		updatePlayerPhase(player, Phase.MARKED);
 		Vec3 pos = new Vec3(payload.markPos());
 		state.targets.add(new DeadeyeTargetData(entity, pos));
-		state.markItem = player.getMainHandItem().copy();
+		state.markItem = interaction.getItemStack().copy();
 		RequestMarkPayload responsePayload = RequestMarkPayload.forServerToClient(payload.markPos(), payload.entityId());
 		var responseBuffer = DeadeyeNetwork.createBuffer();
 		responsePayload.write(responseBuffer);
@@ -281,5 +279,9 @@ public class DeadeyeServer {
 		PlayerDeadeyeState state = DeadeyeStates.get(packetContext.getPlayer());
 		if(state.phase != Phase.MARKED) return;
 		state.phase = Phase.SHOOTING;
+		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(state, packetContext.getPlayer(), state.markItem);
+		if(interaction != null) {
+			interaction.onEnterShootingPhase();
+		}
 	}
 }

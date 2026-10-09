@@ -24,6 +24,11 @@ public final class PointBlankIntegration {
 	}
 
 	@ExpectPlatform
+	public static int getGunAmmo(ItemStack item, Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
 	public static void refillAmmo(Player player, ItemStack item) {throw new AssertionError();}
 
 	@ExpectPlatform
@@ -33,6 +38,36 @@ public final class PointBlankIntegration {
 
 	@ExpectPlatform
 	public static boolean isGunReady(ItemStack item, Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static boolean isDualWielding(Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static int getTotalGunAmmo(Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static void refillAllGuns(Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static ItemStack getOperableGun(Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static boolean isGunReloading(ItemStack item, Player player) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static void clearPendingInstantReload(Player player) {
 		throw new AssertionError();
 	}
 }

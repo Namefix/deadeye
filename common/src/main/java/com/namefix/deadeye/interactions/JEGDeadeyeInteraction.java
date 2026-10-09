@@ -19,6 +19,11 @@ public class JEGDeadeyeInteraction extends AbstractDeadeyeInteraction {
 	}
 
 	@Override
+	public void onEnterDeadeye() {
+		JEGIntegration.refillAmmo(player, itemStack);
+	}
+
+	@Override
 	public boolean preMark() {
 		return JEGIntegration.getGunAmmo(itemStack) > state.targets.size();
 	}

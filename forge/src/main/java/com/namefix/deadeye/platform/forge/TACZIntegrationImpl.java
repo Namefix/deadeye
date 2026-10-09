@@ -10,6 +10,7 @@ import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.gun.AbstractGunItem;
 import com.tacz.guns.resource.index.CommonGunIndex;
 import com.tacz.guns.resource.pojo.data.gun.Bolt;
+import com.tacz.guns.resource.pojo.data.gun.ChargeData;
 import com.tacz.guns.util.AttachmentDataUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -164,7 +165,17 @@ public class TACZIntegrationImpl {
 	public static void fireGun(ItemStack item, Player player, Entity target) {
 		if(!(player instanceof LocalPlayer localPlayer)) return;
 		localPlayer.connection.send(new ServerboundMovePlayerPacket.Rot(localPlayer.getYRot(), localPlayer.getXRot(), localPlayer.onGround()));
-		IClientPlayerGunOperator.fromLocalPlayer(localPlayer).shoot();
+		IClientPlayerGunOperator operator = IClientPlayerGunOperator.fromLocalPlayer(localPlayer);
+		IGun gun = IGun.getIGunOrNull(item);
+		if(gun != null) {
+			TimelessAPI.getCommonGunIndex(gun.getGunId(item)).ifPresent(index -> {
+				ChargeData chargeData = index.getGunData().getChargeData(gun.getFireMode(item));
+				if(chargeData != null) {
+					operator.getDataHolder().chargeProgress = chargeData.getMaxCharge();
+				}
+			});
+		}
+		operator.shoot();
 	}
 
 	public static boolean isGunReady(ItemStack item, Player player) {

@@ -26,9 +26,15 @@ public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPlugin
 
 	@Override
 	protected void registerMixins() {
-		registerIntegrationMixin("com.namefix.deadeye.neoforge.integration.pointblank.PointBlankGunMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.deadeye.neoforge.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.deadeye.neoforge.integration.pointblank.PointBlankGunClientMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.deadeye.neoforge.integration.pointblank.PointBlankGunClientStateAccessor", "pointblank");
+		//pointblank
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.pointblank.PointBlankGunClientMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.pointblank.PointBlankGunClientStateAccessor", "pointblank");
+
+		//tacz
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.tacz.TACZInaccuracyTypeMixin", "tacz");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.tacz.TACZLivingEntityDrawGunMixin", "tacz");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.tacz.TACZModernKineticGunItemMixin", "tacz");
 	}
 }

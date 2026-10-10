@@ -7,10 +7,13 @@
   "client": [
     "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",
-    "pointblank.PointBlankGunClientMixin"
+    "pointblank.PointBlankGunClientMixin",
+    "tacz.TACZLivingEntityDrawGunMixin"
   ],
   "mixins": [
-    "pointblank.PointBlankGunMixin"
+    "pointblank.PointBlankGunMixin",
+    "tacz.TACZInaccuracyTypeMixin",
+    "tacz.TACZModernKineticGunItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

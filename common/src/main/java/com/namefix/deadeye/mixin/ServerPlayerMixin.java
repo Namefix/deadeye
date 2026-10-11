@@ -21,7 +21,7 @@ public class ServerPlayerMixin {
 	private void deadeye$cancelPlayerDamage(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
 
-		if(DeadeyeServer.DeadeyeStates.containsKey(player) && DeadeyeConfig.Server.deadeyeInvulnerability) {
+		if(DeadeyeServer.isPlayerInDeadeye(player) && DeadeyeConfig.Server.deadeyeInvulnerability) {
 			// Cancel event if the damage is not environmental
 			if (!deadeye$isEnvironmentalDamage(damageSource)) {
 				cir.setReturnValue(false);

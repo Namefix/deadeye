@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class TACZModernKineticGunItemMixin {
 	@ModifyVariable(method = "doBulletSpread", at = @At("HEAD"), ordinal = 1, argsOnly = true, remap = false)
 	private float deadeye$modifySpread(float inaccuracy, ShooterDataHolder dataHolder, ItemStack gunItem, LivingEntity shooter) {
-		if(DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(shooter.getUUID()))) return 0.0F;
+		if(DeadeyeServer.isPlayerInDeadeye(shooter)) return 0.0F;
 		return inaccuracy;
 	}
 }

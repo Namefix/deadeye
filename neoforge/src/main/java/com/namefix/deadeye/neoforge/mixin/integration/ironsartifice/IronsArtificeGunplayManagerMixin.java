@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(GunplayManager.class)
 public class IronsArtificeGunplayManagerMixin {
 	private static boolean deadeye$isServerDeadeye(Player player) {
-		return DeadeyeServer.DeadeyeStates.containsKey(player) || DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID())) || DeadeyeServer.hasPendingIronsArtificeShotMark(player);
+		return DeadeyeServer.isPlayerInDeadeye(player) || DeadeyeServer.hasPendingIronsArtificeShotMark(player);
 	}
 
 	@Inject(method = "getSpreadForEntity", at = @At("HEAD"), cancellable = true)

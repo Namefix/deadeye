@@ -23,7 +23,7 @@ public class IronsArtificeFireDelayStateMixin {
 				cir.setReturnValue(false);
 			}
 		} else {
-			if(DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()))
+			if(DeadeyeServer.isPlayerInDeadeye(player)
 				|| DeadeyeServer.hasPendingIronsArtificeShotMark(player)) {
 				cir.setReturnValue(false);
 			}

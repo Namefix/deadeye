@@ -20,7 +20,7 @@ public class CrossbowItemMixin {
 	private static void deadeye$modifyChargeDuration(ItemStack itemStack, LivingEntity livingEntity, CallbackInfoReturnable<Integer> cir) {
 		if(!(livingEntity instanceof Player player) || player.level().isClientSide) return;
 
-		if(DeadeyeServer.DeadeyeStates.containsKey(player)) {
+		if(DeadeyeServer.isPlayerInDeadeye(player)) {
 			float curTickRate = player.level().tickRateManager().tickrate();
 			float prevTickRate = DeadeyeServer.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeServer.PREVIOUS_TICK_RATE;
 			cir.setReturnValue((int) (cir.getReturnValue() / (prevTickRate / curTickRate)));

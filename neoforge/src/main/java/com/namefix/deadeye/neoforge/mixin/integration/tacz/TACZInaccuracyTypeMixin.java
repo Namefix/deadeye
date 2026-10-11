@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class TACZInaccuracyTypeMixin {
 	@Inject(method = "getInaccuracyType", at = @At("HEAD"), cancellable = true, remap = false)
 	private static void deadeye$modifyInaccuracyType(LivingEntity livingEntity, CallbackInfoReturnable<InaccuracyType> cir) {
-		if(DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(livingEntity.getUUID()))) cir.setReturnValue(InaccuracyType.AIM);
+		if(DeadeyeServer.isPlayerInDeadeye(livingEntity)) cir.setReturnValue(InaccuracyType.AIM);
 	}
 }
 

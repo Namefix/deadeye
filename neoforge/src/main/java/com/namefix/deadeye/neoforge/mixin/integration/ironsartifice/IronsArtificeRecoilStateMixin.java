@@ -22,7 +22,7 @@ public class IronsArtificeRecoilStateMixin {
 				cir.setReturnValue(RecoilState.NONE);
 			}
 		} else {
-			if(DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()))
+			if(DeadeyeServer.isPlayerInDeadeye(player)
 				|| DeadeyeServer.hasPendingIronsArtificeShotMark(player)) {
 				cir.setReturnValue(RecoilState.NONE);
 			}

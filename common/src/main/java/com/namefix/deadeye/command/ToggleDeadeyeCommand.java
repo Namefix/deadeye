@@ -21,7 +21,7 @@ public final class ToggleDeadeyeCommand implements DeadeyeCommand {
 
 	private int toggle(CommandContext<CommandSourceStack> context, ServerPlayer target) {
 		DeadeyeServer.toggleDeadeye(target);
-		boolean isActive = DeadeyeServer.DeadeyeStates.containsKey(target);
+		boolean isActive = DeadeyeServer.isPlayerInDeadeye(target);
 		Component message = Component.translatable("command.deadeye.toggle.%s".formatted(isActive ? "enabled" : "disabled"), target.getDisplayName());
 		context.getSource().sendSuccess(() -> message, true);
 		return isActive ? 1 : 0;

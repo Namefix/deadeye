@@ -23,7 +23,7 @@ public class AbstractArrowMixin {
 		AbstractArrow arrow = (AbstractArrow) (Object) this;
 
 		if(arrow.getOwner() instanceof Player player) {
-			if(DeadeyeServer.DeadeyeStates.containsKey(player)) entityHitResult.getEntity().invulnerableTime = 0;
+			if(DeadeyeServer.isPlayerInDeadeye(player)) entityHitResult.getEntity().invulnerableTime = 0;
 		}
 	}
 }

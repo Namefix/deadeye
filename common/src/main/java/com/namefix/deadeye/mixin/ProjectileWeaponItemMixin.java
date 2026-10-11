@@ -16,7 +16,7 @@ public class ProjectileWeaponItemMixin {
 		LivingEntity owner = args.get(0);
 		if(!(owner instanceof Player player)) return;
 
-		if(DeadeyeServer.DeadeyeStates.containsKey(player)) {
+		if(DeadeyeServer.isPlayerInDeadeye(player)) {
 			args.set(4, 0f);
 			args.set(5, 0f);
 		}

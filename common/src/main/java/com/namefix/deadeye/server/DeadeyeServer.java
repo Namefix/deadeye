@@ -27,6 +27,7 @@ import java.util.*;
 public class DeadeyeServer {
 	public static Map<Player, PlayerDeadeyeState> DeadeyeStates = new HashMap<>();
 	private static final Map<UUID, Deque<Vec3>> POINTBLANK_PENDING_SHOT_MARKS = new HashMap<>();
+	private static final Map<UUID, Deque<Vec3>> IRONS_ARTIFICE_PENDING_SHOT_MARKS = new HashMap<>();
 	public static float PREVIOUS_TICK_RATE = -1.0f;
 
 	public static void onTick(ServerLevel serverLevel) {
@@ -89,11 +90,14 @@ public class DeadeyeServer {
 	public static void onPlayerQuit(ServerPlayer serverPlayer) {
 		DeadeyeStates.remove(serverPlayer);
 		POINTBLANK_PENDING_SHOT_MARKS.remove(serverPlayer.getUUID());
+		IRONS_ARTIFICE_PENDING_SHOT_MARKS.remove(serverPlayer.getUUID());
 		if(DeadeyeStates.isEmpty()) disableDeadeye(serverPlayer);
 	}
 
 	public static EventResult onPlayerDeath(LivingEntity livingEntity, DamageSource damageSource) {
 		if(!(livingEntity instanceof Player player)) return EventResult.pass();
+		POINTBLANK_PENDING_SHOT_MARKS.remove(player.getUUID());
+		IRONS_ARTIFICE_PENDING_SHOT_MARKS.remove(player.getUUID());
 		disableDeadeye(player);
 		return EventResult.interruptDefault();
 	}
@@ -163,12 +167,38 @@ public class DeadeyeServer {
 		return queue != null && !queue.isEmpty();
 	}
 
+	public static void enqueueIronsArtificeShotMark(Player player, Vec3 markPos) {
+		IRONS_ARTIFICE_PENDING_SHOT_MARKS.computeIfAbsent(player.getUUID(), ignored -> new ArrayDeque<>()).addLast(markPos);
+	}
+
+	public static Vec3 consumeIronsArtificeShotMark(Player player) {
+		Deque<Vec3> queue = IRONS_ARTIFICE_PENDING_SHOT_MARKS.get(player.getUUID());
+		if(queue == null || queue.isEmpty()) return null;
+		Vec3 mark = queue.pollFirst();
+		if(queue.isEmpty()) {
+			IRONS_ARTIFICE_PENDING_SHOT_MARKS.remove(player.getUUID());
+		}
+		return mark;
+	}
+
+	public static Vec3 peekIronsArtificeShotMark(Player player) {
+		Deque<Vec3> queue = IRONS_ARTIFICE_PENDING_SHOT_MARKS.get(player.getUUID());
+		if(queue == null || queue.isEmpty()) return null;
+		return queue.peekFirst();
+	}
+
+	public static boolean hasPendingIronsArtificeShotMark(Player player) {
+		Deque<Vec3> queue = IRONS_ARTIFICE_PENDING_SHOT_MARKS.get(player.getUUID());
+		return queue != null && !queue.isEmpty();
+	}
+
 	public static void enableDeadeye(Player player) {
 		PlayerSavedData data = StateManager.getPlayerState((ServerPlayer) player);
 		if(data.deadeyeSkill <= 0 || data.deadeyeMeter + data.deadeyeCore <= 0f) return;
 
 		var level = player.level();
 		POINTBLANK_PENDING_SHOT_MARKS.remove(player.getUUID());
+		IRONS_ARTIFICE_PENDING_SHOT_MARKS.remove(player.getUUID());
 		DeadeyeStates.put(player, new PlayerDeadeyeState());
 
 		AbstractDeadeyeInteraction interaction = Utils.getDeadeyeInteraction(DeadeyeStates.get(player), player, player.getMainHandItem());
@@ -236,6 +266,7 @@ public class DeadeyeServer {
 		}
 
 		enqueuePointBlankShotMark(player, new Vec3(payload.targetPos()));
+		enqueueIronsArtificeShotMark(player, new Vec3(payload.targetPos()));
 
 		if(state.targets.isEmpty()) {
 			disableDeadeye(packetContext.getPlayer());

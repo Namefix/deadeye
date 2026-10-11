@@ -36,5 +36,11 @@ public final class NeoForgeIntegrationMixinPlugin extends IntegrationMixinPlugin
 		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.tacz.TACZInaccuracyTypeMixin", "tacz");
 		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.tacz.TACZLivingEntityDrawGunMixin", "tacz");
 		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.tacz.TACZModernKineticGunItemMixin", "tacz");
+
+		//ironsartifice
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.ironsartifice.IronsArtificeFireDelayStateMixin", "irons_artifice");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.ironsartifice.IronsArtificeGunplayManagerMixin", "irons_artifice");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.ironsartifice.IronsArtificeRecoilManagerMixin", "irons_artifice");
+		registerIntegrationMixin("com.namefix.deadeye.neoforge.mixin.integration.ironsartifice.IronsArtificeRecoilStateMixin", "irons_artifice");
 	}
 }

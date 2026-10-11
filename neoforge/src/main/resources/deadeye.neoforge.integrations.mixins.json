@@ -5,12 +5,16 @@
   "minVersion": "0.8",
   "plugin": "com.namefix.deadeye.neoforge.mixin.integration.NeoForgeIntegrationMixinPlugin",
   "client": [
-    "pointblank.PointBlankGunClientStateAccessor",
     "pointblank.PointBlankFireModeFeatureMixin",
     "pointblank.PointBlankGunClientMixin",
-    "tacz.TACZLivingEntityDrawGunMixin"
+    "pointblank.PointBlankGunClientStateAccessor",
+    "tacz.TACZLivingEntityDrawGunMixin",
+    "ironsartifice.IronsArtificeRecoilManagerMixin"
   ],
   "mixins": [
+    "ironsartifice.IronsArtificeFireDelayStateMixin",
+    "ironsartifice.IronsArtificeGunplayManagerMixin",
+    "ironsartifice.IronsArtificeRecoilStateMixin",
     "pointblank.PointBlankGunMixin",
     "tacz.TACZInaccuracyTypeMixin",
     "tacz.TACZModernKineticGunItemMixin"

@@ -168,6 +168,25 @@ public class DeadeyeServer {
 		return queue != null && !queue.isEmpty();
 	}
 
+	public static boolean isPlayerInDeadeye(UUID uuid) {
+		if(uuid == null) return false;
+		for(Player p : DeadeyeStates.keySet()) {
+			if(p.getUUID().equals(uuid)) return true;
+		}
+		return false;
+	}
+
+	public static boolean isPlayerInDeadeye(Player player) {
+		if(player == null) return false;
+		if(DeadeyeStates.containsKey(player)) return true;
+		return isPlayerInDeadeye(player.getUUID());
+	}
+
+	public static boolean isPlayerInDeadeye(Entity entity) {
+		if(!(entity instanceof Player player)) return false;
+		return isPlayerInDeadeye(player);
+	}
+
 	public static void enableDeadeye(Player player) {
 		PlayerSavedData data = StateManager.getPlayerState((ServerPlayer) player);
 		if(data.deadeyeSkill <= 0 || data.deadeyeMeter + data.deadeyeCore <= 0f) return;

@@ -20,7 +20,7 @@ public class ProjectileWeaponItemMixin {
 	)
 	private float deadeye$modifyProjectileInaccuracy(float inaccuracy, Entity owner) {
 		if(!(owner instanceof Player player)) return inaccuracy;
-		if(!DeadeyeServer.DeadeyeStates.containsKey(player)) return inaccuracy;
+		if(!DeadeyeServer.isPlayerInDeadeye(player)) return inaccuracy;
 
 		Projectile projectile = (Projectile) (Object) this;
 		if(projectile instanceof AbstractArrow || projectile instanceof FireworkRocketEntity) {

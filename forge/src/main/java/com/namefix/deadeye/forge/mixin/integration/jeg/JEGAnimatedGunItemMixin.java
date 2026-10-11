@@ -25,7 +25,6 @@ public class JEGAnimatedGunItemMixin {
 	}
 
 	private static boolean deadeye$isServerDeadeye(Player player) {
-		return DeadeyeServer.DeadeyeStates.containsKey(player)
-			|| DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()));
+		return DeadeyeServer.isPlayerInDeadeye(player);
 	}
 }

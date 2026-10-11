@@ -34,7 +34,7 @@ public class SAGGunItemMixin {
 			index = 1
 	)
 	private double deadeye$zeroSpreadX(double spreadX, @Local(argsOnly = true) ServerPlayer player) {
-		if (DeadeyeServer.DeadeyeStates.containsKey(player)) return 0D;
+		if (DeadeyeServer.isPlayerInDeadeye(player)) return 0D;
 		return spreadX;
 	}
 
@@ -47,7 +47,7 @@ public class SAGGunItemMixin {
 			index = 1
 	)
 	private double deadeye$zeroSpreadY(double spreadY, @Local(argsOnly = true) ServerPlayer player) {
-		if (DeadeyeServer.DeadeyeStates.containsKey(player)) return 0D;
+		if (DeadeyeServer.isPlayerInDeadeye(player)) return 0D;
 		return spreadY;
 	}
 }

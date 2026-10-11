@@ -21,8 +21,7 @@ public class AbstractArrowMixin {
 		AbstractArrow arrow = (AbstractArrow) (Object) this;
 
 		if(arrow.getOwner() instanceof Player player) {
-			boolean ownerInDeadeye = DeadeyeServer.DeadeyeStates.containsKey(player)
-				|| DeadeyeServer.DeadeyeStates.keySet().stream().anyMatch(p -> p.getUUID().equals(player.getUUID()));
+			boolean ownerInDeadeye = DeadeyeServer.isPlayerInDeadeye(player);
 
 			if(ownerInDeadeye && entityHitResult.getEntity() instanceof LivingEntity livingEntity) {
 				livingEntity.invulnerableTime = 0;

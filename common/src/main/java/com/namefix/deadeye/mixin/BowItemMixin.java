@@ -21,7 +21,7 @@ public class BowItemMixin {
 	private float deadeye$adjustPowerForTime(int drawTime, ItemStack itemStack, Level level, LivingEntity entity, int timeLeft) {
 		if(!(entity instanceof Player player) || player.level().isClientSide) return BowItem.getPowerForTime(drawTime);
 
-		if(DeadeyeServer.DeadeyeStates.containsKey(player) && DeadeyeConfig.Server.bowPullCompensation) {
+		if(DeadeyeServer.isPlayerInDeadeye(player) && DeadeyeConfig.Server.bowPullCompensation) {
 			float curTickRate = TickManager.getTickRate(player.level());
 			float prevTickRate = DeadeyeServer.PREVIOUS_TICK_RATE == -1f ? curTickRate : DeadeyeServer.PREVIOUS_TICK_RATE;
 			int adjustedDrawTime = (int) (drawTime * (prevTickRate / curTickRate));

@@ -20,12 +20,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Set;
 
 public class DeadeyeClient {
 	public static boolean DEADEYE_ENABLED = false;
@@ -46,6 +47,17 @@ public class DeadeyeClient {
 	private static long LAST_DEADEYE_SHOT = 0;
 	private static AbstractDeadeyeInteraction CURRENT_PHASE_INTERACTION = null;
 	private static long LAST_AUTO_MARK = 0;
+
+	public static final Set<String> PITCH_IGNORED_SOUNDS = Set.of(
+			"minecraft:entity.player.levelup",
+			"minecraft:ui.button.click",
+			"minecraft:ui.toast.in",
+			"minecraft:ui.toast.out",
+			"minecraft:ui.toast.challenge_complete",
+			"pointblank:hit_light",
+			"pointblank:hit_heavy",
+			"pointblank:hit_headshot"
+	);
 
 	public static void initialize() {
 		DeadeyeBowVisuals.registerItemProperties();

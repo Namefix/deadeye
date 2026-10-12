@@ -17,11 +17,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.material.FogType;
 
 public class Utils {
 	public static Vec2 getHeadingFromTarget(Entity entity, EntityAnchorArgument.Anchor anchorPoint, Vec3 target) {
@@ -159,14 +161,28 @@ public class Utils {
 	}
 
 	public static HitResult raycastFromPlayer(Player player, double maxDistance) {
+		if(player == null) return null;
 		Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
-		if(cameraEntity == null) return null;
+		if(cameraEntity == null) cameraEntity = player;
 
 		Vec3 cameraPos = player.getEyePosition(1.0f);
 		Vec3 cameraRot = player.getViewVector(1.0f);
 		Vec3 raycastContext = cameraPos.add(cameraRot.x * maxDistance, cameraRot.y * maxDistance, cameraRot.z * maxDistance);
-		AABB box = cameraEntity.getBoundingBox().expandTowards(cameraRot.scale(maxDistance)).expandTowards(1d,1d,1d);
-		return ProjectileUtil.getEntityHitResult(cameraEntity, cameraPos, raycastContext, box, (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity), maxDistance);
+
+		HitResult blockHit = player.level().clip(new ClipContext(cameraPos, raycastContext, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player));
+
+		double maxDistanceSqr = maxDistance * maxDistance;
+		if(blockHit.getType() != HitResult.Type.MISS) {
+			maxDistanceSqr = cameraPos.distanceToSqr(blockHit.getLocation());
+		}
+
+		double searchDistance = Math.sqrt(maxDistanceSqr);
+		Vec3 entitySearchEnd = cameraPos.add(cameraRot.x * searchDistance, cameraRot.y * searchDistance, cameraRot.z * searchDistance);
+		AABB box = cameraEntity.getBoundingBox().expandTowards(cameraRot.scale(searchDistance)).inflate(1.0d, 1.0d, 1.0d);
+
+		EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(cameraEntity, cameraPos, entitySearchEnd, box, (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity), maxDistanceSqr);
+
+		return entityHit != null ? entityHit : blockHit;
 	}
 
 	// convert world space coordinates to screenspace

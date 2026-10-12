@@ -3,7 +3,7 @@ package com.namefix.deadeye.config;
 import com.namefix.deadeye.DeadeyeMod;
 import com.namefix.deadeye.network.payload.ConfigSyncPayload;
 import dev.architectury.networking.NetworkManager;
-import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -29,12 +29,12 @@ public class SyncedConfigCache {
 		DeadeyeMod.LOGGER.debug("Sent config data to {}", player.getDisplayName());
 	}
 
-	public static void reloadAndSyncIntegratedServer(IntegratedServer integratedServer) {
-		integratedServer.execute(() -> {
-			for(ServerPlayer player : integratedServer.getPlayerList().getPlayers()) {
+	public static void reloadAndSyncServer(MinecraftServer server) {
+		server.execute(() -> {
+			for(ServerPlayer player : server.getPlayerList().getPlayers()) {
 				sendConfigData(player);
 			}
-			DeadeyeMod.LOGGER.debug("Reload/sync button executed for integrated server. Synced {} players.", integratedServer.getPlayerList().getPlayerCount());
+			DeadeyeMod.LOGGER.debug("Reload/sync button executed for server. Synced {} players.", server.getPlayerList().getPlayerCount());
 		});
 	}
 }

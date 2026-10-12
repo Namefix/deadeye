@@ -10,8 +10,10 @@ import com.namefix.deadeye.registry.KeybindRegistry;
 import com.namefix.deadeye.shader.ShaderManager;
 import com.namefix.deadeye.util.ClientUtils;
 import com.namefix.deadeye.util.Utils;
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.event.EventResult;
 import dev.architectury.networking.NetworkManager;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import com.namefix.deadeye.data.PlayerDeadeyeState.Phase;
 import net.minecraft.client.player.LocalPlayer;
@@ -64,11 +66,15 @@ public class DeadeyeClient {
 	}
 
 	public static void render() {
+		if(DEADEYE_ENABLED && DEADEYE_STATE.phase == Phase.SHOOTING) {
+			consumeAndResetAttackKeys();
+		}
 		shootingTick();
 		autoMark();
 		updateShaderVisuals();
 		DeadeyeSound.tick();
 	}
+
 
 	public static void shootingTick() {
 		Minecraft mc = Minecraft.getInstance();
@@ -155,6 +161,7 @@ public class DeadeyeClient {
 
 	public static void initShootingPhase() {
 		if(DEADEYE_STATE.targets.isEmpty()) return;
+		consumeAndResetAttackKeys();
 		CURRENT_PHASE_INTERACTION = Utils.getDeadeyeInteraction(DEADEYE_STATE, Minecraft.getInstance().player, DEADEYE_STATE.markItem);
 		LAST_DEADEYE_LERP = System.currentTimeMillis();
 		DEADEYE_LERP_START = System.currentTimeMillis();
@@ -187,6 +194,22 @@ public class DeadeyeClient {
 			return EventResult.pass();
 		}
 
+		boolean isAttackKey = minecraft.options != null && minecraft.options.keyAttack != null &&
+				minecraft.options.keyAttack.matches(keyCode, scanCode);
+
+		if(isAttackKey && DEADEYE_ENABLED) {
+			if(DEADEYE_STATE.phase == Phase.MARKED && !DEADEYE_STATE.targets.isEmpty()) {
+				if(action == GLFW.GLFW_PRESS) {
+					initShootingPhase();
+					consumeAndResetAttackKeys();
+					return EventResult.interruptFalse();
+				}
+			} else if(DEADEYE_STATE.phase == Phase.SHOOTING) {
+				consumeAndResetAttackKeys();
+				return EventResult.interruptFalse();
+			}
+		}
+
 		return handleKeybindActivation(
 			KeybindRegistry.DEADEYE_TOGGLE.matches(keyCode, scanCode),
 			KeybindRegistry.DEADEYE_MARK.matches(keyCode, scanCode),
@@ -201,6 +224,22 @@ public class DeadeyeClient {
 			return EventResult.pass();
 		}
 
+		boolean isAttackClick = (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) ||
+				(minecraft.options != null && minecraft.options.keyAttack != null && minecraft.options.keyAttack.matchesMouse(button));
+
+		if(isAttackClick && DEADEYE_ENABLED) {
+			if(DEADEYE_STATE.phase == Phase.MARKED && !DEADEYE_STATE.targets.isEmpty()) {
+				if(action == GLFW.GLFW_PRESS) {
+					initShootingPhase();
+					consumeAndResetAttackKeys();
+					return EventResult.interruptFalse();
+				}
+			} else if(DEADEYE_STATE.phase == Phase.SHOOTING) {
+				consumeAndResetAttackKeys();
+				return EventResult.interruptFalse();
+			}
+		}
+
 		return handleKeybindActivation(
 			KeybindRegistry.DEADEYE_TOGGLE.matchesMouse(button),
 			KeybindRegistry.DEADEYE_MARK.matchesMouse(button),
@@ -210,8 +249,61 @@ public class DeadeyeClient {
 		);
 	}
 
-	private static boolean canHandleInput(Minecraft minecraft) {
-		return minecraft.level != null &&
+	public static boolean handleMouseClickHead(long window, int button, int action, int mods) {
+		Minecraft mc = Minecraft.getInstance();
+		if(mc == null || mc.getWindow() == null || window != mc.getWindow().getWindow()) {
+			return false;
+		}
+
+		if(!canHandleInput(mc)) {
+			return false;
+		}
+
+		boolean isAttackClick = (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) ||
+				(mc.options != null && mc.options.keyAttack != null && mc.options.keyAttack.matchesMouse(button));
+
+		if(!isAttackClick) {
+			return false;
+		}
+
+		if(DEADEYE_ENABLED) {
+			if(DEADEYE_STATE.phase == Phase.MARKED && !DEADEYE_STATE.targets.isEmpty()) {
+				if(action == GLFW.GLFW_PRESS) {
+					initShootingPhase();
+					consumeAndResetAttackKeys();
+					return true;
+				}
+			} else if(DEADEYE_STATE.phase == Phase.SHOOTING) {
+				consumeAndResetAttackKeys();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static void consumeAndResetAttackKeys() {
+		Minecraft mc = Minecraft.getInstance();
+		if(mc != null && mc.options != null) {
+			if(mc.options.keyAttack != null) {
+				mc.options.keyAttack.setDown(false);
+				while(mc.options.keyAttack.consumeClick()) {}
+			}
+			if(mc.options.keyMappings != null) {
+				for(KeyMapping mapping : mc.options.keyMappings) {
+					if(mapping != null && mapping.matchesMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+						mapping.setDown(false);
+						while(mapping.consumeClick()) {}
+					}
+				}
+			}
+		}
+		KeyMapping.set(InputConstants.Type.MOUSE.getOrCreate(GLFW.GLFW_MOUSE_BUTTON_LEFT), false);
+	}
+
+	public static boolean canHandleInput(Minecraft minecraft) {
+		return minecraft != null &&
+			minecraft.level != null &&
 			minecraft.player != null &&
 			!minecraft.player.isSpectator() &&
 			minecraft.player.isAlive() &&
@@ -225,27 +317,28 @@ public class DeadeyeClient {
 
 		if(toggleMatch) {
 			requestDeadeye();
-			return EventResult.interruptDefault();
+			return EventResult.interruptFalse();
 		}
 
 		if(markMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase != Phase.SHOOTING && DEADEYE_DATA.deadeyeSkill != 1) {
 			requestMark();
-			return EventResult.interruptDefault();
+			return EventResult.interruptFalse();
 		}
 
 		if(shootMatch && DEADEYE_ENABLED && DEADEYE_STATE.phase == Phase.MARKED) {
 			initShootingPhase();
-			return EventResult.interruptDefault();
+			return EventResult.interruptFalse();
 		}
 
 		if(DeadeyeConfig.HUD.enableInfoToast && info && !DeadeyeHud.isDeadeyeInfoVisible()) {
 			DeadeyeHud.showDeadeyeInfo();
 			DeadeyeSound.playUIAppear();
-			return EventResult.interruptDefault();
+			return EventResult.interruptFalse();
 		}
 
 		return EventResult.pass();
 	}
+
 
 	private static void setDeadeyeState(boolean enabled) {
 		if(DEADEYE_ENABLED == enabled) return;

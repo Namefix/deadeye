@@ -16,4 +16,12 @@ public class MouseHandlerMixin {
 			ci.cancel();
 		}
 	}
+
+	@Inject(method = "onPress", at = @At("HEAD"), cancellable = true)
+	private void deadeye$onMousePress(long window, int button, int action, int mods, CallbackInfo ci) {
+		if(DeadeyeClient.handleMouseClickHead(window, button, action, mods)) {
+			ci.cancel();
+		}
+	}
 }
+

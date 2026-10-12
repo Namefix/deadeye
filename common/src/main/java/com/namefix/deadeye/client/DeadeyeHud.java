@@ -400,6 +400,10 @@ public class DeadeyeHud {
 
 		Font font = Minecraft.getInstance().font;
 		String text = String.format("Dead Eye Level %d - %.1f / %.1f XP", DeadeyeClient.DEADEYE_DATA.deadeyeLevel, DeadeyeClient.DEADEYE_DATA.deadeyeXp, PlayerSavedData.requiredXPToLevelUp(DeadeyeClient.DEADEYE_DATA.deadeyeLevel));
+		if(DeadeyeClient.DEADEYE_DATA.deadeyeLevel == 10) { // Dead Eye level can be set higher than 10 with cheats so thats why it only checks for level 10.
+			text = String.format("Dead Eye Level %d - Max Reached!", DeadeyeClient.DEADEYE_DATA.deadeyeLevel);
+		}
+
 		int textY = pos.y + (height - font.lineHeight) / 2 + 1;
 		int textWidth = font.width(text);
 		int width = textWidth + (paddingX * 2);

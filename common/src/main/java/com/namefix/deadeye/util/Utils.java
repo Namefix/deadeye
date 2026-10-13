@@ -1,27 +1,16 @@
 package com.namefix.deadeye.util;
 
-import com.mojang.blaze3d.platform.Window;
 import com.namefix.deadeye.data.PlayerDeadeyeState;
 import com.namefix.deadeye.integration.IntegrationRegistry;
 import com.namefix.deadeye.interactions.AbstractDeadeyeInteraction;
 import com.namefix.deadeye.interactions.BowDeadeyeInteraction;
 import com.namefix.deadeye.interactions.ProjectileDeadeyeInteraction;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.material.FogType;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -158,138 +147,5 @@ public class Utils {
 			return true;
 		}
 		return false;
-	}
-
-	public static HitResult raycastFromPlayer(Player player, double maxDistance) {
-		if(player == null) return null;
-		Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
-		if(cameraEntity == null) cameraEntity = player;
-
-		Vec3 cameraPos = player.getEyePosition(1.0f);
-		Vec3 cameraRot = player.getViewVector(1.0f);
-		Vec3 raycastContext = cameraPos.add(cameraRot.x * maxDistance, cameraRot.y * maxDistance, cameraRot.z * maxDistance);
-
-		HitResult blockHit = player.level().clip(new ClipContext(cameraPos, raycastContext, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player));
-
-		double maxDistanceSqr = maxDistance * maxDistance;
-		if(blockHit.getType() != HitResult.Type.MISS) {
-			maxDistanceSqr = cameraPos.distanceToSqr(blockHit.getLocation());
-		}
-
-		double searchDistance = Math.sqrt(maxDistanceSqr);
-		Vec3 entitySearchEnd = cameraPos.add(cameraRot.x * searchDistance, cameraRot.y * searchDistance, cameraRot.z * searchDistance);
-		AABB box = cameraEntity.getBoundingBox().expandTowards(cameraRot.scale(searchDistance)).inflate(1.0d, 1.0d, 1.0d);
-
-		EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(cameraEntity, cameraPos, entitySearchEnd, box, (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity), maxDistanceSqr);
-
-		return entityHit != null ? entityHit : blockHit;
-	}
-
-	// convert world space coordinates to screenspace
-	public static Vec2 worldToScreen(Vec3 worldPos, float partialTick) {
-		Minecraft minecraft = Minecraft.getInstance();
-		Window window = minecraft.getWindow();
-		return worldToScreen(worldPos, partialTick, window.getGuiScaledWidth(), window.getGuiScaledHeight());
-	}
-
-	public static Vec2 worldToScreen(Vec3 worldPos, float partialTick, int guiWidth, int guiHeight) {
-		Minecraft minecraft = Minecraft.getInstance();
-		GameRenderer renderer = minecraft.gameRenderer;
-		Camera camera = renderer.getMainCamera();
-		if(guiWidth <= 0 || guiHeight <= 0) return null;
-		if(camera == null) return null;
-		Entity cameraEntity = camera.getEntity();
-		if(cameraEntity == null) return null;
-
-		Vec3 cameraPos = camera.getPosition();
-		Vec3 toTarget = worldPos.subtract(cameraPos);
-		if(toTarget.lengthSqr() <= 1.0e-7d) return null;
-
-		Vec3 lookVec = cameraEntity.getViewVector(partialTick).normalize();
-		if(lookVec.lengthSqr() <= 1.0e-7d) return null;
-
-		Vec3 worldUp = new Vec3(0.0d, 1.0d, 0.0d);
-		Vec3 rightVec = lookVec.cross(worldUp);
-		if(rightVec.lengthSqr() <= 1.0e-7d) {
-			rightVec = new Vec3(1.0d, 0.0d, 0.0d);
-		} else {
-			rightVec = rightVec.normalize();
-		}
-		Vec3 upVec = rightVec.cross(lookVec).normalize();
-
-		double depth = toTarget.dot(lookVec);
-		if(depth <= 0.0d) return null;
-
-		double viewX = toTarget.dot(rightVec);
-		double viewY = toTarget.dot(upVec);
-
-		double fov = resolveFov(minecraft, camera, partialTick);
-		double verticalHalfFovRadians = Math.toRadians(fov * 0.5d);
-		double tanVerticalHalfFov = Math.tan(verticalHalfFovRadians);
-		if(!Double.isFinite(tanVerticalHalfFov) || tanVerticalHalfFov <= 0.0d) return null;
-
-		double aspectRatio = (double) guiWidth / (double) guiHeight;
-		double tanHorizontalHalfFov = tanVerticalHalfFov * aspectRatio;
-
-		float ndcX = (float) ((viewX / depth) / tanHorizontalHalfFov);
-		float ndcY = (float) ((viewY / depth) / tanVerticalHalfFov);
-		if(!Float.isFinite(ndcX) || !Float.isFinite(ndcY)) return null;
-
-		float screenX = (ndcX * 0.5f + 0.5f) * (float) guiWidth;
-		float screenY = (0.5f - ndcY * 0.5f) * (float) guiHeight;
-
-		return new Vec2(screenX, screenY);
-	}
-
-	private static double resolveFov(Minecraft minecraft, Camera camera, float partialTick) {
-		GameRenderer renderer = minecraft.gameRenderer;
-		if(renderer.isPanoramicMode()) return 90.0d;
-
-		double baseFov;
-		Integer optionFov = minecraft.options.fov().get();
-		baseFov = optionFov.doubleValue();
-
-		float fovMultiplier = 1.0f;
-		Entity entity = camera.getEntity();
-		if(entity instanceof AbstractClientPlayer clientPlayer) {
-			fovMultiplier = clientPlayer.getFieldOfViewModifier();
-		}
-
-		double fov = baseFov * fovMultiplier;
-
-		if(entity instanceof LivingEntity living && living.isDeadOrDying()) {
-			float deathProgress = Math.min(living.deathTime + partialTick, 20.0f);
-			float deathModifier = 1.0f + 2.0f * (1.0f - 500.0f / (deathProgress + 500.0f));
-			if(deathModifier > 0.0f) fov /= deathModifier;
-		}
-
-		FogType fluidType = camera.getFluidInCamera();
-		if(fluidType == FogType.LAVA || fluidType == FogType.WATER) {
-			double effectScale;
-			effectScale = minecraft.options.fovEffectScale().get();
-			effectScale = Mth.clamp(effectScale, 0.0d, 1.0d);
-			fov *= Mth.lerp(effectScale, 1.0d, 0.8571428656578064d);
-		}
-
-		return fov;
-	}
-
-	public static boolean isOnScreen(Vec2 screenPos) {
-		Minecraft minecraft = Minecraft.getInstance();
-		Window window = minecraft.getWindow();
-		return isOnScreen(screenPos, window.getGuiScaledWidth(), window.getGuiScaledHeight());
-	}
-
-	public static boolean isOnScreen(Vec2 screenPos, int screenWidth, int screenHeight) {
-		if(screenPos == null) return false;
-		if(screenWidth <= 0 || screenHeight <= 0) return false;
-
-		float width = (float) screenWidth;
-		float height = (float) screenHeight;
-
-		if(Float.isNaN(screenPos.x) || Float.isNaN(screenPos.y)) return false;
-		if(Float.isInfinite(screenPos.x) || Float.isInfinite(screenPos.y)) return false;
-
-		return screenPos.x >= 0f && screenPos.x <= width && screenPos.y >= 0f && screenPos.y <= height;
 	}
 }

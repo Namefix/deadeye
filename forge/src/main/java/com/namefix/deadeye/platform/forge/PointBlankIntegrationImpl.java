@@ -2,11 +2,11 @@ package com.namefix.deadeye.platform.forge;
 
 import com.namefix.deadeye.config.SyncedConfigCache;
 import com.namefix.deadeye.forge.mixin.integration.pointblank.PointBlankGunClientStateAccessor;
+import com.namefix.deadeye.platform.forge.client.PointBlankClientIntegration;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.item.FireMode;
 import com.vicmatskiv.pointblank.item.FireModeInstance;
 import com.vicmatskiv.pointblank.item.GunItem;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -142,14 +142,10 @@ public final class PointBlankIntegrationImpl {
 
 	public static void fireGun(ItemStack item, Player player, Entity target) {
 		if(!isLoaded() || player == null || item == null) return;
-		if(!(player instanceof LocalPlayer localPlayer)) return;
+		if(!player.level().isClientSide) return;
 		if(!(item.getItem() instanceof GunItem gun)) return;
 		GunItem.OperableGunContext ctx = resolveGunContext(player, item);
-		if (ctx != null) {
-			gun.tryFire(localPlayer, ctx, target);
-		} else {
-			gun.tryFire(localPlayer, item, target);
-		}
+		PointBlankClientIntegration.fireGun(gun, item, player, target, ctx);
 	}
 
 	public static FireMode getGunFiremode(ItemStack item) {

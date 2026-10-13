@@ -4,7 +4,7 @@ import com.namefix.deadeye.DeadeyeMod;
 import com.namefix.deadeye.network.DeadeyeNetwork;
 import com.namefix.deadeye.network.payload.ConfigSyncPayload;
 import dev.architectury.networking.NetworkManager;
-import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -33,7 +33,7 @@ public class SyncedConfigCache {
 		DeadeyeMod.LOGGER.debug("Sent config data to {}", player.getDisplayName());
 	}
 
-	public static void reloadAndSyncIntegratedServer(IntegratedServer integratedServer) {
+	public static void reloadAndSyncIntegratedServer(MinecraftServer integratedServer) {
 		integratedServer.execute(() -> {
 			for(ServerPlayer player : integratedServer.getPlayerList().getPlayers()) {
 				sendConfigData(player);

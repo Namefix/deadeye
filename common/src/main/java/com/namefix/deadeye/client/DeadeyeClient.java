@@ -431,7 +431,7 @@ public class DeadeyeClient {
 		if(DEADEYE_STATE.targets.size() > 50) return;
 		if(!interaction.preMark()) return;
 
-		HitResult hit = Utils.raycastFromPlayer(player, 4000.0);
+		HitResult hit = ClientUtils.raycastFromPlayer(player, 4000.0);
 		if(hit == null || hit.getType() != HitResult.Type.ENTITY) return;
 		EntityHitResult entityHit = (EntityHitResult) hit;
 

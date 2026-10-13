@@ -1,8 +1,8 @@
 package com.namefix.deadeye.config;
 
+import com.namefix.deadeye.util.ClientUtils;
 import com.teamresourceful.resourcefulconfig.common.annotations.*;
 import com.teamresourceful.resourcefulconfig.common.config.EntryType;
-import net.minecraft.client.Minecraft;
 
 @Config(
 		value = "deadeye"
@@ -15,10 +15,7 @@ public final class DeadeyeConfig {
 				text = "config.deadeye.reload"
 		)
 		public static void reloadServerConfig() {
-			Minecraft mc = Minecraft.getInstance();
-			if(mc.level == null) return;
-			if(mc.getSingleplayerServer() == null) return;
-			SyncedConfigCache.reloadAndSyncIntegratedServer(mc.getSingleplayerServer());
+			ClientUtils.onReloadServerConfigButtonClicked();
 		}
 
 		@ConfigEntry(

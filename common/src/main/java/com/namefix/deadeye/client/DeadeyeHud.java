@@ -8,7 +8,6 @@ import com.namefix.deadeye.data.DeadeyeTargetData;
 import com.namefix.deadeye.data.PlayerSavedData;
 import com.namefix.deadeye.util.ClientUtils;
 import com.namefix.deadeye.util.TickManager;
-import com.namefix.deadeye.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -92,8 +91,8 @@ public class DeadeyeHud {
 			float deltaRenderTicks = mark.getRenderTicks() * TickManager.getRealtimeDeltaTicks(Minecraft.getInstance()) * 2f;
 
 			float markSize = 5f*DeadeyeConfig.Client.targetMarkSize;
-			Vec2 markPos = Utils.worldToScreen(mark.getMarkPosition(partialTick), partialTick, guiWidth, guiHeight);
-			if(!Utils.isOnScreen(markPos, guiWidth, guiHeight)) return;
+			Vec2 markPos = ClientUtils.worldToScreen(mark.getMarkPosition(partialTick), partialTick, guiWidth, guiHeight);
+			if(!ClientUtils.isOnScreen(markPos, guiWidth, guiHeight)) return;
 
 			float t = Math.min(deltaRenderTicks / 10f, 1f);
 			guiGraphics.setColor(1f - 0.22f * t, 1f - 0.91f * t, 1f - 0.91f * t, 1.0f);

@@ -11,9 +11,9 @@ public final class FabricIntegrationMixinPlugin extends IntegrationMixinPluginBa
 
 	@Override
 	protected void registerMixins() {
-		registerIntegrationMixin("com.namefix.deadeye.fabric.integration.pointblank.PointBlankGunMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.deadeye.fabric.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.deadeye.fabric.integration.pointblank.PointBlankGunClientMixin", "pointblank");
-		registerIntegrationMixin("com.namefix.deadeye.fabric.integration.pointblank.PointBlankGunClientStateAccessor", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.fabric.mixin.integration.pointblank.PointBlankGunMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.fabric.mixin.integration.pointblank.PointBlankFireModeFeatureMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.fabric.mixin.integration.pointblank.PointBlankGunClientMixin", "pointblank");
+		registerIntegrationMixin("com.namefix.deadeye.fabric.mixin.integration.pointblank.PointBlankGunClientStateAccessor", "pointblank");
 	}
 }
